@@ -1,0 +1,23 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+        "curly": true,
+        "semicolon": [
+            true,
+            "always"
+        ],
+        "class-name": true,
+        "no-unused-variable": true,
+        "no-unused-expression": true,
+        "indent": [
+            true,
+            "spaces",
+            2
+        ]
+    },
+    "rulesDirectory": []
+}
