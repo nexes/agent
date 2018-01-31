@@ -1,13 +1,5 @@
-interface IVector {
-	add(vec: IVector): IVector;
-	sub(vec: IVector): IVector;
-	div(vec: IVector): IVector | TypeError;
-	mult(vec: IVector): IVector;
-	dot(vec: IVector): number;
-	scale(scaler: number): IVector;
-	normalize(): IVector;
-	length(): number;
-}
+import { IVector, IPoint } from './types';
+
 
 export class Vector2 implements IVector {
 	private readonly x: number;
@@ -18,25 +10,25 @@ export class Vector2 implements IVector {
 		this.y = y;
 	}
 
-	add(vec: {x: number, y: number}): Vector2
+	add(vec: IPoint): Vector2
 	add(vec: Vector2): Vector2
 	add(vec: any): Vector2 {
 		return new Vector2(vec.x + this.x, vec.y + this.y);
 	}
 
-	sub(vec: {x: number, y: number}): Vector2
+	sub(vec: IPoint): Vector2
 	sub(vec: Vector2): Vector2
 	sub(vec: any): IVector {
 		return new Vector2(this.x - vec.x, this.y - vec.y);
 	}
 
-	mult(vec: {x: number, y: number}): Vector2
+	mult(vec: IPoint): Vector2
 	mult(vec: Vector2): Vector2
 	mult(vec: any): Vector2 {
 		return new Vector2(this.x * vec.x, this.y * vec.y);
 	}
 
-	div(vec: {x: number, y: number}): Vector2 | TypeError
+	div(vec: IPoint): Vector2 | TypeError
 	div(vec: Vector2): Vector2 | TypeError
 	div(vec: any): Vector2 | TypeError {
 		if (vec.x === 0 || vec.y === 0) {
@@ -45,7 +37,7 @@ export class Vector2 implements IVector {
 		return new Vector2(this.x / vec.x, this.y / vec.y);
 	}
 
-	dot(vec: {x: number, y: number}): number
+	dot(vec: IPoint): number
 	dot(vec: Vector2): number
 	dot(vec: any): number {
 		return (this.x * vec.x) + (this.y * vec.y);
