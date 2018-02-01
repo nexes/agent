@@ -55,4 +55,12 @@ export class Vector2 implements IVector {
 		const l = this.length();
 		return new Vector2(this.x / l, this.y / l);
 	}
+
+	get X() {
+		return this.x;
+	}
+
+	get Y() {
+		return this.y;
+	}
 }
