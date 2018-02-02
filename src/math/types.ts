@@ -8,12 +8,12 @@ export enum Axis {
 }
 
 export interface IPoint {
-	x: number;
-	y: number;
-	z?: number;
+	readonly x: number;
+	readonly y: number;
+	readonly z?: number;
 }
 
-export interface IVector {
+export interface IVector extends IPoint {
 	/**
 	 * Add a vector
 	 * @param {IVector | IPoint}	vec	a vector object

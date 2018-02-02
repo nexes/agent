@@ -62,8 +62,8 @@ export class Matrix4 implements IMatrix {
 		let _mat = new Matrix4(this.data);
 
 		if (vec instanceof Vector2) {
-			x = vec.X;
-			y = vec.Y;
+			x = vec.x;
+			y = vec.y;
 			z = 0;
 
 		} else {

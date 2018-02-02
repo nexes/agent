@@ -2,12 +2,14 @@ import { IVector, IPoint } from './types';
 
 
 export class Vector2 implements IVector {
-	private readonly x: number;
-	private readonly y: number;
+	public readonly x: number;
+	public readonly y: number;
+	public readonly z: number;
 
 	constructor(x: number = 0, y: number = 0) {
 		this.x = x;
 		this.y = y;
+		this.z = 0;
 	}
 
 	add(vec: IPoint): Vector2
@@ -54,13 +56,5 @@ export class Vector2 implements IVector {
 	normalize(): Vector2 {
 		const l = this.length();
 		return new Vector2(this.x / l, this.y / l);
-	}
-
-	get X() {
-		return this.x;
-	}
-
-	get Y() {
-		return this.y;
 	}
 }
