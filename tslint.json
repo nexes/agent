@@ -6,6 +6,7 @@
     "jsRules": {},
     "rules": {
         "curly": true,
+        "quotemark": [true, "single"],
         "semicolon": [
             true,
             "always"
@@ -17,7 +18,12 @@
             true,
             "spaces",
             2
-        ]
+        ],
+        "variable-name": [true, "check-format", "allow-leading-underscore"],
+        "object-literal-sort-keys": false,
+        "jsdoc-format": false,
+        "no-consecutive-blank-lines": false,
+        "ordered-imports": false
     },
     "rulesDirectory": []
 }
