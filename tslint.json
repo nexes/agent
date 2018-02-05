@@ -16,7 +16,7 @@
         "no-unused-expression": true,
         "indent": [
             true,
-            "spaces",
+            "tabs",
             2
         ],
         "variable-name": [true, "check-format", "allow-leading-underscore"],
