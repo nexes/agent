@@ -1,5 +1,5 @@
 import { IRenderer, IRenderOptions, IRenderable } from './common';
-import { shaderType } from '../shader/common';
+import { Scene } from '../scene/scene';
 
 
 export class WebGLRenderer implements IRenderer {
@@ -58,24 +58,22 @@ export class WebGLRenderer implements IRenderer {
 		this._glCtx.clearColor(1.0, 0.0, 1.0, 1.0);
 	}
 
+	public getContext(): WebGLRenderingContext {
+		return this._glCtx;
+	}
+
 	public aspect(): number {
 		return this.width / this.height;
 	}
 
-	public setShader(type: shaderType, shaderData: string): void {
-		// TODO
-	}
-
-	public render(item: IRenderable): void {
+	public render(scene: Scene): void {
 		this.clear();
 	}
 
 	public resize(width: number, height: number): void {
-		// drawing size
 		this.canvas.width = this.width = width * this.devicePixelRatio;
 		this.canvas.height = this.height = height * this.devicePixelRatio;
 
-		// canvas size
 		this.canvas.style.width = this.width + 'px';
 		this.canvas.style.height = this.height + 'px';
 

@@ -50,6 +50,11 @@ export class Shader {
 		});
 	}
 
+	public getId(name: string): WebGLShader {
+		const shader = this.shaderList.get(name);
+		return shader.id;
+	}
+
 	public getAttributes(name: string): string[] {
 		const shader = this.shaderList.get(name);
 		return shader.attributes;
