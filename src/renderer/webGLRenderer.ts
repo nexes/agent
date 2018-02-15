@@ -68,6 +68,7 @@ export class WebGLRenderer implements IRenderer {
 
 	public render(scene: Scene): void {
 		this.clear();
+		scene.render(this._glCtx);
 	}
 
 	public resize(width: number, height: number): void {

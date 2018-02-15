@@ -1,16 +1,16 @@
-import { shaderType } from '../shader/common';
+import { ShaderType } from '../shader/shader';
+import { Scene } from '../scene/scene';
 
 export interface IRenderable {
 	setColor(r: number, g: number, b: number, a: number): void;
 	setTexture(): void;
-	setBuffer(gl: WebGLRenderingContext): void;
+	bindBuffer(gl: WebGLRenderingContext): void;
 }
 
 export interface IRenderer {
 	aspect(): number;
-	render(item: IRenderable): void;
+	render(scene: Scene): void;
 	resize(x: number, y: number): void;
-	setShader(type: shaderType, shaderData: string): void;
 }
 
 export interface IRenderOptions {

@@ -1,27 +1,36 @@
-export enum shaderType {
+export enum ShaderType {
 	Vertex,
 	Fragment,
 }
 
-interface shaderData {
-	id: WebGLShader
-	type: shaderType
-	attributes: string[]
-	uniforms: string[]
-	varyings: string[]
+export interface IShaderAttrib {
+	name: string;
+	id: GLint | WebGLUniformLocation;
+}
+
+interface IShaderData {
+	id: WebGLShader;
+	type: ShaderType;
+	code: string;
+	attributes: IShaderAttrib[];
+	uniforms: IShaderAttrib[];
+	varyings: IShaderAttrib[];
 }
 
 export class Shader {
-	private shaderList: Map<string, shaderData>;
+	// key: shader name, value: shader data
+	private shaderList: Map<string, IShaderData>;
 
 	constructor() {
-		this.shaderList = new Map<string, shaderData>();
+		this.shaderList = new Map<string, IShaderData>();
 	}
 
-	public setShaderData(gl: WebGLRenderingContext, name: string, type: shaderType, code: string): void {
-		const tempAttr = [];
-		const tempUniform = [];
-		const tempVarying = [];
+	public setShaderData(gl: WebGLRenderingContext, program: WebGLProgram, name: string, type: ShaderType, code: string): void {
+		const tempAttr: IShaderAttrib[] = [];
+		const tempUniform: IShaderAttrib[] = [];
+		const tempVarying: IShaderAttrib[] = [];
+
+		const id = this.compileSource(gl, type, code);
 		const lines = code.split('\n');
 
 		for (const line of lines) {
@@ -29,24 +38,32 @@ export class Shader {
 			const varName = line.substring(line.lastIndexOf(' ') + 1, endIndex);
 
 			if (line.search(/^\s*(attribute)/gi) !== -1) {
-				tempAttr.push(varName);
+				tempAttr.push({
+					name: varName,
+					id: gl.getAttribLocation(program, varName),
+				});
 
 			} else if (line.search(/^\s*(uniform)/gi) !== -1) {
-				tempUniform.push(varName);
+				tempUniform.push({
+					name: varName,
+					id: gl.getUniformLocation(program, varName),
+				});
 
 			} else if (line.search(/^\s*(varying)/gi) !== -1) {
-				tempVarying.push(varName);
+				tempVarying.push({
+					name: varName,
+					id: -1,
+				});
 			}
 		}
-
-		const id = this.compileSource(gl, type, code);
 
 		this.shaderList.set(name, {
 			id,
 			type,
+			code,
 			attributes: tempAttr,
 			uniforms: tempUniform,
-			varyings: tempVarying
+			varyings: tempVarying,
 		});
 	}
 
@@ -55,23 +72,23 @@ export class Shader {
 		return shader.id;
 	}
 
-	public getAttributes(name: string): string[] {
+	public getAttributes(name: string): IShaderAttrib[] {
 		const shader = this.shaderList.get(name);
 		return shader.attributes;
 	}
 
-	public getUniforms(name: string): string[] {
+	public getUniforms(name: string): IShaderAttrib[] {
 		const shader = this.shaderList.get(name);
 		return shader.uniforms;
 	}
 
-	public getVaryings(name: string): string[] {
+	public getVaryings(name: string): IShaderAttrib[] {
 		const shader = this.shaderList.get(name);
 		return shader.varyings;
 	}
 
-	private compileSource(gl: WebGLRenderingContext, type: shaderType, source: string): WebGLShader {
-		const tempId = gl.createShader(type === shaderType.Vertex ? gl.VERTEX_SHADER : gl.FRAGMENT_SHADER);
+	private compileSource(gl: WebGLRenderingContext, type: ShaderType, source: string): WebGLShader {
+		const tempId = gl.createShader(type === ShaderType.Vertex ? gl.VERTEX_SHADER : gl.FRAGMENT_SHADER);
 
 		gl.shaderSource(tempId, source);
 		gl.compileShader(tempId);
