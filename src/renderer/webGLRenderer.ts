@@ -1,4 +1,4 @@
-import { IRenderer, IRenderOptions, IRenderable } from './common';
+import { IRenderer, IRenderOptions } from '../renderer';
 import { Scene } from '../scene/scene';
 
 

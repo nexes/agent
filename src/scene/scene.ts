@@ -1,4 +1,4 @@
-import { IRenderable } from '../renderer/common';
+import { IRenderable } from '../renderer';
 import { Shader, ShaderType } from '../shader/shader';
 
 

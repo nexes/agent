@@ -1,6 +1,8 @@
 import { ShaderType } from '../shader/shader';
 import { Scene } from '../scene/scene';
 
+export { WebGLRenderer } from '../renderer/webGLRenderer';
+
 export interface IRenderable {
 	setColor(r: number, g: number, b: number, a: number): void;
 	setTexture(): void;
