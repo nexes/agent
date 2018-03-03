@@ -1,4 +1,4 @@
-import { IVector, IPoint } from './types';
+import { IVector, IPoint } from '../math';
 
 
 export class Vector3 implements IVector {

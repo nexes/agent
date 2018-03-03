@@ -1,5 +1,5 @@
 import { Vector2 } from './vector2';
-import { IMatrix, IPoint, IVector, Axis } from './types';
+import { IMatrix, IPoint, IVector, Axis } from '../math';
 
 
 export class Matrix4 implements IMatrix {
