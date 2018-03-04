@@ -69,6 +69,12 @@ export interface IVector extends IPoint {
 	 * @returns {number}	the length of the vector
 	 */
 	length(): number;
+
+	/**
+	 * Flatten to a float32array
+	 * @returns {Float32Array} the float32array of x, y, z
+	 */
+	flatten(): Float32Array;
 }
 
 export interface IMatrix {

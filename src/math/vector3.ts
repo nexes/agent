@@ -47,4 +47,8 @@ export class Vector3 implements IVector {
 	public length(): number {
 		return Math.sqrt(( this.x * this.x ) + ( this.y * this.y ) + ( this.z * this.z ));
 	}
+
+	public flatten(): Float32Array {
+		return new Float32Array([this.x, this.y, this.z]);
+	}
 }

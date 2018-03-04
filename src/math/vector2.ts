@@ -47,4 +47,8 @@ export class Vector2 implements IVector {
 		const l = this.length();
 		return new Vector2(this.x / l, this.y / l);
 	}
+
+	public flatten(): Float32Array {
+		return new Float32Array([this.x, this.y]);
+	}
 }
