@@ -9,6 +9,7 @@ export class Scene {
 
 	constructor() {
 		this.shaders = new Map<ShaderType, Shader>();
+		this.renderables = [];
 		this.programId = null;
 	}
 
@@ -32,15 +33,7 @@ export class Scene {
 		}
 
 		newShader.setShaderData(gl, this.programId, shaderName, type, data);
-
-		gl.attachShader(this.programId, newShader.getId(shaderName));
-		gl.linkProgram(this.programId);
-
 		this.shaders.set(type, newShader);
-
-		if (!gl.getProgramParameter(this.programId, gl.LINK_STATUS)) {
-			console.log(`Error LINK_STATUS program Id ${gl.getProgramInfoLog(this.programId)}`);
-		}
 	}
 
 	public shader(shader: ShaderType): Shader {

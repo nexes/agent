@@ -33,8 +33,8 @@ export class Shader {
 		 const tempUniform: IShaderAttrib[] = [];
 		 const tempVarying: IShaderAttrib[] = [];
 
-		 const id = this.compileSource(gl, type, code);
 		 const lines = code.split('\n');
+		 const id = this.compileSource(gl, program, type, code);
 
 		 for (const line of lines) {
 			const endIndex = line.charAt(line.length - 1) === ';' ? line.length - 1 : line.length;
@@ -95,7 +95,7 @@ export class Shader {
 
 		if (shader === undefined) {
 			// should we throw, or setup a dispatch system?
-			throw new Error(`Shader ${shaderName} was not found.`);
+			throw new Error(`setUniform: Shader ${shaderName} was not found.`);
 		}
 
 		const uniforms = shader.uniforms;
@@ -122,18 +122,34 @@ export class Shader {
 					break;
 				}
 			}
+
+		} else if (typeof data === 'number') {
+			for (const uniform of uniforms) {
+				if (uniform.name === uniformName) {
+					gl.uniform1f(uniform.id, data);
+					break;
+				}
+			}
+
+		} else {
+			throw new TypeError('setUniform: data passed is not a valid type');
 		}
 	}
 
-	private compileSource(gl: WebGLRenderingContext, type: ShaderType, source: string): WebGLShader {
+	private compileSource(gl: WebGLRenderingContext, program: WebGLProgram, type: ShaderType, source: string): WebGLShader {
 		const tempId = gl.createShader(type === ShaderType.Vertex ? gl.VERTEX_SHADER : gl.FRAGMENT_SHADER);
 
 		gl.shaderSource(tempId, source);
 		gl.compileShader(tempId);
-
 		if (!gl.getShaderParameter(tempId, gl.COMPILE_STATUS)) {
 			// should we throw, or setup a dispatch system?
 			console.log(`Shader COMPILE_STATUS error: ${gl.getShaderInfoLog(tempId)}`);
+		}
+
+		gl.attachShader(program, tempId);
+		gl.linkProgram(program);
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+			console.log(`Error LINK_STATUS program Id ${gl.getProgramInfoLog(program)}`);
 		}
 
 		return tempId;
