@@ -42,4 +42,11 @@ export class Scene {
 			console.log(`Error LINK_STATUS program Id ${gl.getProgramInfoLog(this.programId)}`);
 		}
 	}
+
+	public shader(shader: ShaderType): Shader {
+		if (!this.shaders.has(shader)) {
+			throw new Error(`Scene does not have shader type ${shader} assigned`);
+		}
+		return this.shaders.get(shader);
+	}
 }
