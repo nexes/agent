@@ -107,31 +107,42 @@ export class Shader {
 				}
 			}
 
-		} else if (data instanceof Vector3) {
-			for (const uniform of uniforms) {
-				if (uniform.name === uniformName) {
-					gl.uniform3fv(uniform.id, data.flatten());
-					break;
+	public setUniform(gl: WebGLRenderingContext, shaderName: string, uniformName: string, data: Matrix4 | Float32Array | number ) {
+		const shader = this.shaderList.get(shaderName);
+
+		if (shader === undefined) {
+			// should we throw, or setup a dispatch system?
+			throw new Error(`setUniform: Shader ${shaderName} was not found.`);
 				}
+
+		const uniforms = shader.uniforms;
+		const uLoc = uniforms.filter((uniform) => uniform.name === uniformName);
+
+		if (uLoc.length === 0) {
+			throw new ReferenceError(`setUniform: ${uniformName} was not found`);
 			}
 
-		} else if (data instanceof Matrix4) {
-			for (const uniform of uniforms) {
-				if (uniform.name === uniformName) {
-					gl.uniformMatrix4fv(uniform.id, false, data.flatten());
-					break;
-				}
+		if (data instanceof Matrix4) {
+			gl.uniformMatrix4fv(uLoc[ 0 ], false, data.flatten());
+
+		} else if (data instanceof Float32Array) {
+			const len = data.length;
+			switch (len) {
+				case 2:
+					gl.uniform2fv(uLoc[ 0 ], data);
+
+				case 3:
+					gl.uniform3fv(uLoc[ 0 ], data);
+
+				case 4:
+					gl.uniform4fv(uLoc[ 0 ], data);
 			}
 
 		} else if (typeof data === 'number') {
-			for (const uniform of uniforms) {
-				if (uniform.name === uniformName) {
-					gl.uniform1f(uniform.id, data);
-					break;
-				}
-			}
+			gl.uniform1f(uLoc[ 0 ], data);
 
 		} else {
+			// should we throw, or setup a dispatch system?
 			throw new TypeError('setUniform: data passed is not a valid type');
 		}
 	}
