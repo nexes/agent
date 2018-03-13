@@ -29,14 +29,14 @@ export class Shader {
 	}
 
 	public setShaderData(gl: WebGLRenderingContext, program: WebGLProgram, name: string, type: ShaderType, code: string): void {
- 		const tempAttr: IShaderAttrib[] = [];
-		 const tempUniform: IShaderAttrib[] = [];
-		 const tempVarying: IShaderAttrib[] = [];
+		const tempAttr: IShaderAttrib[] = [];
+		const tempUniform: IShaderAttrib[] = [];
+		const tempVarying: IShaderAttrib[] = [];
 
-		 const lines = code.split('\n');
-		 const id = this.compileSource(gl, program, type, code);
+		const lines = code.split('\n');
+		const id = this.compileSource(gl, program, type, code);
 
-		 for (const line of lines) {
+		for (const line of lines) {
 			const endIndex = line.charAt(line.length - 1) === ';' ? line.length - 1 : line.length;
 			const varName = line.substring(line.lastIndexOf(' ') + 1, endIndex);
 
@@ -60,7 +60,7 @@ export class Shader {
 			}
 		}
 
-		 this.shaderList.set(name, {
+		this.shaderList.set(name, {
 			id,
 			type,
 			code,
@@ -70,27 +70,27 @@ export class Shader {
 		});
 	}
 
-	public getId(name: string): WebGLShader {
-		const shader = this.shaderList.get(name);
+	public getId(shaderName: string): WebGLShader {
+		const shader = this.shaderList.get(shaderName);
 		return shader.id;
 	}
 
-	public getAttributes(name: string): IShaderAttrib[] {
-		const shader = this.shaderList.get(name);
+	public getAttributes(shaderName: string): IShaderAttrib[] {
+		const shader = this.shaderList.get(shaderName);
 		return shader.attributes;
 	}
 
-	public getUniforms(name: string): IShaderAttrib[] {
-		const shader = this.shaderList.get(name);
+	public getUniforms(shaderName: string): IShaderAttrib[] {
+		const shader = this.shaderList.get(shaderName);
 		return shader.uniforms;
 	}
 
-	public getVaryings(name: string): IShaderAttrib[] {
-		const shader = this.shaderList.get(name);
+	public getVaryings(shaderName: string): IShaderAttrib[] {
+		const shader = this.shaderList.get(shaderName);
 		return shader.varyings;
 	}
 
-	public setUniform(gl: WebGLRenderingContext, shaderName: string, uniformName: string, data: Matrix4 | Vector2 | Vector3 | number ) {
+	public setUniform(gl: WebGLRenderingContext, shaderName: string, uniformName: string, data: Matrix4 | Float32Array | number ) {
 		const shader = this.shaderList.get(shaderName);
 
 		if (shader === undefined) {
@@ -99,28 +99,11 @@ export class Shader {
 		}
 
 		const uniforms = shader.uniforms;
-		if (data instanceof Vector2) {
-			for (const uniform of uniforms) {
-				if (uniform.name === uniformName) {
-					gl.uniform2fv(uniform.id, data.flatten());
-					break;
-				}
-			}
-
-	public setUniform(gl: WebGLRenderingContext, shaderName: string, uniformName: string, data: Matrix4 | Float32Array | number ) {
-		const shader = this.shaderList.get(shaderName);
-
-		if (shader === undefined) {
-			// should we throw, or setup a dispatch system?
-			throw new Error(`setUniform: Shader ${shaderName} was not found.`);
-				}
-
-		const uniforms = shader.uniforms;
 		const uLoc = uniforms.filter((uniform) => uniform.name === uniformName);
 
 		if (uLoc.length === 0) {
 			throw new ReferenceError(`setUniform: ${uniformName} was not found`);
-			}
+		}
 
 		if (data instanceof Matrix4) {
 			gl.uniformMatrix4fv(uLoc[ 0 ], false, data.flatten());
