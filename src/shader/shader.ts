@@ -8,7 +8,15 @@ export enum ShaderType {
 
 export interface IShaderAttrib {
 	name: string;
-	id: GLint | WebGLUniformLocation;
+	id: number | WebGLUniformLocation;
+}
+
+export interface IVertexAttribute {
+	size: number;
+	type: number;
+	normalized: boolean;
+	stride: number;
+	offset: number;
 }
 
 interface IShaderData {
@@ -90,6 +98,27 @@ export class Shader {
 		return shader.varyings;
 	}
 
+	public setVertexAttrib(gl: WebGLRenderingContext, attName: string, shaderName: string, attribute: IVertexAttribute): void {
+		const shader = this.shaderList.get(shaderName);
+
+		if (shader === undefined) {
+			// write a dispatch system for errors
+			throw new Error(`setVertexAttrib: Shader ${shaderName} was not found.`);
+		}
+
+		const attrs = shader.attributes;
+		const aLoc = attrs.filter((attrib) => attrib.name === attName);
+
+		if (aLoc.length === 0) {
+			// write a dispatch system for errors
+			throw new ReferenceError(`setVertexAttrib: ${attName} was not found`);
+		}
+
+		// I'm not nuts about this cast
+		gl.enableVertexAttribArray(aLoc[ 0 ].id as number);
+		gl.vertexAttribPointer(aLoc[ 0 ].id as number, attribute.size, attribute.type, attribute.normalized, attribute.stride, attribute.offset);
+	}
+
 	public setUniform(gl: WebGLRenderingContext, shaderName: string, uniformName: string, data: Matrix4 | Float32Array | number ) {
 		const shader = this.shaderList.get(shaderName);
 
@@ -106,23 +135,23 @@ export class Shader {
 		}
 
 		if (data instanceof Matrix4) {
-			gl.uniformMatrix4fv(uLoc[ 0 ], false, data.flatten());
+			gl.uniformMatrix4fv(uLoc[ 0 ].id, false, data.flatten());
 
 		} else if (data instanceof Float32Array) {
 			const len = data.length;
 			switch (len) {
 				case 2:
-					gl.uniform2fv(uLoc[ 0 ], data);
+					gl.uniform2fv(uLoc[ 0 ].id, data);
 
 				case 3:
-					gl.uniform3fv(uLoc[ 0 ], data);
+					gl.uniform3fv(uLoc[ 0 ].id, data);
 
 				case 4:
-					gl.uniform4fv(uLoc[ 0 ], data);
+					gl.uniform4fv(uLoc[ 0 ].id, data);
 			}
 
 		} else if (typeof data === 'number') {
-			gl.uniform1f(uLoc[ 0 ], data);
+			gl.uniform1f(uLoc[ 0 ].id, data);
 
 		} else {
 			// should we throw, or setup a dispatch system?
