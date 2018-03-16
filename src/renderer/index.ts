@@ -16,9 +16,9 @@ export interface IRenderer {
 }
 
 export interface IRenderOptions {
-	width: number;
-	height: number;
-	fullscreen?: boolean;
-	domCanvas?: HTMLCanvasElement;
-	glContext?: WebGLRenderingContext;
+	readonly width: number;
+	readonly height: number;
+	readonly fullscreen?: boolean;
+	readonly domCanvas?: HTMLCanvasElement;
+	readonly glContext?: WebGLRenderingContext;
 }
