@@ -12,11 +12,11 @@ export interface IShaderAttrib {
 }
 
 export interface IVertexAttribute {
-	size: number;
-	type: number;
-	normalized: boolean;
-	stride: number;
-	offset: number;
+	readonly size: number;
+	readonly type: number;
+	readonly normalized: boolean;
+	readonly stride: number;
+	readonly offset: number;
 }
 
 interface IShaderData {
