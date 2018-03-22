@@ -17,22 +17,37 @@ export class Scene {
 		this.renderables.push(...item);
 	}
 
-	public render(gl: WebGLRenderingContext) {
-		gl.useProgram(this.programId);
+	// maybe not call this everytime render is needed. check if this is needed first
+	public preRender(gl: WebGLRenderingContext): void {
+		gl.linkProgram(this.programId);
 
-		for (const gObject of this.renderables) {
-			gObject.bindBuffer(gl);
+		if (!gl.getProgramParameter(this.programId, gl.LINK_STATUS)) {
+			console.log(`Error LINK_STATUS program Id ${gl.getProgramInfoLog(this.programId)}`);
+		} else {
+			console.log('program link okay dokay');
 		}
 	}
 
-	public addShader(gl: WebGLRenderingContext, shaderName: string, type: ShaderType, data: string): void {
+	public render(gl: WebGLRenderingContext) {
+		gl.useProgram(this.programId);
+
+		// TODO
+		for (const gObject of this.renderables) {
+			gObject.bindBuffer(gl);
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		}
+	}
+
+	public addShader(gl: WebGLRenderingContext, type: ShaderType, data: string): void {
 		const newShader = new Shader();
 
 		if (this.programId === null) {
 			this.programId = gl.createProgram();
 		}
 
-		newShader.setShaderData(gl, this.programId, shaderName, type, data);
+		newShader.setShaderData(gl, type, data);
+		gl.attachShader(this.programId, newShader.ID);
+
 		this.shaders.set(type, newShader);
 	}
 
