@@ -13,7 +13,6 @@ export interface IShaderAttrib {
 
 export interface IVertexAttribute {
 	readonly size: number;
-	readonly type: number;
 	readonly normalized: boolean;
 	readonly stride: number;
 	readonly offset: number;
@@ -98,7 +97,7 @@ export class Shader {
 		return shader.varyings;
 	}
 
-	public setVertexAttrib(gl: WebGLRenderingContext, attName: string, shaderName: string, attribute: IVertexAttribute): void {
+	public setVertexAttrib(gl: WebGLRenderingContext, shaderName: string, attName: string, attribute: IVertexAttribute): void {
 		const shader = this.shaderList.get(shaderName);
 
 		if (shader === undefined) {
@@ -116,7 +115,7 @@ export class Shader {
 
 		// I'm not nuts about this cast
 		gl.enableVertexAttribArray(aLoc[ 0 ].id as number);
-		gl.vertexAttribPointer(aLoc[ 0 ].id as number, attribute.size, attribute.type, attribute.normalized, attribute.stride, attribute.offset);
+		gl.vertexAttribPointer(aLoc[ 0 ].id as number, attribute.size, gl.FLOAT, attribute.normalized, attribute.stride, attribute.offset);
 	}
 
 	public setUniform(gl: WebGLRenderingContext, shaderName: string, uniformName: string, data: Matrix4 | Float32Array | number ) {
@@ -160,21 +159,21 @@ export class Shader {
 	}
 
 	private compileSource(gl: WebGLRenderingContext, program: WebGLProgram, type: ShaderType, source: string): WebGLShader {
-		const tempId = gl.createShader(type === ShaderType.Vertex ? gl.VERTEX_SHADER : gl.FRAGMENT_SHADER);
+		const shaderID = gl.createShader(type === ShaderType.Vertex ? gl.VERTEX_SHADER : gl.FRAGMENT_SHADER);
 
-		gl.shaderSource(tempId, source);
-		gl.compileShader(tempId);
-		if (!gl.getShaderParameter(tempId, gl.COMPILE_STATUS)) {
+		gl.shaderSource(shaderID, source);
+		gl.compileShader(shaderID);
+		if (!gl.getShaderParameter(shaderID, gl.COMPILE_STATUS)) {
 			// should we throw, or setup a dispatch system?
-			console.log(`Shader COMPILE_STATUS error: ${gl.getShaderInfoLog(tempId)}`);
+			console.log(`Shader COMPILE_STATUS error: ${gl.getShaderInfoLog(shaderID)}`);
 		}
 
-		gl.attachShader(program, tempId);
+		gl.attachShader(program, shaderID);
 		gl.linkProgram(program);
 		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
 			console.log(`Error LINK_STATUS program Id ${gl.getProgramInfoLog(program)}`);
 		}
 
-		return tempId;
+		return shaderID;
 	}
 }
