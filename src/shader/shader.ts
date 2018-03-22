@@ -2,8 +2,8 @@ import { Vector2, Vector3, Matrix4 } from '../math';
 
 
 export enum ShaderType {
-	Vertex,
-	Fragment,
+	Vertex = WebGLRenderingContext.VERTEX_SHADER,
+	Fragment = WebGLRenderingContext.FRAGMENT_SHADER,
 }
 
 export interface IShaderAttrib {
@@ -28,20 +28,19 @@ interface IShaderData {
 }
 
 export class Shader {
-	// key: shader name, value: shader data
-	private shaderList: Map<string, IShaderData>;
+	private shaderData: IShaderData;
 
 	constructor() {
-		this.shaderList = new Map<string, IShaderData>();
+		this.shaderData = null;
 	}
 
-	public setShaderData(gl: WebGLRenderingContext, program: WebGLProgram, name: string, type: ShaderType, code: string): void {
+	public setShaderData(gl: WebGLRenderingContext, type: ShaderType, code: string): void {
 		const tempAttr: IShaderAttrib[] = [];
 		const tempUniform: IShaderAttrib[] = [];
 		const tempVarying: IShaderAttrib[] = [];
 
 		const lines = code.split('\n');
-		const id = this.compileSource(gl, program, type, code);
+		const id = this.compileSource(gl, type, code);
 
 		for (const line of lines) {
 			const endIndex = line.charAt(line.length - 1) === ';' ? line.length - 1 : line.length;
@@ -50,62 +49,51 @@ export class Shader {
 			if (line.search(/^\s*(attribute)/gi) !== -1) {
 				tempAttr.push({
 					name: varName,
-					id: gl.getAttribLocation(program, varName),
+					id: 0,
 				});
 
 			} else if (line.search(/^\s*(uniform)/gi) !== -1) {
 				tempUniform.push({
 					name: varName,
-					id: gl.getUniformLocation(program, varName),
+					id: 0,
 				});
 
 			} else if (line.search(/^\s*(varying)/gi) !== -1) {
 				tempVarying.push({
 					name: varName,
-					id: -1,
+					id: 0,
 				});
 			}
 		}
 
-		this.shaderList.set(name, {
+		this.shaderData = {
 			id,
 			type,
 			code,
 			attributes: tempAttr,
 			uniforms: tempUniform,
 			varyings: tempVarying,
-		});
+		};
 	}
 
-	public getId(shaderName: string): WebGLShader {
-		const shader = this.shaderList.get(shaderName);
-		return shader.id;
+	public get ID(): WebGLShader {
+		return this.shaderData.id;
 	}
 
-	public getAttributes(shaderName: string): IShaderAttrib[] {
-		const shader = this.shaderList.get(shaderName);
-		return shader.attributes;
+	public get Attributes(): IShaderAttrib[] {
+		return this.shaderData.attributes;
 	}
 
-	public getUniforms(shaderName: string): IShaderAttrib[] {
-		const shader = this.shaderList.get(shaderName);
-		return shader.uniforms;
+	public get Uniforms(): IShaderAttrib[] {
+		return this.shaderData.uniforms;
 	}
 
-	public getVaryings(shaderName: string): IShaderAttrib[] {
-		const shader = this.shaderList.get(shaderName);
-		return shader.varyings;
+	public get Varyings(): IShaderAttrib[] {
+		return this.shaderData.varyings;
 	}
 
-	public setVertexAttrib(gl: WebGLRenderingContext, shaderName: string, attName: string, attribute: IVertexAttribute): void {
-		const shader = this.shaderList.get(shaderName);
-
-		if (shader === undefined) {
-			// write a dispatch system for errors
-			throw new Error(`setVertexAttrib: Shader ${shaderName} was not found.`);
-		}
-
-		const attrs = shader.attributes;
+	public setVertexAttrib(gl: WebGLRenderingContext, attName: string, attribute: IVertexAttribute): void {
+		const attrs = this.shaderData.attributes;
 		const aLoc = attrs.filter((attrib) => attrib.name === attName);
 
 		if (aLoc.length === 0) {
@@ -113,20 +101,12 @@ export class Shader {
 			throw new ReferenceError(`setVertexAttrib: ${attName} was not found`);
 		}
 
-		// I'm not nuts about this cast
 		gl.enableVertexAttribArray(aLoc[ 0 ].id as number);
 		gl.vertexAttribPointer(aLoc[ 0 ].id as number, attribute.size, gl.FLOAT, attribute.normalized, attribute.stride, attribute.offset);
 	}
 
-	public setUniform(gl: WebGLRenderingContext, shaderName: string, uniformName: string, data: Matrix4 | Float32Array | number ) {
-		const shader = this.shaderList.get(shaderName);
-
-		if (shader === undefined) {
-			// should we throw, or setup a dispatch system?
-			throw new Error(`setUniform: Shader ${shaderName} was not found.`);
-		}
-
-		const uniforms = shader.uniforms;
+	public setUniform(gl: WebGLRenderingContext, uniformName: string, data: Matrix4 | Float32Array | number ) {
+		const uniforms = this.shaderData.uniforms;
 		const uLoc = uniforms.filter((uniform) => uniform.name === uniformName);
 
 		if (uLoc.length === 0) {
@@ -158,20 +138,14 @@ export class Shader {
 		}
 	}
 
-	private compileSource(gl: WebGLRenderingContext, program: WebGLProgram, type: ShaderType, source: string): WebGLShader {
-		const shaderID = gl.createShader(type === ShaderType.Vertex ? gl.VERTEX_SHADER : gl.FRAGMENT_SHADER);
+	private compileSource(gl: WebGLRenderingContext, type: ShaderType, source: string): WebGLShader {
+		const shaderID = gl.createShader(type);
 
 		gl.shaderSource(shaderID, source);
 		gl.compileShader(shaderID);
 		if (!gl.getShaderParameter(shaderID, gl.COMPILE_STATUS)) {
 			// should we throw, or setup a dispatch system?
 			console.log(`Shader COMPILE_STATUS error: ${gl.getShaderInfoLog(shaderID)}`);
-		}
-
-		gl.attachShader(program, shaderID);
-		gl.linkProgram(program);
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-			console.log(`Error LINK_STATUS program Id ${gl.getProgramInfoLog(program)}`);
 		}
 
 		return shaderID;
