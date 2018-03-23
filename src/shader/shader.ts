@@ -29,9 +29,11 @@ interface IShaderData {
 
 export class Shader {
 	private shaderData: IShaderData;
+	private vertAttributes: Map<string, IVertexAttribute>;
 
 	constructor() {
 		this.shaderData = null;
+		this.vertAttributes = new Map();
 	}
 
 	public setShaderData(gl: WebGLRenderingContext, type: ShaderType, code: string): void {
@@ -49,7 +51,7 @@ export class Shader {
 			if (line.search(/^\s*(attribute)/gi) !== -1) {
 				tempAttr.push({
 					name: varName,
-					id: 0,
+					id: -1,
 				});
 
 			} else if (line.search(/^\s*(uniform)/gi) !== -1) {
@@ -92,7 +94,12 @@ export class Shader {
 		return this.shaderData.varyings;
 	}
 
-	public setVertexAttrib(gl: WebGLRenderingContext, attName: string, attribute: IVertexAttribute): void {
+	public getVertexAttribFor(attName: string): IVertexAttribute | undefined {
+		return this.vertAttributes.get(attName);
+	}
+
+	public setVertexAttribFor(attName: string, attribute: IVertexAttribute): void {
+		// cache for preRender
 		const attrs = this.shaderData.attributes;
 		const aLoc = attrs.filter((attrib) => attrib.name === attName);
 
@@ -101,8 +108,7 @@ export class Shader {
 			throw new ReferenceError(`setVertexAttrib: ${attName} was not found`);
 		}
 
-		gl.enableVertexAttribArray(aLoc[ 0 ].id as number);
-		gl.vertexAttribPointer(aLoc[ 0 ].id as number, attribute.size, gl.FLOAT, attribute.normalized, attribute.stride, attribute.offset);
+		this.vertAttributes.set(attName, attribute);
 	}
 
 	public setUniform(gl: WebGLRenderingContext, uniformName: string, data: Matrix4 | Float32Array | number ) {
