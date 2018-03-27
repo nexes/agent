@@ -1,22 +1,6 @@
-import { Vector2, Vector3, Matrix4 } from '../math';
+import { IVertexAttribute, IShaderAttrib, ShaderType } from '.';
+import Matrix4, { Vector2, Vector3 } from '../math';
 
-
-export enum ShaderType {
-	Vertex = WebGLRenderingContext.VERTEX_SHADER,
-	Fragment = WebGLRenderingContext.FRAGMENT_SHADER,
-}
-
-export interface IShaderAttrib {
-	name: string;
-	id: number | WebGLUniformLocation;
-}
-
-export interface IVertexAttribute {
-	readonly size: number;
-	readonly normalized: boolean;
-	readonly stride: number;
-	readonly offset: number;
-}
 
 interface IShaderData {
 	id: WebGLShader;
@@ -57,7 +41,7 @@ export class Shader {
 			} else if (line.search(/^\s*(uniform)/gi) !== -1) {
 				tempUniform.push({
 					name: varName,
-					id: 0,
+					id: -1,
 				});
 
 			} else if (line.search(/^\s*(varying)/gi) !== -1) {
@@ -92,23 +76,6 @@ export class Shader {
 
 	public get Varyings(): IShaderAttrib[] {
 		return this.shaderData.varyings;
-	}
-
-	public getVertexAttribFor(attName: string): IVertexAttribute | undefined {
-		return this.vertAttributes.get(attName);
-	}
-
-	public setVertexAttribFor(attName: string, attribute: IVertexAttribute): void {
-		// cache for preRender
-		const attrs = this.shaderData.attributes;
-		const aLoc = attrs.filter((attrib) => attrib.name === attName);
-
-		if (aLoc.length === 0) {
-			// write a dispatch system for errors
-			throw new ReferenceError(`setVertexAttrib: ${attName} was not found`);
-		}
-
-		this.vertAttributes.set(attName, attribute);
 	}
 
 	public setUniform(gl: WebGLRenderingContext, uniformName: string, data: Matrix4 | Float32Array | number ) {

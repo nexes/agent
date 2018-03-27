@@ -1,8 +1,10 @@
+import Shader, { ShaderType } from '../shader';
 import { IRenderable } from '../renderer';
-import { Shader, ShaderType } from '../shader/shader';
+import { ICamera } from '../camera';
 
 
 export class Scene {
+	private camera: ICamera;
 	private renderables: IRenderable[];
 	private shaders: Map<ShaderType, Shader>;
 	private programId: WebGLProgram;
@@ -11,6 +13,7 @@ export class Scene {
 	constructor() {
 		this.shaders = new Map<ShaderType, Shader>();
 		this.renderables = [];
+		this.camera = null;
 		this.programId = null;
 		this.programLinked = false;
 	}
@@ -19,48 +22,8 @@ export class Scene {
 		this.renderables.push(...item);
 	}
 
-	// this needs to be thought through more. this shouldn't be called with every render call? Right?
-	public preRender(gl: WebGLRenderingContext): void {
-		if (!this.programLinked) {
-			this.programLinked = true;
-			gl.linkProgram(this.programId);
-		}
-
-		for (const shaderData of this.shaders.values()) {
-			const attrs = shaderData.Attributes;
-
-			for (const att of attrs) {
-				if (att.id === -1) {
-					att.id = gl.getAttribLocation(this.programId, att.name);
-				}
-
-				const vertAttrib = shaderData.getVertexAttribFor(att.name);
-				if (vertAttrib !== undefined) {
-					gl.enableVertexAttribArray(att.id as number);
-					gl.vertexAttribPointer(att.id as number, vertAttrib.size, gl.FLOAT, vertAttrib.normalized, vertAttrib.stride, vertAttrib.offset);
-
-				} else {
-					// TODO
-					// get attribute data for vertexAttrib1f for example
-				}
-			}
-		}
-
-		if (!gl.getProgramParameter(this.programId, gl.LINK_STATUS)) {
-			console.log(`Error LINK_STATUS program Id ${gl.getProgramInfoLog(this.programId)}`);
-		}
-
-		gl.useProgram(this.programId);
-	}
-
-	public render(gl: WebGLRenderingContext) {
-		// TODO
-		for (const gObject of this.renderables) {
-			gObject.bindBuffer(gl);
-			this.preRender(gl);
-
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		}
+	public addCamera(camera: ICamera): void {
+		this.camera = camera;
 	}
 
 	public addShader(gl: WebGLRenderingContext, type: ShaderType, data: string): void {
@@ -81,5 +44,30 @@ export class Scene {
 			throw new Error(`Scene does not have shader type ${shader} assigned`);
 		}
 		return this.shaders.get(shader);
+	}
+
+	public render(gl: WebGLRenderingContext) {
+		this.initializeShader(gl);
+
+		// TODO
+		for (const gObject of this.renderables) {
+			gObject.prepareBuffer(gl, this.programId);
+
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		}
+	}
+
+	// this needs to be thought through more. this shouldn't be called with every render call? Right?
+	private initializeShader(gl: WebGLRenderingContext): void {
+		if (!this.programLinked) {
+			this.programLinked = true;
+			gl.linkProgram(this.programId);
+
+			if (!gl.getProgramParameter(this.programId, gl.LINK_STATUS)) {
+				console.log(`Error LINK_STATUS program Id ${gl.getProgramInfoLog(this.programId)}`);
+			}
+		}
+
+		gl.useProgram(this.programId);
 	}
 }
