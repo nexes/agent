@@ -28,20 +28,22 @@
     `;
     let renderer = new Agent.WebGLRenderer({width: 400, height: 200});
     let square = new Agent.Square(0, 0, 0.25, 0.75);
+    let square2 = new Agent.Square(0, 0, -0.25, -0.75);
     let scene = new Agent.Scene();
     let glCtx = renderer.getContext();
 
     square.setColor(0.0, 0.0, 1.0, 1.0);
+    square2.setColor(1.0, 1.0, 0.0, 1.0);
 
-    scene.addDrawable(square);
+    square.setVertexAttributeFor('aPos', square.vertexAttributes());
+    square.setVertexAttributeFor('aColor', square.colorAttributes());
+
+    square2.setVertexAttributeFor('aPos', square.vertexAttributes());
+    square2.setVertexAttributeFor('aColor', square.colorAttributes());
+
+    scene.addDrawable(square, square2);
     scene.addShader(glCtx, Agent.ShaderType.Vertex, vshr);
     scene.addShader(glCtx, Agent.ShaderType.Fragment, fshr);
-
-    scene.shader(Agent.ShaderType.Vertex)
-      .setVertexAttribFor('aPos', square.vertexAttributes());
-
-    scene.shader(Agent.ShaderType.Vertex)
-      .setVertexAttribFor('aColor', square.colorAttributes());
 
     renderer.render(scene);
   </script>
