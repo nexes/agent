@@ -1,15 +1,22 @@
 import { IRenderable } from '../renderer';
-import { IVertexAttribute } from '../shader/shader';
+import { IVertexAttribute } from '../shader';
 
+
+interface IAttributeName {
+	name: string;
+	id: number;
+}
 
 export class Square implements IRenderable {
 	private vbo: Float32Array;
 	private bufferId: WebGLBuffer;
+	private attribData: Map<IAttributeName, IVertexAttribute>;
 
 
 	constructor(x: number, y: number, width: number, height: number) {
 		this.bufferId = null;
 		this.vbo = new Float32Array(24);
+		this.attribData = new Map();
 
 		this.vbo[ 0 ] = x;
 		this.vbo[ 1 ] = y;
@@ -73,12 +80,36 @@ export class Square implements IRenderable {
 		};
 	}
 
-	public bindBuffer(gl: WebGLRenderingContext): void {
+	public setVertexAttributeFor(attName: string, attribute: IVertexAttribute): void {
+		this.attribData.set({name: attName, id: -1}, attribute);
+	}
+
+	public prepareBuffer(gl: WebGLRenderingContext, program: WebGLProgram): void {
 		if (this.bufferId === null) {
 			this.bufferId = gl.createBuffer();
 		}
 
+		// bind our buffer
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferId);
 		gl.bufferData(gl.ARRAY_BUFFER, this.vbo, gl.STATIC_DRAW);
+
+		// get attribute location if we don't already have it.
+		for (const [ attName, attData ] of this.attribData) {
+			if (attName.id === -1) {
+				const newID = gl.getAttribLocation(program, attName.name);
+				attName.id = newID;
+
+				this.attribData.delete(attName);
+				this.attribData.set({
+					name: attName.name,
+					id: newID,
+				},
+					attData);
+			}
+
+			// describe our buffer
+			gl.enableVertexAttribArray(attName.id);
+			gl.vertexAttribPointer(attName.id, attData.size, gl.FLOAT, attData.normalized, attData.stride, attData.offset);
+		}
 	}
 }
