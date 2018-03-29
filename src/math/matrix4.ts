@@ -1,4 +1,5 @@
 import { Vector2 } from './vector2';
+import { IOrthoDimension } from '../camera';
 import { IMatrix, IPoint, IVector, Axis } from '../math';
 
 
@@ -26,6 +27,21 @@ export class Matrix4 implements IMatrix {
 		this.data[ 5 ] = 1;
 		this.data[ 10 ] = 1;
 		this.data[ 15 ] = 1;
+	}
+
+	public setAsOrthographic(dimension: IOrthoDimension) {
+		this.setAsIdentity();
+
+		this.data[ 0 ] = 2 / (dimension.right - dimension.left);
+		this.data[ 5 ] = 2 / (dimension.top - dimension.bottom);
+		this.data[ 10 ] = -2 / (dimension.far - dimension.near);
+		this.data[ 12 ] = -1 * ((dimension.right + dimension.left) / (dimension.right - dimension.left));
+		this.data[ 13 ] = -1 * ((dimension.top + dimension.bottom) / (dimension.top - dimension.bottom));
+		this.data[ 14 ] = -1 * ((dimension.far + dimension.near) / (dimension.far - dimension.near));
+	}
+
+	public setAsPerspective() {
+		// TODO
 	}
 
 	public scale(scaler: IPoint | number): Matrix4 {

@@ -1,6 +1,8 @@
+import { IOrthoDimension } from '../camera';
+
 export { Vector2 } from './vector2';
 export { Vector3 } from './vector3';
-export { Matrix4 } from './matrix4';
+export { Matrix4 as default } from './matrix4';
 
 
 export enum Axis {
@@ -83,6 +85,18 @@ export interface IMatrix {
 	 * @return {void}
 	 */
 	setAsIdentity(): void;
+
+	/**
+	 * Change the matrix to a orthographic projection matrix
+	 * @returns {void}
+	 */
+	setAsOrthographic(dimension: IOrthoDimension): void;
+
+	/**
+	 * Change the matrix to a perspective projection matrix
+	 * @returns {void}
+	 */
+	setAsPerspective(): void;
 
 	/**
 	 * return a new scaled matrix
