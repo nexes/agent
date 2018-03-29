@@ -70,8 +70,8 @@ export class Shader {
 		return this.shaderData.attributes;
 	}
 
-	public get Uniforms(): IShaderAttrib[] {
-		return this.shaderData.uniforms;
+	public get Uniforms(): Map<IShaderAttrib, IUniformAttribute> {
+		return this.uniformData;
 	}
 
 	public get Varyings(): IShaderAttrib[] {
@@ -96,10 +96,6 @@ export class Shader {
 				break;
 			}
 		}
-	}
-
-	public getUniformData(): Map<IShaderAttrib, IUniformAttribute> {
-		return this.uniformData;
 	}
 
 	private compileSource(gl: WebGLRenderingContext, type: ShaderType, source: string): WebGLShader {

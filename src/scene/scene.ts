@@ -72,7 +72,7 @@ export class Scene {
 
 		// setup shader uniforms
 		for (const shader of this.shaders.values()) {
-			const uniforms = shader.getUniformData();
+			const uniforms = shader.Uniforms;
 
 			for (const [ uniformName, uniformData ] of uniforms) {
 				if (uniformName.id === -1) {
