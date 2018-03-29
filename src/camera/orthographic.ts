@@ -1,4 +1,4 @@
-import Matrix4 from '../math';
+import { Matrix4 } from '../math';
 import { ICamera } from '.';
 
 
@@ -22,7 +22,7 @@ export class OrthographicCamera implements ICamera {
 		this.cameraMatrix.setAsOrthographic(dimension);
 	}
 
-	public flatten(): Float32Array {
-		return this.cameraMatrix.flatten();
+	public matrix(): Matrix4 {
+		return this.cameraMatrix;
 	}
 }

@@ -1,3 +1,5 @@
+import { Matrix4 } from '../math';
+
 export { Shader as default } from './shader';
 
 export enum ShaderType {
@@ -18,6 +20,6 @@ export interface IVertexAttribute {
 }
 
 export interface IUniformAttribute {
-	readonly dataMatrix?: Float32Array;
-	readonly dataValue?: number;
+	readonly dataMatrix?: Matrix4;
+	readonly dataValue?: Float32Array;
 }

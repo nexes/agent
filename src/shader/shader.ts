@@ -1,5 +1,5 @@
 import { IVertexAttribute, IShaderAttrib, ShaderType, IUniformAttribute } from '.';
-import Matrix4, { Vector2, Vector3 } from '../math';
+import { Matrix4, Vector2, Vector3 } from '../math';
 
 
 interface IShaderData {

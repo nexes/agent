@@ -83,7 +83,7 @@ export class Scene {
 				}
 
 				if (uniformData.dataMatrix) {
-					gl.uniformMatrix4fv(uniformName.id, false, uniformData.dataMatrix);
+					gl.uniformMatrix4fv(uniformName.id, false, uniformData.dataMatrix.flatten());
 				}
 				if (uniformData.dataValue) {
 					// TODO
