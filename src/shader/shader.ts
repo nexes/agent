@@ -1,4 +1,4 @@
-import { IVertexAttribute, IShaderAttrib, ShaderType } from '.';
+import { IVertexAttribute, IShaderAttrib, ShaderType, IUniformAttribute } from '.';
 import Matrix4, { Vector2, Vector3 } from '../math';
 
 
@@ -13,14 +13,14 @@ interface IShaderData {
 
 export class Shader {
 	private shaderData: IShaderData;
-	private vertAttributes: Map<string, IVertexAttribute>;
+	private uniformData: Map<IShaderAttrib, IUniformAttribute>;
 
 	constructor() {
 		this.shaderData = null;
-		this.vertAttributes = new Map();
+		this.uniformData = new Map();
 	}
 
-	public setShaderData(gl: WebGLRenderingContext, type: ShaderType, code: string): void {
+	public setShaderSource(gl: WebGLRenderingContext, type: ShaderType, code: string): void {
 		const tempAttr: IShaderAttrib[] = [];
 		const tempUniform: IShaderAttrib[] = [];
 		const tempVarying: IShaderAttrib[] = [];
@@ -47,7 +47,7 @@ export class Shader {
 			} else if (line.search(/^\s*(varying)/gi) !== -1) {
 				tempVarying.push({
 					name: varName,
-					id: 0,
+					id: -1,
 				});
 			}
 		}
@@ -78,37 +78,28 @@ export class Shader {
 		return this.shaderData.varyings;
 	}
 
-	public setUniform(gl: WebGLRenderingContext, uniformName: string, data: Matrix4 | Float32Array | number ) {
-		const uniforms = this.shaderData.uniforms;
-		const uLoc = uniforms.filter((uniform) => uniform.name === uniformName);
+	public setUniformDataFor(uniformName: string, uniformData: IUniformAttribute): void {
+		const uniformLoc = this.shaderData.uniforms.filter((uniform) => uniform.name === uniformName);
 
-		if (uLoc.length === 0) {
-			throw new ReferenceError(`setUniform: ${uniformName} was not found`);
+		if (uniformLoc.length === 0) {
+			throw new ReferenceError(`setUniformDataFor: ${uniformName} was not found`);
 		}
 
-		if (data instanceof Matrix4) {
-			gl.uniformMatrix4fv(uLoc[ 0 ].id, false, data.flatten());
+		this.uniformData.set({ name: uniformName, id: -1 }, uniformData);
+	}
 
-		} else if (data instanceof Float32Array) {
-			const len = data.length;
-			switch (len) {
-				case 2:
-					gl.uniform2fv(uLoc[ 0 ].id, data);
-
-				case 3:
-					gl.uniform3fv(uLoc[ 0 ].id, data);
-
-				case 4:
-					gl.uniform4fv(uLoc[ 0 ].id, data);
+	public setUniformIDFor(uniformName: string, uniformID: WebGLUniformLocation): void {
+		for (const [ name, data ] of this.uniformData) {
+			if (name.name === uniformName) {
+				this.uniformData.delete(name);
+				this.uniformData.set({ name: uniformName, id: uniformID }, data);
+				break;
 			}
-
-		} else if (typeof data === 'number') {
-			gl.uniform1f(uLoc[ 0 ].id, data);
-
-		} else {
-			// should we throw, or setup a dispatch system?
-			throw new TypeError('setUniform: data passed is not a valid type');
 		}
+	}
+
+	public getUniformData(): Map<IShaderAttrib, IUniformAttribute> {
+		return this.uniformData;
 	}
 
 	private compileSource(gl: WebGLRenderingContext, type: ShaderType, source: string): WebGLShader {

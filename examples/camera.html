@@ -8,16 +8,38 @@
   <script src="../lib/agent.js"></script>
   <script>
     const vshr = `
+      attribute vec2 aPos;
+      uniform mat4 camera;
+
       void main() {
+        gl_Position = camera * vec4(aPos, 0.0, 1.0);
       }
     `;
     const fshr = `
       precision mediump float;
 
       void main() {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
       }
 		`;
+    let renderer = new Agent.WebGLRenderer({width: 400, height: 200});
+    let square = new Agent.Square(10, 10, 150, 75);
+    let camera = new Agent.OrthographicCamera({left:0, right:400, top:0, bottom:200, far:0, near:100});
+    let scene = new Agent.Scene();
+    let glCtx = renderer.getContext();
 
+    square.setVertexAttributeFor('aPos', square.vertexAttributes());
+
+    scene.addShader(glCtx, Agent.ShaderType.Vertex, vshr);
+    scene.addShader(glCtx, Agent.ShaderType.Fragment, fshr);
+
+    scene.shader(Agent.ShaderType.Vertex)
+      .setUniformDataFor('camera', {dataMatrix: camera.flatten()});
+
+    scene.addDrawable(square);
+    scene.addCamera(camera);
+
+    renderer.render(scene);
   </script>
 </body>
 

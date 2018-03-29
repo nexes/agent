@@ -16,3 +16,8 @@ export interface IVertexAttribute {
 	readonly stride: number;
 	readonly offset: number;
 }
+
+export interface IUniformAttribute {
+	readonly dataMatrix?: Float32Array;
+	readonly dataValue?: number;
+}

@@ -33,7 +33,7 @@ export class Scene {
 			this.programId = gl.createProgram();
 		}
 
-		newShader.setShaderData(gl, type, data);
+		newShader.setShaderSource(gl, type, data);
 		gl.attachShader(this.programId, newShader.ID);
 
 		this.shaders.set(type, newShader);
@@ -53,7 +53,7 @@ export class Scene {
 		for (const gObject of this.renderables) {
 			gObject.prepareBuffer(gl, this.programId);
 
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, gObject.verticeCount());
 		}
 	}
 
@@ -69,5 +69,26 @@ export class Scene {
 		}
 
 		gl.useProgram(this.programId);
+
+		// setup shader uniforms
+		for (const shader of this.shaders.values()) {
+			const uniforms = shader.getUniformData();
+
+			for (const [ uniformName, uniformData ] of uniforms) {
+				if (uniformName.id === -1) {
+					const newID = gl.getUniformLocation(this.programId, uniformName.name);
+					uniformName.id = newID;
+
+					shader.setUniformIDFor(uniformName.name, newID);
+				}
+
+				if (uniformData.dataMatrix) {
+					gl.uniformMatrix4fv(uniformName.id, false, uniformData.dataMatrix);
+				}
+				if (uniformData.dataValue) {
+					// TODO
+				}
+			}
+		}
 	}
 }
