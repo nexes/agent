@@ -47,6 +47,10 @@ export class Square implements IRenderable {
 		this.vbo[ 23 ] = 0; // a
 	}
 
+	public verticeCount(): number {
+		return 4;
+	}
+
 	public setColor(r: number, g: number, b: number, a: number): void {
 		for (let i = 2; i < this.vbo.length; i += 2) {
 			this.vbo[i++] = r % 256;

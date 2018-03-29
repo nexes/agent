@@ -75,6 +75,7 @@ export class WebGLRenderer implements IRenderer {
 		this.canvas.height = this.height * this.devicePixelRatio;
 
 		if (!options.glContext) {
+			// TODO handle rendering2Context
 			this._glCtx = this.canvas.getContext('webgl2') as WebGLRenderingContext || this.canvas.getContext('webgl') as WebGLRenderingContext;
 
 			if (this._glCtx === null) {

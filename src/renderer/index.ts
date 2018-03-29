@@ -32,6 +32,12 @@ export interface IRenderable {
 	 * @param {IVertexAttribute}	attribute	the attribute object describing the renderable
 	 */
 	setVertexAttributeFor(attName: string, attribute: IVertexAttribute): void;
+
+	/**
+	 * return the number of vertices this renderable will have
+	 * @returns {number}	the number of vertices
+	 */
+	verticeCount(): number;
 }
 
 export interface IRenderer {
