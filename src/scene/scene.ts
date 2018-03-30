@@ -86,7 +86,18 @@ export class Scene {
 					gl.uniformMatrix4fv(uniformName.id, false, uniformData.dataMatrix.flatten());
 				}
 				if (uniformData.dataValue) {
-					// TODO
+					const len = uniformData.dataValue.length;
+
+					switch (len) {
+						case 1:
+							gl.uniform1fv(uniformName.id, uniformData.dataValue);
+						case 2:
+							gl.uniform2fv(uniformName.id, uniformData.dataValue);
+						case 3:
+							gl.uniform3fv(uniformName.id, uniformData.dataValue);
+						case 4:
+							gl.uniform4fv(uniformName.id, uniformData.dataValue);
+					}
 				}
 			}
 		}
