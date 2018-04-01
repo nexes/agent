@@ -7,7 +7,7 @@ export enum ShaderType {
 	Fragment = WebGLRenderingContext.FRAGMENT_SHADER,
 }
 
-export interface IShaderAttrib {
+export interface IShaderAttributeName {
 	name: string;
 	id: number | WebGLUniformLocation;
 }
@@ -19,7 +19,12 @@ export interface IVertexAttribute {
 	readonly offset: number;
 }
 
-export interface IUniformAttribute {
+export interface IAttributeValue {
+	readonly vertexAttribute?: IVertexAttribute;
+	readonly attributeValue?: Float32Array;
+}
+
+export interface IUniformValue {
 	readonly dataMatrix?: Matrix4;
 	readonly dataValue?: Float32Array;
 }

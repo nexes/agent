@@ -1,4 +1,4 @@
-import { ShaderType, IVertexAttribute } from '../shader';
+import { ShaderType, IAttributeValue } from '../shader';
 import { Scene } from '../scene/scene';
 
 export { WebGLRenderer } from '../renderer/webGLRenderer';
@@ -31,7 +31,7 @@ export interface IRenderable {
 	 * @param {string}	attName	the attribute name found in the shader
 	 * @param {IVertexAttribute}	attribute	the attribute object describing the renderable
 	 */
-	setVertexAttributeFor(attName: string, attribute: IVertexAttribute): void;
+	setVertexAttributeFor(attName: string, attribute: IAttributeValue): void;
 
 	/**
 	 * return the number of vertices this renderable will have
