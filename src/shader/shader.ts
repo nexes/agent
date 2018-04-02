@@ -1,29 +1,31 @@
-import { IVertexAttribute, IShaderAttrib, ShaderType, IUniformAttribute } from '.';
-import { Matrix4, Vector2, Vector3 } from '../math';
+import { ShaderType, IAttributeValue, IVertexAttribute, IShaderAttributeName, IUniformValue } from '.';
+import { Matrix4,	Vector2,	Vector3 } from '../math';
 
 
 interface IShaderData {
 	id: WebGLShader;
 	type: ShaderType;
 	code: string;
-	attributes: IShaderAttrib[];
-	uniforms: IShaderAttrib[];
-	varyings: IShaderAttrib[];
+	attributes: IShaderAttributeName[];
+	uniforms: IShaderAttributeName[];
+	varyings: IShaderAttributeName[];
 }
 
 export class Shader {
 	private shaderData: IShaderData;
-	private uniformData: Map<IShaderAttrib, IUniformAttribute>;
+	private uniformData: Map<IShaderAttributeName, IUniformValue>;
+	private attributeData: Map<IShaderAttributeName, IAttributeValue>;
 
 	constructor() {
 		this.shaderData = null;
 		this.uniformData = new Map();
+		this.attributeData = new Map();
 	}
 
 	public setShaderSource(gl: WebGLRenderingContext, type: ShaderType, code: string): void {
-		const tempAttr: IShaderAttrib[] = [];
-		const tempUniform: IShaderAttrib[] = [];
-		const tempVarying: IShaderAttrib[] = [];
+		const tempAttr: IShaderAttributeName[] = [];
+		const tempUniform: IShaderAttributeName[] = [];
+		const tempVarying: IShaderAttributeName[] = [];
 
 		const lines = code.split('\n');
 		const id = this.compileSource(gl, type, code);
@@ -66,26 +68,46 @@ export class Shader {
 		return this.shaderData.id;
 	}
 
-	public get Attributes(): IShaderAttrib[] {
-		return this.shaderData.attributes;
+	public get Attributes(): Map<IShaderAttributeName, IAttributeValue> {
+		return this.attributeData;
 	}
 
-	public get Uniforms(): Map<IShaderAttrib, IUniformAttribute> {
+	public get Uniforms(): Map<IShaderAttributeName, IUniformValue> {
 		return this.uniformData;
 	}
 
-	public get Varyings(): IShaderAttrib[] {
+	public get Varyings(): IShaderAttributeName[] {
 		return this.shaderData.varyings;
 	}
 
-	public setUniformDataFor(uniformName: string, uniformData: IUniformAttribute): void {
+	public setAttributeDataFor(attName: string, attribute: IAttributeValue): void {
+		const attLocation = this.shaderData.attributes.filter((value) => value.name === attName);
+
+		if (attLocation.length === 0) {
+			throw new ReferenceError(`setAttributeDataFor: ${attName} was not found`);
+		}
+
+		this.attributeData.set({ name: attName, id: attLocation[ 0 ].id }, attribute);
+	}
+
+	public setAttributeIDFor(attributeName: string, attributeID: number): void {
+		for (const [ name, data ] of this.attributeData) {
+			if (name.name === attributeName) {
+				this.attributeData.delete(name);
+				this.attributeData.set({ name: attributeName, id: attributeID }, data);
+				break;
+			}
+		}
+	}
+
+	public setUniformDataFor(uniformName: string, uniformData: IUniformValue): void {
 		const uniformLoc = this.shaderData.uniforms.filter((uniform) => uniform.name === uniformName);
 
 		if (uniformLoc.length === 0) {
 			throw new ReferenceError(`setUniformDataFor: ${uniformName} was not found`);
 		}
 
-		this.uniformData.set({ name: uniformName, id: -1 }, uniformData);
+		this.uniformData.set({ name: uniformName, id: uniformLoc[ 0 ].id }, uniformData);
 	}
 
 	public setUniformIDFor(uniformName: string, uniformID: WebGLUniformLocation): void {
