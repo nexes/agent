@@ -1,5 +1,5 @@
 import { IRenderable } from '../renderer';
-import { IVertexAttribute } from '../shader';
+import { IAttributeValue, IVertexAttribute } from '../shader';
 
 
 interface IAttributeName {
@@ -10,7 +10,7 @@ interface IAttributeName {
 export class Square implements IRenderable {
 	private vbo: Float32Array;
 	private bufferId: WebGLBuffer;
-	private attribData: Map<IAttributeName, IVertexAttribute>;
+	private attribData: Map<IAttributeName, IAttributeValue>;
 
 
 	constructor(x: number, y: number, width: number, height: number) {
@@ -64,7 +64,7 @@ export class Square implements IRenderable {
 		throw new Error('Method not implemented.');
 	}
 
-	// squares have a default buffer layout
+	// squares have a default buffer layout, so we can hard code
 	public vertexAttributes(): IVertexAttribute {
 		return {
 			size: 2,
@@ -74,7 +74,7 @@ export class Square implements IRenderable {
 		};
 	}
 
-	// squares have a default buffer layout
+	// squares have a default buffer layout, so we can hard code
 	public colorAttributes(): IVertexAttribute {
 		return {
 			size: 4,
@@ -84,36 +84,12 @@ export class Square implements IRenderable {
 		};
 	}
 
-	public setVertexAttributeFor(attName: string, attribute: IVertexAttribute): void {
-		this.attribData.set({name: attName, id: -1}, attribute);
-	}
-
-	public prepareBuffer(gl: WebGLRenderingContext, program: WebGLProgram): void {
+	public enableBuffer(gl: WebGLRenderingContext, program: WebGLProgram): void {
 		if (this.bufferId === null) {
 			this.bufferId = gl.createBuffer();
 		}
-
 		// bind our buffer
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferId);
 		gl.bufferData(gl.ARRAY_BUFFER, this.vbo, gl.STATIC_DRAW);
-
-		// get attribute location if we don't already have it.
-		for (const [ attName, attData ] of this.attribData) {
-			if (attName.id === -1) {
-				const newID = gl.getAttribLocation(program, attName.name);
-				attName.id = newID;
-
-				this.attribData.delete(attName);
-				this.attribData.set({
-					name: attName.name,
-					id: newID,
-				},
-					attData);
-			}
-
-			// describe our buffer
-			gl.enableVertexAttribArray(attName.id);
-			gl.vertexAttribPointer(attName.id, attData.size, gl.FLOAT, attData.normalized, attData.stride, attData.offset);
-		}
 	}
 }

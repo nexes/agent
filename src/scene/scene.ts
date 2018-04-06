@@ -47,18 +47,48 @@ export class Scene {
 	}
 
 	public render(gl: WebGLRenderingContext) {
-		this.initializeShader(gl);
+		this.enableUniforms(gl);
 
 		// TODO
 		for (const gObject of this.renderables) {
-			gObject.prepareBuffer(gl, this.programId);
+			gObject.enableBuffer(gl, this.programId);
+			this.enableAttributes(gl);
 
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, gObject.verticeCount());
 		}
 	}
 
-	// this needs to be thought through more. this shouldn't be called with every render call? Right?
-	private initializeShader(gl: WebGLRenderingContext): void {
+	private enableAttributes(gl: WebGLRenderingContext): void {
+		for (const shader of this.shaders.values()) {
+			const attributes = shader.Attributes;
+
+			for (const [ attName, attData ] of attributes) {
+				if (attName.id === -1) {
+					const newID = gl.getAttribLocation(this.programId, attName.name);
+					attName.id = newID;
+
+					shader.setAttributeIDFor(attName.name, newID);
+				}
+				gl.enableVertexAttribArray(attName.id as number);
+
+				if (attData.vertexAttribute) {
+					gl.vertexAttribPointer(
+						attName.id as number,
+						attData.vertexAttribute.size,
+						gl.FLOAT,
+						attData.vertexAttribute.normalized,
+						attData.vertexAttribute.stride,
+						attData.vertexAttribute.offset);
+
+				} else if (attData.attributeValue) {
+					// TODO
+				}
+			}
+		}
+	}
+
+	// mabye move this to the shader class????
+	private enableUniforms(gl: WebGLRenderingContext): void {
 		if (!this.programLinked) {
 			this.programLinked = true;
 			gl.linkProgram(this.programId);
@@ -67,7 +97,6 @@ export class Scene {
 				console.log(`Error LINK_STATUS program Id ${gl.getProgramInfoLog(this.programId)}`);
 			}
 		}
-
 		gl.useProgram(this.programId);
 
 		// setup shader uniforms

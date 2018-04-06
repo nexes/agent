@@ -24,14 +24,7 @@ export interface IRenderable {
 	 * @param {WebGLRenderingContext}	gl	webGLrendering context
 	 * @param {WebGLProgram}	program	the program id for the shaders
 	 */
-	prepareBuffer(gl: WebGLRenderingContext, program: WebGLProgram): void;
-
-	/**
-	 * describe the attribute data for the renderable.
-	 * @param {string}	attName	the attribute name found in the shader
-	 * @param {IVertexAttribute}	attribute	the attribute object describing the renderable
-	 */
-	setVertexAttributeFor(attName: string, attribute: IAttributeValue): void;
+	enableBuffer(gl: WebGLRenderingContext, program: WebGLProgram): void;
 
 	/**
 	 * return the number of vertices this renderable will have
