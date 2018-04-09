@@ -1,4 +1,4 @@
-import { ShaderType, IAttributeValue } from '../shader';
+import { ShaderType, IVertexAttribute } from '../shader';
 import { Scene } from '../scene/scene';
 
 export { WebGLRenderer } from '../renderer/webGLRenderer';
@@ -31,6 +31,18 @@ export interface IRenderable {
 	 * @returns {number}	the number of vertices
 	 */
 	verticeCount(): number;
+
+	/**
+	 * get the vertexAttribute object for this renderalbe, describing how the vertex data is layed out per vertex
+	 * @returns	{IVertexAttribute}	object describing vertex layout
+	 */
+	vertexAttributes(): IVertexAttribute;
+
+	/**
+	 * get the colorAttribute object for this renderalbe, describing how the color data is layed out per vertex
+	 * @returns	{IVertexAttribute}	object describing color layout
+	 */
+	colorAttributes(): IVertexAttribute;
 }
 
 export interface IRenderer {

@@ -58,6 +58,8 @@ export class Scene {
 		}
 	}
 
+	// this may not work when we get to renderables that describe the buffer data differently.
+	// to solve this, we can pass the bufferID that we are currently describing.
 	private enableAttributes(gl: WebGLRenderingContext): void {
 		for (const shader of this.shaders.values()) {
 			const attributes = shader.Attributes;
@@ -81,7 +83,22 @@ export class Scene {
 						attData.vertexAttribute.offset);
 
 				} else if (attData.attributeValue) {
-					// TODO
+					const len = attData.attributeValue.length;
+
+					switch (len) {
+						case 1:
+							gl.vertexAttrib1fv(attName.id as number, attData.attributeValue);
+							break;
+						case 2:
+							gl.vertexAttrib2fv(attName.id as number, attData.attributeValue);
+							break;
+						case 3:
+							gl.vertexAttrib3fv(attName.id as number, attData.attributeValue);
+							break;
+						case 4:
+							gl.vertexAttrib4fv(attName.id as number, attData.attributeValue);
+							break;
+					}
 				}
 			}
 		}
