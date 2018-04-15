@@ -1,29 +1,17 @@
-import { Matrix4 } from '../math';
-export declare enum ShaderType {
-    Vertex,
-    Fragment,
-}
-export interface IShaderAttrib {
-    name: string;
-    id: number | WebGLUniformLocation;
-}
-export interface IVertexAttribute {
-    readonly size: number;
-    readonly normalized: boolean;
-    readonly stride: number;
-    readonly offset: number;
-}
+import { ShaderType, IAttributeValue, IShaderAttributeName, IUniformValue } from '.';
 export declare class Shader {
     private shaderData;
-    private vertAttributes;
+    private uniformData;
+    private attributeData;
     constructor();
-    setShaderData(gl: WebGLRenderingContext, type: ShaderType, code: string): void;
+    setShaderSource(gl: WebGLRenderingContext, type: ShaderType, code: string): void;
     readonly ID: WebGLShader;
-    readonly Attributes: IShaderAttrib[];
-    readonly Uniforms: IShaderAttrib[];
-    readonly Varyings: IShaderAttrib[];
-    getVertexAttribFor(attName: string): IVertexAttribute | undefined;
-    setVertexAttribFor(attName: string, attribute: IVertexAttribute): void;
-    setUniform(gl: WebGLRenderingContext, uniformName: string, data: Matrix4 | Float32Array | number): void;
+    readonly Attributes: Map<IShaderAttributeName, IAttributeValue>;
+    readonly Uniforms: Map<IShaderAttributeName, IUniformValue>;
+    readonly Varyings: IShaderAttributeName[];
+    setAttributeDataFor(attName: string, attribute: IAttributeValue): void;
+    setAttributeIDFor(attributeName: string, attributeID: number): void;
+    setUniformDataFor(uniformName: string, uniformData: IUniformValue): void;
+    setUniformIDFor(uniformName: string, uniformID: WebGLUniformLocation): void;
     private compileSource(gl, type, source);
 }

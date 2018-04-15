@@ -1,9 +1,13 @@
+import { IVertexAttribute } from '../shader';
 import { Scene } from '../scene/scene';
 export { WebGLRenderer } from '../renderer/webGLRenderer';
 export interface IRenderable {
     setColor(r: number, g: number, b: number, a: number): void;
     setTexture(): void;
-    bindBuffer(gl: WebGLRenderingContext): void;
+    enableBuffer(gl: WebGLRenderingContext, program: WebGLProgram): void;
+    verticeCount(): number;
+    vertexAttributes(): IVertexAttribute;
+    colorAttributes(): IVertexAttribute;
 }
 export interface IRenderer {
     aspect(): number;

@@ -1,3 +1,4 @@
+import { IOrthoDimension } from '../camera';
 export { Vector2 } from './vector2';
 export { Vector3 } from './vector3';
 export { Matrix4 } from './matrix4';
@@ -24,6 +25,8 @@ export interface IVector extends IPoint {
 }
 export interface IMatrix {
     setAsIdentity(): void;
+    setAsOrthographic(dimension: IOrthoDimension): void;
+    setAsPerspective(): void;
     scale(scaler: number): IMatrix;
     translate(vec: IVector): IMatrix;
     rotate(theta: number, axis: Axis): IMatrix;
