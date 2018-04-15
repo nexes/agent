@@ -14,11 +14,16 @@ module.exports = {
     path: path.resolve(__dirname, "lib"),
   },
   module: {
-    loaders: [
+    rules: [
       {
-        exclude: /node_modules/,
-        loader: "ts-loader",
         test: /\.ts$/,
+				use: [
+					{
+						loader: "ts-loader",
+						options: {}
+					},
+				],
+				exclude: /node_modules/,
       },
     ],
   },
