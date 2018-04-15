@@ -60,6 +60,8 @@ export class Scene {
 
 	// this may not work when we get to renderables that describe the buffer data differently.
 	// to solve this, we can pass the bufferID that we are currently describing.
+	// or will it????????
+	// TODO there are better ways to do this
 	private enableAttributes(gl: WebGLRenderingContext): void {
 		for (const shader of this.shaders.values()) {
 			const attributes = shader.Attributes;

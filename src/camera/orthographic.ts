@@ -11,7 +11,6 @@ export interface IOrthoDimension {
 	far: number;
 }
 
-// export class OrthographicCamera implements ICamera {
 export class OrthographicCamera implements ICamera {
 	private cameraMatrix: Matrix4;
 	private dimension: IOrthoDimension;
