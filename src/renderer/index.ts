@@ -43,6 +43,12 @@ export interface IRenderable {
 	 * @returns	{IVertexAttribute}	object describing color layout
 	 */
 	colorAttributes(): IVertexAttribute;
+
+	/**
+	 * get the textureAttribute object for this renderalbe, describing how the texture data is layed out per vertex
+	 * @returns	{IVertexAttribute}	object describing texture layout
+	 */
+	textureAttributes(): IVertexAttribute;
 }
 
 export interface IRenderer {
