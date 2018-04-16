@@ -32,19 +32,25 @@
     let scene = new Agent.Scene();
     let glCtx = renderer.getContext();
 
-    square.setColor(0.0, 0.0, 1.0, 1.0);
-    square2.setColor(1.0, 1.0, 0.0, 1.0);
-
-    square.setVertexAttributeFor('aPos', square.vertexAttributes());
-    square.setVertexAttributeFor('aColor', square.colorAttributes());
-
-    square2.setVertexAttributeFor('aPos', square.vertexAttributes());
-    square2.setVertexAttributeFor('aColor', square.colorAttributes());
-
-    scene.addDrawable(square, square2);
     scene.addShader(glCtx, Agent.ShaderType.Vertex, vshr);
     scene.addShader(glCtx, Agent.ShaderType.Fragment, fshr);
 
+    square.setColor(0.0, 0.0, 1.0, 1.0);
+    square2.setColor(1.0, 1.0, 0.0, 1.0);
+
+		scene.shader(Agent.ShaderType.Vertex)
+			.setAttributeDataFor('aPos', {vertexAttribute: square.vertexAttributes()});
+
+		scene.shader(Agent.ShaderType.Vertex)
+			.setAttributeDataFor('aPos', {vertexAttribute: square2.vertexAttributes()});
+
+		scene.shader(Agent.ShaderType.Vertex)
+			.setAttributeDataFor('aColor', {vertexAttribute: square.colorAttributes()});
+
+		scene.shader(Agent.ShaderType.Vertex)
+			.setAttributeDataFor('aColor', {vertexAttribute: square2.colorAttributes()});
+
+    scene.addDrawable(square, square2);
     renderer.render(scene);
   </script>
 </body>
