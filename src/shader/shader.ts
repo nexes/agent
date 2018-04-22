@@ -80,14 +80,23 @@ export class Shader {
 		return this.shaderData.varyings;
 	}
 
-	public setAttributeDataFor(attName: string, attribute: IAttributeValue): void {
+	public setAttributeDataFor(attName: string, attribute: IAttributeValue): void
+	public setAttributeDataFor(attName: string, attribute: IAttributeValue[]): void
+	public setAttributeDataFor(attName: string, attribute: any): void {
 		const attLocation = this.shaderData.attributes.filter((value) => value.name === attName);
 
 		if (attLocation.length === 0) {
 			throw new ReferenceError(`setAttributeDataFor: ${attName} was not found`);
 		}
 
-		this.attributeData.set({ name: attName, id: attLocation[ 0 ].id }, attribute);
+		if (Array.isArray(attribute)) {
+			for (const attr of attribute) {
+				this.attributeData.set({ name: attName, id: attLocation[ 0 ].id }, attr);
+			}
+
+		} else {
+			this.attributeData.set({ name: attName, id: attLocation[ 0 ].id }, attribute);
+		}
 	}
 
 	public setAttributeIDFor(attributeName: string, attributeID: number): void {

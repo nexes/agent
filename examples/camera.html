@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -5,7 +6,7 @@
 </head>
 
 <body>
-  <script src="../lib/agent.js"></script>
+  <script type="application/javascript" src="../lib/agent.js"></script>
   <script>
     const vshr = `
       attribute vec2 aPos;
@@ -40,14 +41,16 @@
     scene.shader(Agent.ShaderType.Vertex)
       .setUniformDataFor('camera', {dataMatrix: camera.matrix()});
 
-    scene.shader(Agent.ShaderType.Vertex)
-      .setAttributeDataFor('aPos', {vertexAttribute: square.vertexAttributes()});
+		// test adding shader data with an array
+		scene.shader(Agent.ShaderType.Vertex)
+			.setAttributeDataFor('aPos', [
+					{vertexAttribute: square.vertexAttributes()},
+					{vertexAttribute: square2.vertexAttributes()},
+				]);
 
-    scene.shader(Agent.ShaderType.Vertex)
-      .setAttributeDataFor('aPos', {vertexAttribute: square2.vertexAttributes()});
-
-    scene.shader(Agent.ShaderType.Vertex)
-      .setAttributeDataFor('aPos', {vertexAttribute: square3.vertexAttributes()});
+		// test adding shader data with a single obj
+		scene.shader(Agent.ShaderType.Vertex)
+			.setAttributeDataFor('aPos', {vertexAttribute: square3.vertexAttributes()});
 
     scene.addDrawable(square, square2, square3);
     scene.addCamera(camera);
