@@ -1,7 +1,9 @@
 import { ShaderType, IVertexAttribute } from '../shader';
 import { Scene } from '../scene/scene';
+import { Texture } from './texture';
 
-export { WebGLRenderer } from '../renderer/webGLRenderer';
+export { WebGLRenderer } from './webGLRenderer';
+export { Texture } from './texture';
 
 export interface IRenderable {
 	/**
@@ -16,7 +18,7 @@ export interface IRenderable {
 	/**
 	 * set the renderable's texture
 	 */
-	setTexture(): void;
+	setTexture(texture: Texture): void;
 
 	/**
 	 * must be called at lease once before rendering the renderable.
