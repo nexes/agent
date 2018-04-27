@@ -3,7 +3,6 @@ export class Texture {
 	private _width: number;
 	private _height: number;
 
-
 	constructor() {
 		this.textureID = null;
 		this._width = 0;

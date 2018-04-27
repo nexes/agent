@@ -73,11 +73,20 @@ export class Square implements IRenderable {
 	public setTexture(texture: Texture): void {
 		this.texture = texture;
 
-		for (let i = 2; i < this.vbo.length; i += 6) {
-			// TODO
-			this.vbo[i++] = 1;
-			this.vbo[i++] = 1;
-		}
+		// TODO
+		this.vbo[ 2 ] = 0;
+		this.vbo[ 3 ] = 0;
+		this.vbo[ 10 ] = 1.0;
+		this.vbo[ 11 ] = 0;
+		this.vbo[ 18 ] = 0;
+		this.vbo[ 19 ] = 1.0;
+		this.vbo[ 26 ] = 1.0;
+		this.vbo[ 27 ] = 1.0;
+
+		// for (let i = 2; i < this.vbo.length; i += 6) {
+		// 	this.vbo[i++] = 1;
+		// 	this.vbo[i++] = 1;
+		// }
 	}
 
 	// squares have a default buffer layout, so we can hard code

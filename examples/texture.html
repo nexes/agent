@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+  <title>Geometric shapes example</title>
+</head>
+
+<body>
+  <script type="application/javascript" src="../lib/agent.js"></script>
+  <script>
+    const vshr = `
+      attribute vec2 aPos;
+			attribute vec2 aText;
+      uniform mat4 camera;
+
+			varying vec2 vTexture;
+
+      void main() {
+				vTexture = aText;
+        gl_Position = camera * vec4(aPos, 0.0, 1.0);
+      }
+    `;
+    const fshr = `
+      precision mediump float;
+
+			uniform sampler2D uSampler;
+			varying vec2 vTexture;
+
+      void main() {
+        gl_FragColor = texture2D(uSampler, vTexture);
+      }
+		`;
+    let renderer = new Agent.WebGLRenderer({width: 1200, height: 800});
+    let square = new Agent.Square(10, 100, 128, 128);
+    let camera = new Agent.OrthographicCamera({left:0, right:1200, top:0, bottom:800, far:0, near:100});
+    let scene = new Agent.Scene();
+    let glCtx = renderer.getContext();
+
+		// create a texture object
+		let fireTexture = new Agent.Texture();
+		fireTexture.loadResource(glCtx, "./images/firetexture.png")
+			.then((success) => {
+				// assign our texture to a renderable
+				square.setTexture(fireTexture);
+
+				// re-render since we are not running in a loop
+				renderer.render(scene);
+			})
+			.catch((success) => {
+				console.log('texture failed to load');
+			});
+
+    scene.addShader(glCtx, Agent.ShaderType.Vertex, vshr);
+    scene.addShader(glCtx, Agent.ShaderType.Fragment, fshr);
+
+    scene.shader(Agent.ShaderType.Vertex)
+      .setUniformDataFor('camera', {dataMatrix: camera.matrix()});
+
+		scene.shader(Agent.ShaderType.Vertex)
+			.setAttributeDataFor('aPos', {vertexAttribute: square.vertexAttributes()});
+
+		scene.shader(Agent.ShaderType.Vertex)
+			.setAttributeDataFor('aText', {vertexAttribute: square.textureAttributes()});
+
+    scene.addDrawable(square);
+    scene.addCamera(camera);
+
+    renderer.render(scene);
+  </script>
+</body>
+</html>
