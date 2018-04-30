@@ -32,26 +32,35 @@
 		`;
     let renderer = new Agent.WebGLRenderer({width: 1200, height: 800});
     let square = new Agent.Square(10, 100, 128, 128);
+    let square2 = new Agent.Square(200, 100, 128, 128);
     let camera = new Agent.OrthographicCamera({left:0, right:1200, top:0, bottom:800, far:0, near:100});
     let scene = new Agent.Scene();
-    let glCtx = renderer.getContext();
+    let glCtx = renderer.context(); // BEGONE
 
-		// create a texture object
+		// create a texture objects
+		let brickTexture = new Agent.Texture();
 		let fireTexture = new Agent.Texture();
-		fireTexture.loadResource(glCtx, "./images/firetexture.png")
-			.then((success) => {
-				// assign our texture to a renderable
-				square.setTexture(fireTexture);
 
-				// re-render since we are not running in a loop
-				renderer.render(scene);
+		fireTexture.loadResource(glCtx, "./images/firetexture.png") //Ctx should begone
+			.then((success) => {
+				square.setTexture(fireTexture); // assign our texture to a renderable
+				renderer.render(scene);					// re-render since we are not running in a loop
 			})
 			.catch((success) => {
-				console.log('texture failed to load');
+				console.log('fire texture failed to load');
 			});
 
-    scene.addShader(glCtx, Agent.ShaderType.Vertex, vshr);
-    scene.addShader(glCtx, Agent.ShaderType.Fragment, fshr);
+		brickTexture.loadResource(glCtx, "./images/bricktexture.png") //Ctx should begone
+			.then((success) => {
+				square2.setTexture(brickTexture);  // assign our texture to a renderable
+				renderer.render(scene);            // re-render since we are not running in a loop
+			})
+			.catch((success) => {
+				console.log('brick texture failed to load');
+			});
+
+    scene.addShader(glCtx, Agent.ShaderType.Vertex, vshr); 	 //Ctx should begone
+    scene.addShader(glCtx, Agent.ShaderType.Fragment, fshr); //Ctx should begone
 
     scene.shader(Agent.ShaderType.Vertex)
       .setUniformDataFor('camera', {dataMatrix: camera.matrix()});
@@ -62,7 +71,7 @@
 		scene.shader(Agent.ShaderType.Vertex)
 			.setAttributeDataFor('aText', {vertexAttribute: square.textureAttributes()});
 
-    scene.addDrawable(square);
+    scene.addDrawable(square, square2);
     scene.addCamera(camera);
 
     renderer.render(scene);

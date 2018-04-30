@@ -25,7 +25,7 @@ export class Texture {
 				gl.bindTexture(gl.TEXTURE_2D, this.textureID);
 				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgData);
 
-				//check for power of two
+				// check for power of two
 				if ((this._width & (this._width - 1)) === 0 &&
 						(this._height & (this._height - 1)) === 0) {
 					gl.generateMipmap(gl.TEXTURE_2D);
