@@ -1,23 +1,30 @@
 import { IRenderable, Texture } from '../renderer';
-import { IAttributeValue, IVertexAttribute } from '../shader';
+// import { IAttributeValue,	IAttributeName, IVertexAttribute } from '../shader';
+import { IVertexAttribute } from '../shader';
 
 
-interface IAttributeName {
-	name: string;
-	id: number;
-}
+// interface IAttributeName {
+// 	name: string;
+// 	id: number;
+// }
+
+const UUIDMAX = 10000; // just an abritrary max for right now
+
 
 export class Square implements IRenderable {
+	readonly UUID: number;
+
 	private vbo: Float32Array;
 	private bufferId: WebGLBuffer;
 	private texture: Texture;
-	private attribData: Map<IAttributeName, IAttributeValue>;
+	// private attribData: Map<IAttributeName, IAttributeValue>;
 
 
 	constructor(x: number, y: number, width: number, height: number) {
-		this.bufferId = null;
+		this.UUID = Math.floor(Math.random() * UUIDMAX); // TODO design a better UUID system where we can check for collisions
 		this.vbo = new Float32Array(8 * 4); // 8 vertex attributes for 4 vertices
-		this.attribData = new Map();
+		// this.attribData = new Map();
+		this.bufferId = null;
 		this.texture = null;
 
 		this.vbo[ 0 ] = x;
@@ -92,6 +99,7 @@ export class Square implements IRenderable {
 	// squares have a default buffer layout, so we can hard code
 	public vertexAttributes(): IVertexAttribute {
 		return {
+			UUID: this.UUID,
 			size: 2,
 			normalized: false,
 			stride: 32,
@@ -102,6 +110,7 @@ export class Square implements IRenderable {
 	// squares have a default buffer layout, so we can hard code
 	public colorAttributes(): IVertexAttribute {
 		return {
+			UUID: this.UUID,
 			size: 4,
 			normalized: false,
 			stride: 32,
@@ -111,6 +120,7 @@ export class Square implements IRenderable {
 
 	public textureAttributes(): IVertexAttribute {
 		return {
+			UUID: this.UUID,
 			size: 2,
 			normalized: false,
 			stride: 32,

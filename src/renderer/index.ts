@@ -6,6 +6,8 @@ export { WebGLRenderer } from './webGLRenderer';
 export { Texture } from './texture';
 
 export interface IRenderable {
+	readonly UUID: number;
+
 	/**
 	 * set the color of the renderable object
 	 * @param {number} r	the red value
@@ -57,6 +59,7 @@ export interface IRenderer {
 	aspect(): number;
 	render(scene: Scene): void;
 	resize(x: number, y: number): void;
+	context(): WebGLRenderingContext;
 }
 
 export interface IRenderOptions {
