@@ -1,0 +1,97 @@
+import { IEngineOptions } from '../engine';
+import { Scene } from '../scene/scene';
+
+
+export class WebGLRenderer {
+	private width: number;
+	private height: number;
+	private _devicePixelRatio: number;
+	private _canvas: HTMLCanvasElement;
+	private _glCtx: WebGLRenderingContext;
+
+	constructor(options?: IEngineOptions) {
+		this.width = 100;
+		this.height = 100;
+		this._devicePixelRatio = 1;
+		this._canvas = null;
+		this._glCtx = null;
+
+		this.initWithOptions(options || {
+			width: this.width,
+			height: this.height,
+			fullscreen: false,
+		});
+	}
+
+	public context(): WebGLRenderingContext {
+		return this._glCtx;
+	}
+
+	public aspect(): number {
+		return this.width / this.height;
+	}
+
+	public render(scene: Scene): void {
+		this.clear();
+
+		if (this._glCtx) {
+			scene.render();
+		}
+	}
+
+	public resize(width: number, height: number): void {
+		this._canvas.width = this.width = width * this._devicePixelRatio;
+		this._canvas.height = this.height = height * this._devicePixelRatio;
+
+		this._canvas.style.width = this.width + 'px';
+		this._canvas.style.height = this.height + 'px';
+
+		this._glCtx.viewport(0, 0, this.width, this.height);
+	}
+
+	private clear(): void {
+		this._glCtx.clear(this._glCtx.COLOR_BUFFER_BIT | this._glCtx.DEPTH_BUFFER_BIT);
+	}
+
+	private initWithOptions(options: IEngineOptions): void {
+		this.width = options.width;
+		this.height = options.height;
+		this._devicePixelRatio = window.devicePixelRatio || 1;
+
+		if (!options.domCanvas) {
+			this._canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas') as HTMLCanvasElement;
+			document.body.appendChild(this._canvas);
+
+		} else {
+			this._canvas = options.domCanvas;
+		}
+
+		if (options.fullscreen) {
+			this.width = document.body.clientWidth;
+			this.height = document.body.clientHeight;
+		}
+
+		// canvas size
+		this._canvas.style.width = this.width + 'px';
+		this._canvas.style.height = this.height + 'px';
+
+		// drawing size
+		this._canvas.width = this.width * this._devicePixelRatio;
+		this._canvas.height = this.height * this._devicePixelRatio;
+
+		if (!options.glContext) {
+			// TODO handle rendering2Context
+			this._glCtx = this._canvas.getContext('webgl2') as WebGLRenderingContext || this._canvas.getContext('webgl') as WebGLRenderingContext;
+
+			if (this._glCtx === null) {
+				throw new Error('glContext is null. Check WebGL compatibility');
+			}
+
+		} else {
+			this._glCtx = options.glContext;
+		}
+
+		this._glCtx.viewport(0, 0, this.width, this.height);
+		this._glCtx.clearColor(1.0, 0.0, 1.0, 1.0);
+	}
+}
