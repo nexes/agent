@@ -2,88 +2,86 @@ import { ShaderType, IAttributeValue, IVertexAttribute, IShaderAttributeName, IU
 import { Matrix4,	Vector2,	Vector3 } from '../math';
 
 
-interface IShaderData {
+interface IShaderSourceData {
 	id: WebGLShader;
 	type: ShaderType;
 	code: string;
-	attributes: IShaderAttributeName[];
-	uniforms: IShaderAttributeName[];
-	varyings: IShaderAttributeName[];
+	attributesVars: string[];
+	uniformsVars: string[];
+	varyingsVars: string[];
 }
 
 export class Shader {
-	private shaderData: IShaderData;
+	private glCtx: WebGLRenderingContext;
+	private programID: WebGLProgram;
+	private shaderSourceData: IShaderSourceData;
 	private uniformData: Map<IShaderAttributeName, IUniformValue>;
 	private attributeData: Map<IShaderAttributeName, IAttributeValue>;
 
-	constructor() {
-		this.shaderData = null;
+	constructor(gl: WebGLRenderingContext) {
+		this.glCtx = gl;
+		this.programID = null;
+		this.shaderSourceData = null;
 		this.uniformData = new Map();
 		this.attributeData = new Map();
 	}
 
-	public setShaderSource(gl: WebGLRenderingContext, type: ShaderType, code: string): void {
-		const tempAttr: IShaderAttributeName[] = [];
-		const tempUniform: IShaderAttributeName[] = [];
-		const tempVarying: IShaderAttributeName[] = [];
+	public setShaderSource(programID: WebGLProgram, type: ShaderType, code: string): void {
+		const tempAttr: string[] = [];
+		const tempUniform: string[] = [];
+		const tempVarying: string[] = [];
 
 		const lines = code.split('\n');
-		const id = this.compileSource(gl, type, code);
+		const id = this.compileShaderSource(type, code);
+
+		if (!this.programID) {
+			this.programID = programID;
+		}
 
 		for (const line of lines) {
 			const endIndex = line.charAt(line.length - 1) === ';' ? line.length - 1 : line.length;
 			const varName = line.substring(line.lastIndexOf(' ') + 1, endIndex);
 
 			if (line.search(/^\s*(attribute)/gi) !== -1) {
-				tempAttr.push({
-					name: varName,
-					id: -1,
-				});
+				tempAttr.push(varName);
 
 			} else if (line.search(/^\s*(uniform)/gi) !== -1) {
-				tempUniform.push({
-					name: varName,
-					id: -1,
-				});
+				tempUniform.push(varName);
 
 			} else if (line.search(/^\s*(varying)/gi) !== -1) {
-				tempVarying.push({
-					name: varName,
-					id: -1,
-				});
+				tempVarying.push(varName);
 			}
 		}
 
-		this.shaderData = {
+		this.glCtx.attachShader(programID, id);
+
+		this.shaderSourceData = {
 			id,
 			type,
 			code,
-			attributes: tempAttr,
-			uniforms: tempUniform,
-			varyings: tempVarying,
+			attributesVars: tempAttr,
+			uniformsVars: tempUniform,
+			varyingsVars: tempVarying,
 		};
 	}
 
 	public get ID(): WebGLShader {
-		return this.shaderData.id;
+		return this.shaderSourceData.id;
 	}
 
-	public get Attributes(): Map<IShaderAttributeName, IAttributeValue> {
+	// TODO objectID
+	public attributes(objectID?: number): Map<IShaderAttributeName, IAttributeValue> {
 		return this.attributeData;
 	}
 
-	public get Uniforms(): Map<IShaderAttributeName, IUniformValue> {
+	// TODO objectID
+	public uniforms(objectID?: number): Map<IShaderAttributeName, IUniformValue> {
 		return this.uniformData;
 	}
 
-	public get Varyings(): IShaderAttributeName[] {
-		return this.shaderData.varyings;
-	}
-
-	public setAttributeDataFor(attName: string, attribute: IAttributeValue): void
-	public setAttributeDataFor(attName: string, attribute: IAttributeValue[]): void
-	public setAttributeDataFor(attName: string, attribute: any): void {
-		const attLocation = this.shaderData.attributes.filter((value) => value.name === attName);
+	public setAttributeDataFor(attName: string, attribute: IAttributeValue | IAttributeValue[]): void {
+		const gl = this.glCtx;
+		const attLocation = this.shaderSourceData.attributesVars.filter((value) => value === attName);
 
 		if (attLocation.length === 0) {
 			throw new ReferenceError(`setAttributeDataFor: ${attName} was not found`);
@@ -91,45 +89,65 @@ export class Shader {
 
 		if (Array.isArray(attribute)) {
 			for (const attr of attribute) {
-				this.attributeData.set({ name: attName, id: attLocation[ 0 ].id }, attr);
+				// TODO check if we already have the location
+				const locID = gl.getAttribLocation(this.programID, attName);
+				this.attributeData.set({ name: attName, id: locID }, attr);
 			}
 
 		} else {
-			this.attributeData.set({ name: attName, id: attLocation[ 0 ].id }, attribute);
-		}
-	}
-
-	public setAttributeIDFor(attributeName: string, attributeID: number): void {
-		for (const [ name, data ] of this.attributeData) {
-			if (name.name === attributeName) {
-				this.attributeData.delete(name);
-				this.attributeData.set({ name: attributeName, id: attributeID }, data);
-				break;
-			}
+			// TODO check if we already have the location
+			const locID = gl.getAttribLocation(this.programID, attName);
+			this.attributeData.set({ name: attName, id: locID }, attribute);
 		}
 	}
 
 	public setUniformDataFor(uniformName: string, uniformData: IUniformValue): void {
-		const uniformLoc = this.shaderData.uniforms.filter((uniform) => uniform.name === uniformName);
+		const uniformLoc = this.shaderSourceData.uniformsVars.filter((uniform) => uniform === uniformName);
 
 		if (uniformLoc.length === 0) {
 			throw new ReferenceError(`setUniformDataFor: ${uniformName} was not found`);
 		}
 
-		this.uniformData.set({ name: uniformName, id: uniformLoc[ 0 ].id }, uniformData);
-	}
+		this.glCtx.linkProgram(this.programID);
+		this.glCtx.useProgram(this.programID);
 
-	public setUniformIDFor(uniformName: string, uniformID: WebGLUniformLocation): void {
-		for (const [ name, data ] of this.uniformData) {
-			if (name.name === uniformName) {
-				this.uniformData.delete(name);
-				this.uniformData.set({ name: uniformName, id: uniformID }, data);
-				break;
+		if (!this.glCtx.getProgramParameter(this.programID, this.glCtx.LINK_STATUS)) {
+			const errMsg = this.glCtx.getProgramInfoLog(this.programID);
+
+			console.log(`Error LINK_STATUS program Id ${errMsg}`);
+			throw new ReferenceError(`LINK_STATUS error {errMsg}`);
+		}
+
+		// TODO check if we already have the location
+		const locID = this.glCtx.getUniformLocation(this.programID, uniformName);
+
+		if (uniformData.dataMatrix) {
+			this.glCtx.uniformMatrix4fv(locID, false, uniformData.dataMatrix.flatten());
+
+		} else if (uniformData.dataValue) {
+			const len = uniformData.dataValue.length;
+
+			switch (len) {
+				case 1:
+					this.glCtx.uniform1fv(locID, uniformData.dataValue);
+					break;
+				case 2:
+					this.glCtx.uniform2fv(locID, uniformData.dataValue);
+					break;
+				case 3:
+					this.glCtx.uniform3fv(locID, uniformData.dataValue);
+					break;
+				case 4:
+					this.glCtx.uniform4fv(locID, uniformData.dataValue);
+					break;
 			}
 		}
+
+		this.uniformData.set({ name: uniformName, id: locID }, uniformData);
 	}
 
-	private compileSource(gl: WebGLRenderingContext, type: ShaderType, source: string): WebGLShader {
+	private compileShaderSource(type: ShaderType, source: string): WebGLShader {
+		const gl = this.glCtx;
 		const shaderID = gl.createShader(type);
 
 		gl.shaderSource(shaderID, source);
