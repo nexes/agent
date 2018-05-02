@@ -27,9 +27,14 @@ export interface IRenderable {
 	 * must be called at lease once before rendering the renderable.
 	 * This will bind and describe the buffer
 	 * @param {WebGLRenderingContext}	gl	webGLrendering context
-	 * @param {WebGLProgram}	program	the program id for the shaders
 	 */
-	enableBuffer(gl: WebGLRenderingContext, program: WebGLProgram): void;
+	enableBuffer(gl: WebGLRenderingContext): void;
+
+	/**
+	 * this will unbind the renderables buffer array and texture if one is set
+	 * @param {WebGLRenderingContext}	gl	webGLrendering context
+	 */
+	disableBuffer(gl: WebGLRenderingContext): void;
 
 	/**
 	 * return the number of vertices this renderable will have

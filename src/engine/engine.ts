@@ -1,5 +1,5 @@
 import Scene from '../scene';
-import { IEngineOptions } from '../engine';
+import { IEngineOptions, Texture } from '../engine';
 import { WebGLRenderer } from './webGLRenderer';
 
 
@@ -10,6 +10,10 @@ export class Engine {
 	constructor(options?: IEngineOptions) {
 		this.renderer = new WebGLRenderer(options);
 		this.scenes = new Map();
+	}
+
+	public newTexture(): Texture {
+		return new Texture(this.renderer.context());
 	}
 
 	public newScene(sceneName: string): Scene {
@@ -27,6 +31,8 @@ export class Engine {
 	 * Render all scenes
 	 */
 	public render(): void {
+		this.renderer.clear();
+
 		for (const scene of this.scenes.values()) {
 			scene.render();
 		}
