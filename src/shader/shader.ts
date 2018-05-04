@@ -15,15 +15,17 @@ export class Shader {
 	private glCtx: WebGLRenderingContext;
 	private programID: WebGLProgram;
 	private shaderSourceData: IShaderSourceData;
-	private uniformData: Map<IShaderAttributeName, IUniformValue>;
-	private attributeData: Map<IShaderAttributeName, IAttributeValue>;
+	private uniforms: Map<IShaderAttributeName, IUniformValue>;
+	private vertAttributes: Map<IShaderAttributeName, IAttributeValue>;
+	private generalAttributes: Map<IShaderAttributeName, IAttributeValue>;
 
 	constructor(gl: WebGLRenderingContext) {
 		this.glCtx = gl;
 		this.programID = null;
 		this.shaderSourceData = null;
-		this.uniformData = new Map();
-		this.attributeData = new Map();
+		this.uniforms = new Map();
+		this.vertAttributes = new Map();
+		this.generalAttributes = new Map();
 	}
 
 	public setShaderSource(programID: WebGLProgram, type: ShaderType, code: string): void {
@@ -69,14 +71,23 @@ export class Shader {
 		return this.shaderSourceData.id;
 	}
 
-	// TODO objectID
-	public attributes(objectID?: number): Map<IShaderAttributeName, IAttributeValue> {
-		return this.attributeData;
+	public vertexAttributes(renderableID: number): Map<IShaderAttributeName, IAttributeValue> {
+		const attr = new Map<IShaderAttributeName, IAttributeValue>();
+
+		for (const [ key, value ] of this.vertAttributes) {
+			if (value.vertexAttribute.UUID === renderableID) {
+				attr.set(key, value);
+			}
+		}
+		return attr;
 	}
 
-	// TODO objectID
-	public uniforms(objectID?: number): Map<IShaderAttributeName, IUniformValue> {
-		return this.uniformData;
+	public shaderAttributes(): Map<IShaderAttributeName, IAttributeValue> {
+		return this.generalAttributes;
+	}
+
+	public shaderUniforms(): Map<IShaderAttributeName, IUniformValue> {
+		return this.uniforms;
 	}
 
 	public setAttributeDataFor(attName: string, attribute: IAttributeValue | IAttributeValue[]): void {
@@ -91,13 +102,24 @@ export class Shader {
 			for (const attr of attribute) {
 				// TODO check if we already have the location
 				const locID = gl.getAttribLocation(this.programID, attName);
-				this.attributeData.set({ name: attName, id: locID }, attr);
+
+				if (attr.vertexAttribute) {
+					this.vertAttributes.set({ name: attName, id: locID }, attr);
+
+				} else if (attr.attributeValue) {
+					this.generalAttributes.set({ name: attName, id: locID }, attr);
+				}
 			}
 
 		} else {
 			// TODO check if we already have the location
 			const locID = gl.getAttribLocation(this.programID, attName);
-			this.attributeData.set({ name: attName, id: locID }, attribute);
+			if (attribute.vertexAttribute) {
+				this.vertAttributes.set({ name: attName, id: locID }, attribute);
+
+			} else if (attribute.attributeValue) {
+				this.generalAttributes.set({ name: attName, id: locID }, attribute);
+			}
 		}
 	}
 
@@ -143,7 +165,7 @@ export class Shader {
 			}
 		}
 
-		this.uniformData.set({ name: uniformName, id: locID }, uniformData);
+		this.uniforms.set({ name: uniformName, id: locID }, uniformData);
 	}
 
 	private compileShaderSource(type: ShaderType, source: string): WebGLShader {

@@ -1,16 +1,18 @@
 import Shader, { ShaderType } from '../shader';
-import { IRenderable } from '../renderer';
+import { IRenderable } from '../engine';
 import { ICamera } from '../camera';
 
 
 export class Scene {
+	private glCtx: WebGLRenderingContext;
 	private camera: ICamera;
 	private renderables: IRenderable[];
 	private shaders: Map<ShaderType, Shader>;
 	private programId: WebGLProgram;
 	private programLinked: boolean;
 
-	constructor() {
+	constructor(gl: WebGLRenderingContext) {
+		this.glCtx = gl;
 		this.shaders = new Map<ShaderType, Shader>();
 		this.renderables = [];
 		this.camera = null;
@@ -26,16 +28,13 @@ export class Scene {
 		this.camera = camera;
 	}
 
-	public addShader(gl: WebGLRenderingContext, type: ShaderType, data: string): void {
-		const newShader = new Shader();
-
+	public addShader(type: ShaderType, data: string): void {
 		if (this.programId === null) {
-			this.programId = gl.createProgram();
+			this.programId = this.glCtx.createProgram();
 		}
 
-		newShader.setShaderSource(gl, type, data);
-		gl.attachShader(this.programId, newShader.ID);
-
+		const newShader = new Shader(this.glCtx);
+		newShader.setShaderSource(this.programId, type, data);
 		this.shaders.set(type, newShader);
 	}
 
@@ -46,106 +45,47 @@ export class Scene {
 		return this.shaders.get(shader);
 	}
 
-	public render(gl: WebGLRenderingContext) {
-		this.enableUniforms(gl);
-
-		// TODO
+	public render() {
 		for (const gObject of this.renderables) {
-			gObject.enableBuffer(gl, this.programId);
-			this.enableAttributes(gl);
+			// NOTE if the two maps have the same key, only the value of the last map is kept. This shouldn't be a problem here
+			// since all keys are objects IShaderAttributeName, two objects with the same values are !=
+			const objectVertexAttr = new Map([
+					...this.shaders.get(ShaderType.Vertex).vertexAttributes(gObject.UUID),
+					...this.shaders.get(ShaderType.Fragment).vertexAttributes(gObject.UUID),
+				]);
 
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, gObject.verticeCount());
+			gObject.enableBufferData(this.glCtx, objectVertexAttr);
+
+			this.enableShaderAttributes(gObject.UUID);
+			this.glCtx.drawArrays(this.glCtx.TRIANGLE_STRIP, 0, gObject.verticeCount());
+
+			gObject.disableBuffer(this.glCtx, objectVertexAttr);
 		}
 	}
 
-	// this may not work when we get to renderables that describe the buffer data differently.
-	// to solve this, we can pass the bufferID that we are currently describing.
-	// or will it????????
-	// TODO there are better ways to do this
-	private enableAttributes(gl: WebGLRenderingContext): void {
+	private enableShaderAttributes(objectID: number): void {
+		const gl = this.glCtx;
+
 		for (const shader of this.shaders.values()) {
-			const attributes = shader.Attributes;
+			const attributes = shader.shaderAttributes();
 
 			for (const [ attName, attData ] of attributes) {
-				if (attName.id === -1) {
-					const newID = gl.getAttribLocation(this.programId, attName.name);
-					attName.id = newID;
-
-					shader.setAttributeIDFor(attName.name, newID);
-				}
 				gl.enableVertexAttribArray(attName.id as number);
+				const len = attData.attributeValue.length;
 
-				if (attData.vertexAttribute) {
-					gl.vertexAttribPointer(
-						attName.id as number,
-						attData.vertexAttribute.size,
-						gl.FLOAT,
-						attData.vertexAttribute.normalized,
-						attData.vertexAttribute.stride,
-						attData.vertexAttribute.offset);
-
-				} else if (attData.attributeValue) {
-					const len = attData.attributeValue.length;
-
-					switch (len) {
-						case 1:
-							gl.vertexAttrib1fv(attName.id as number, attData.attributeValue);
-							break;
-						case 2:
-							gl.vertexAttrib2fv(attName.id as number, attData.attributeValue);
-							break;
-						case 3:
-							gl.vertexAttrib3fv(attName.id as number, attData.attributeValue);
-							break;
-						case 4:
-							gl.vertexAttrib4fv(attName.id as number, attData.attributeValue);
-							break;
-					}
-				}
-			}
-		}
-	}
-
-	// mabye move this to the shader class????
-	private enableUniforms(gl: WebGLRenderingContext): void {
-		if (!this.programLinked) {
-			this.programLinked = true;
-			gl.linkProgram(this.programId);
-
-			if (!gl.getProgramParameter(this.programId, gl.LINK_STATUS)) {
-				console.log(`Error LINK_STATUS program Id ${gl.getProgramInfoLog(this.programId)}`);
-			}
-		}
-		gl.useProgram(this.programId);
-
-		// setup shader uniforms
-		for (const shader of this.shaders.values()) {
-			const uniforms = shader.Uniforms;
-
-			for (const [ uniformName, uniformData ] of uniforms) {
-				if (uniformName.id === -1) {
-					const newID = gl.getUniformLocation(this.programId, uniformName.name);
-					uniformName.id = newID;
-
-					shader.setUniformIDFor(uniformName.name, newID);
-				}
-
-				if (uniformData.dataMatrix) {
-					gl.uniformMatrix4fv(uniformName.id, false, uniformData.dataMatrix.flatten());
-				}
-				if (uniformData.dataValue) {
-					const len = uniformData.dataValue.length;
-
-					switch (len) {
-						case 1:
-							gl.uniform1fv(uniformName.id, uniformData.dataValue);
-						case 2:
-							gl.uniform2fv(uniformName.id, uniformData.dataValue);
-						case 3:
-							gl.uniform3fv(uniformName.id, uniformData.dataValue);
-						case 4:
-							gl.uniform4fv(uniformName.id, uniformData.dataValue);
-					}
+				switch (len) {
+					case 1:
+						gl.vertexAttrib1fv(attName.id as number, attData.attributeValue);
+						break;
+					case 2:
+						gl.vertexAttrib2fv(attName.id as number, attData.attributeValue);
+						break;
+					case 3:
+						gl.vertexAttrib3fv(attName.id as number, attData.attributeValue);
+						break;
+					case 4:
+						gl.vertexAttrib4fv(attName.id as number, attData.attributeValue);
+						break;
 				}
 			}
 		}

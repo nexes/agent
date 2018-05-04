@@ -1,4 +1,4 @@
-import { IVertexAttribute } from '../shader';
+import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 import { Scene } from '../scene/scene';
 import { Texture } from './texture';
 
@@ -20,21 +20,24 @@ export interface IRenderable {
 
 	/**
 	 * set the renderable's texture
+	 * @param {Texture} texture The texture this renderable will use
 	 */
 	setTexture(texture: Texture): void;
 
 	/**
 	 * must be called at lease once before rendering the renderable.
-	 * This will bind and describe the buffer
+	 * This will bind and describe the buffer and enable the renderables vertex attributes
 	 * @param {WebGLRenderingContext}	gl	webGLrendering context
+	 * @param {Map<IShaderAttributeName, IAttributeValue>} vertexAttributes	A map of the vertex attributes that describe this renderable
 	 */
-	enableBuffer(gl: WebGLRenderingContext): void;
+	enableBufferData(gl: WebGLRenderingContext, vertexAttributes: Map<IShaderAttributeName, IAttributeValue>): void;
 
 	/**
 	 * this will unbind the renderables buffer array and texture if one is set
 	 * @param {WebGLRenderingContext}	gl	webGLrendering context
+	 * @param {Map<IShaderAttributeName, IAttributeValue>} vertexAttributes	A map of the vertex attributes that describe this renderable
 	 */
-	disableBuffer(gl: WebGLRenderingContext): void;
+	disableBuffer(gl: WebGLRenderingContext, vertexAttributes: Map<IShaderAttributeName, IAttributeValue>): void;
 
 	/**
 	 * return the number of vertices this renderable will have
