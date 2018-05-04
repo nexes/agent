@@ -1,29 +1,21 @@
-import { IRenderable, Texture } from '../renderer';
-// import { IAttributeValue,	IAttributeName, IVertexAttribute } from '../shader';
-import { IVertexAttribute } from '../shader';
+import { IRenderable, Texture } from '../engine';
+import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
 
-// interface IAttributeName {
-// 	name: string;
-// 	id: number;
-// }
-
-const UUIDMAX = 10000; // just an abritrary max for right now
+const UUID_MAX = 10000; // just an abritrary max for right now
 
 
 export class Square implements IRenderable {
-	readonly UUID: number;
+	public readonly UUID: number;
 
 	private vbo: Float32Array;
 	private bufferId: WebGLBuffer;
 	private texture: Texture;
-	// private attribData: Map<IAttributeName, IAttributeValue>;
 
 
 	constructor(x: number, y: number, width: number, height: number) {
-		this.UUID = Math.floor(Math.random() * UUIDMAX); // TODO design a better UUID system where we can check for collisions
+		this.UUID = Math.floor(Math.random() * UUID_MAX); // TODO design a better UUID system where we can check for collisions
 		this.vbo = new Float32Array(8 * 4); // 8 vertex attributes for 4 vertices
-		// this.attribData = new Map();
 		this.bufferId = null;
 		this.texture = null;
 
@@ -118,6 +110,7 @@ export class Square implements IRenderable {
 		};
 	}
 
+	// squares have a default buffer layout, so we can hard code
 	public textureAttributes(): IVertexAttribute {
 		return {
 			UUID: this.UUID,
@@ -128,18 +121,36 @@ export class Square implements IRenderable {
 		};
 	}
 
-	public enableBuffer(gl: WebGLRenderingContext, program: WebGLProgram): void {
+	public enableBufferData(gl: WebGLRenderingContext, vertexAttributes: Map<IShaderAttributeName, IAttributeValue>): void {
 		if (this.bufferId === null) {
 			this.bufferId = gl.createBuffer();
 		}
-		// bind our buffer
+
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferId);
 		gl.bufferData(gl.ARRAY_BUFFER, this.vbo, gl.STATIC_DRAW);
 
-		// bind our texture
+		for (const [ attName, attData ] of vertexAttributes) {
+			gl.enableVertexAttribArray(attName.id as number);
+			gl.vertexAttribPointer(
+				attName.id as number,
+				attData.vertexAttribute.size,
+				gl.FLOAT,
+				attData.vertexAttribute.normalized,
+				attData.vertexAttribute.stride,
+				attData.vertexAttribute.offset,
+			);
+		}
+
 		if (this.texture) {
-			gl.activeTexture(gl.TEXTURE0); // should this be here?
 			gl.bindTexture(gl.TEXTURE_2D, this.texture.ID());
+		}
+	}
+
+	public disableBuffer(gl: WebGLRenderingContext, vertexAttributes: Map<IShaderAttributeName, IAttributeValue>): void {
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+		for (const [ attName, attData ] of vertexAttributes) {
+			gl.disableVertexAttribArray(attName.id as number);
 		}
 	}
 }
