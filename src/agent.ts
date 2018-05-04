@@ -1,4 +1,4 @@
-export { Square } from './geometry/square';
+export { Square } from './renderable/square';
 export { Scene } from './scene/scene';
 export { OrthographicCamera, PerspectiveCamera } from './camera';
 export { default as Engine, Texture } from './engine';

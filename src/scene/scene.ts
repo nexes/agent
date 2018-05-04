@@ -1,5 +1,5 @@
 import Shader, { ShaderType } from '../shader';
-import { IRenderable } from '../engine';
+import { IRenderable } from '../renderable';
 import { ICamera } from '../camera';
 
 
