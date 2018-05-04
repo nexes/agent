@@ -31,14 +31,6 @@ export class WebGLRenderer {
 		return this.width / this.height;
 	}
 
-	public render(scene: Scene): void {
-		this.clear();
-
-		if (this._glCtx) {
-			scene.render();
-		}
-	}
-
 	public resize(width: number, height: number): void {
 		this._canvas.width = this.width = width * this._devicePixelRatio;
 		this._canvas.height = this.height = height * this._devicePixelRatio;
@@ -49,7 +41,7 @@ export class WebGLRenderer {
 		this._glCtx.viewport(0, 0, this.width, this.height);
 	}
 
-	private clear(): void {
+	public clear(): void {
 		this._glCtx.clear(this._glCtx.COLOR_BUFFER_BIT | this._glCtx.DEPTH_BUFFER_BIT);
 	}
 
