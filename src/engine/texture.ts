@@ -1,16 +1,20 @@
 export class Texture {
+	private glCtx: WebGLRenderingContext;
 	private textureID: WebGLTexture;
 	private _width: number;
 	private _height: number;
 
-	constructor() {
+	constructor(gl: WebGLRenderingContext) {
+		this.glCtx = gl;
 		this.textureID = null;
 		this._width = 0;
 		this._height = 0;
 	}
 
 	// async await maybe??
-	public loadResource(gl: WebGLRenderingContext, resource: string): Promise<boolean> {
+	public loadResource(resource: string): Promise<boolean> {
+		const gl = this.glCtx;
+
 		if (this.textureID === null) {
 			this.textureID = gl.createTexture();
 		}
