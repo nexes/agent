@@ -36,7 +36,7 @@ export class Shader {
 		const lines = code.split('\n');
 		const id = this.compileShaderSource(type, code);
 
-		if (!this.programID) {
+		if (!this.programID || this.programID !== programID) {
 			this.programID = programID;
 		}
 

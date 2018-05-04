@@ -57,6 +57,7 @@ export class Scene {
 			gObject.enableBufferData(this.glCtx, objectVertexAttr);
 
 			this.enableShaderAttributes(gObject.UUID);
+			this.glCtx.useProgram(this.programId);
 			this.glCtx.drawArrays(this.glCtx.TRIANGLE_STRIP, 0, gObject.verticeCount());
 
 			gObject.disableBuffer(this.glCtx, objectVertexAttr);
