@@ -26,14 +26,13 @@
         gl_FragColor = vColor;
       }
     `;
-    let renderer = new Agent.WebGLRenderer({width: 400, height: 200});
+    let engine = new Agent.Engine({width: 400, height: 200});
     let square = new Agent.Square(0, 0, 0.25, 0.75);
     let square2 = new Agent.Square(0, 0, -0.25, -0.75);
-    let scene = new Agent.Scene();
-    let glCtx = renderer.getContext();
+    let scene = engine.newScene('worldscene');
 
-    scene.addShader(glCtx, Agent.ShaderType.Vertex, vshr);
-    scene.addShader(glCtx, Agent.ShaderType.Fragment, fshr);
+    scene.addShader(Agent.ShaderType.Vertex, vshr);
+    scene.addShader(Agent.ShaderType.Fragment, fshr);
 
     square.setColor(0.0, 0.0, 1.0, 1.0);
     square2.setColor(1.0, 1.0, 0.0, 1.0);
@@ -51,7 +50,7 @@
 			.setAttributeDataFor('aColor', {vertexAttribute: square2.colorAttributes()});
 
     scene.addDrawable(square, square2);
-    renderer.render(scene);
+    engine.render();
   </script>
 </body>
 

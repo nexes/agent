@@ -21,41 +21,34 @@
       uniform vec4 uColor;
 
       void main() {
-        gl_FragColor = uColor;
+        gl_FragColor = uColor;//vec4(1.0, 0.0, 0.0, 1.0);
       }
 		`;
-    let renderer = new Agent.WebGLRenderer({width: 400, height: 200});
-    let square = new Agent.Square(10, 100, 150, 75);
+		let engine = new Agent.Engine({width: 1200, height: 800});
+		let square = new Agent.Square(10, 100, 128, 328);
     let square2 = new Agent.Square(210, 10, 100, 175);
     let square3 = new Agent.Square(300, 120, 50, 50);
-    let camera = new Agent.OrthographicCamera({left:0, right:400, top:0, bottom:200, far:0, near:100});
-    let scene = new Agent.Scene();
-    let glCtx = renderer.getContext();
+    let camera = new Agent.OrthographicCamera({left:0, right:1200, top:0, bottom:800, far:0, near:100});
 
-    scene.addShader(glCtx, Agent.ShaderType.Vertex, vshr);
-    scene.addShader(glCtx, Agent.ShaderType.Fragment, fshr);
+		let scene = engine.newScene('worldScene');
 
-    scene.shader(Agent.ShaderType.Fragment)
-      .setUniformDataFor('uColor', {dataValue: [0.0, 0.5, 1.0, 1.0]});
+    scene.addShader(Agent.ShaderType.Vertex, vshr);
+    scene.addShader(Agent.ShaderType.Fragment, fshr);
 
-    scene.shader(Agent.ShaderType.Vertex)
-      .setUniformDataFor('camera', {dataMatrix: camera.matrix()});
+    scene.shader(Agent.ShaderType.Fragment).setUniformDataFor('uColor', {dataValue: [0.0, 0.15, 1.0, 1.0]});
+    scene.shader(Agent.ShaderType.Vertex).setUniformDataFor('camera', {dataMatrix: camera.matrix()});
 
-		// test adding shader data with an array
 		scene.shader(Agent.ShaderType.Vertex)
-			.setAttributeDataFor('aPos', [
-					{vertexAttribute: square.vertexAttributes()},
-					{vertexAttribute: square2.vertexAttributes()},
-				]);
-
-		// test adding shader data with a single obj
-		scene.shader(Agent.ShaderType.Vertex)
-			.setAttributeDataFor('aPos', {vertexAttribute: square3.vertexAttributes()});
+      .setAttributeDataFor('aPos', [
+        { vertexAttribute: square.vertexAttributes() },
+        { vertexAttribute: square2.vertexAttributes() },
+        { vertexAttribute: square3.vertexAttributes() },
+      ]);
 
     scene.addDrawable(square, square2, square3);
     scene.addCamera(camera);
 
-    renderer.render(scene);
+    engine.render();
   </script>
 </body>
 

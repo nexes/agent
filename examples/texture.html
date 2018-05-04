@@ -30,51 +30,47 @@
         gl_FragColor = texture2D(uSampler, vTexture);
       }
 		`;
-    let renderer = new Agent.WebGLRenderer({width: 1200, height: 800});
-    let square = new Agent.Square(10, 100, 128, 128);
-    let square2 = new Agent.Square(200, 100, 128, 128);
-    let camera = new Agent.OrthographicCamera({left:0, right:1200, top:0, bottom:800, far:0, near:100});
-    let scene = new Agent.Scene();
-    let glCtx = renderer.context(); // BEGONE
 
-		// create a texture objects
-		let brickTexture = new Agent.Texture();
-		let fireTexture = new Agent.Texture();
+		let engine = new Agent.Engine({width: 1200, height: 800});
+		let square = new Agent.Square(10, 100, 128, 328);
+		let square2 = new Agent.Square(200, 100, 128, 128);
+		let camera = new Agent.OrthographicCamera({left:0, right:1200, top:0, bottom:800, far:0, near:100});
 
-		fireTexture.loadResource(glCtx, "./images/firetexture.png") //Ctx should begone
+		let scene = engine.newScene('worldScene');
+		let brickTexture = engine.newTexture();
+		let fireTexture = engine.newTexture();
+
+		fireTexture.loadResource("./images/firetexture.png")
 			.then((success) => {
 				square.setTexture(fireTexture); // assign our texture to a renderable
-				renderer.render(scene);					// re-render since we are not running in a loop
+				engine.render();					// re-render since we are not running in a loop
 			})
 			.catch((success) => {
 				console.log('fire texture failed to load');
 			});
 
-		brickTexture.loadResource(glCtx, "./images/bricktexture.png") //Ctx should begone
+		brickTexture.loadResource("./images/bricktexture.png")
 			.then((success) => {
 				square2.setTexture(brickTexture);  // assign our texture to a renderable
-				renderer.render(scene);            // re-render since we are not running in a loop
+				engine.render();            // re-render since we are not running in a loop
 			})
 			.catch((success) => {
 				console.log('brick texture failed to load');
 			});
 
-    scene.addShader(glCtx, Agent.ShaderType.Vertex, vshr); 	 //Ctx should begone
-    scene.addShader(glCtx, Agent.ShaderType.Fragment, fshr); //Ctx should begone
+			scene.addShader(Agent.ShaderType.Vertex, vshr);
+			scene.addShader(Agent.ShaderType.Fragment, fshr);
 
-    scene.shader(Agent.ShaderType.Vertex)
-      .setUniformDataFor('camera', {dataMatrix: camera.matrix()});
+			scene.shader(Agent.ShaderType.Vertex).setUniformDataFor('camera', { dataMatrix: camera.matrix() });
+			scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aPos', { vertexAttribute: square.vertexAttributes() });
+			scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aText', { vertexAttribute: square.textureAttributes() });
 
-		scene.shader(Agent.ShaderType.Vertex)
-			.setAttributeDataFor('aPos', {vertexAttribute: square.vertexAttributes()});
+			scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aPos', { vertexAttribute: square2.vertexAttributes() });
+			scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aText', { vertexAttribute: square2.textureAttributes() });
 
-		scene.shader(Agent.ShaderType.Vertex)
-			.setAttributeDataFor('aText', {vertexAttribute: square.textureAttributes()});
-
-    scene.addDrawable(square, square2);
-    scene.addCamera(camera);
-
-    renderer.render(scene);
+			scene.addDrawable(square, square2);
+			scene.addCamera(camera);
+			engine.render();
   </script>
 </body>
 </html>
