@@ -50,9 +50,9 @@ export class Scene {
 			// NOTE if the two maps have the same key, only the value of the last map is kept. This shouldn't be a problem here
 			// since all keys are objects IShaderAttributeName, two objects with the same values are !=
 			const objectVertexAttr = new Map([
-					...this.shaders.get(ShaderType.Vertex).vertexAttributes(gObject.UUID),
-					...this.shaders.get(ShaderType.Fragment).vertexAttributes(gObject.UUID),
-				]);
+				...this.shaders.get(ShaderType.Vertex).vertexAttributes(gObject.UUID),
+				...this.shaders.get(ShaderType.Fragment).vertexAttributes(gObject.UUID),
+			]);
 
 			gObject.enableBufferData(this.glCtx, objectVertexAttr);
 

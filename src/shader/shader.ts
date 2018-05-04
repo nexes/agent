@@ -55,7 +55,8 @@ export class Shader {
 			}
 		}
 
-		this.glCtx.attachShader(programID, id);
+		this.glCtx.attachShader(this.programID, id);
+		this.glCtx.linkProgram(this.programID);
 
 		this.shaderSourceData = {
 			id,
@@ -130,7 +131,6 @@ export class Shader {
 			throw new ReferenceError(`setUniformDataFor: ${uniformName} was not found`);
 		}
 
-		this.glCtx.linkProgram(this.programID);
 		this.glCtx.useProgram(this.programID);
 
 		if (!this.glCtx.getProgramParameter(this.programID, this.glCtx.LINK_STATUS)) {

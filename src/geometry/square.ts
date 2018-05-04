@@ -142,6 +142,7 @@ export class Square implements IRenderable {
 		}
 
 		if (this.texture) {
+			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, this.texture.ID());
 		}
 	}
