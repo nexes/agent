@@ -83,6 +83,11 @@ export class WebGLRenderer {
 			this._glCtx = options.glContext;
 		}
 
+		this._glCtx.enable(this._glCtx.CULL_FACE);
+		this._glCtx.enable(this._glCtx.BLEND);
+		this._glCtx.disable(this._glCtx.DEPTH_TEST);
+
+		this._glCtx.cullFace(this._glCtx.FRONT);
 		this._glCtx.viewport(0, 0, this.width, this.height);
 		this._glCtx.clearColor(1.0, 0.0, 1.0, 1.0);
 	}
