@@ -1,6 +1,15 @@
 import { Texture } from '../engine';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
+export { Mesh } from './mesh';
+export { Square } from './square';
+export const UUID_MAX = 10000; // just an abritrary max for right now
+
+
+export interface ITileOptions {
+	singleTileWidth: number;
+	singleTileHeight: number;
+}
 
 export interface IRenderable {
 	readonly UUID: number;
