@@ -36,6 +36,12 @@ export class Scene {
 		const newShader = new Shader(this.glCtx);
 		newShader.setShaderSource(this.programId, type, data);
 		this.shaders.set(type, newShader);
+
+		// only link the webgl program when we have a vertex and fragment shader. We need both before we link
+		// I think this should be thought out more.
+		if (this.shaders.size === 2 && this.shaders.has(ShaderType.Vertex) && this.shaders.has(ShaderType.Fragment)) {
+			this.glCtx.linkProgram(this.programId);
+		}
 	}
 
 	public shader(shader: ShaderType): Shader {

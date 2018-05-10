@@ -56,7 +56,6 @@ export class Shader {
 		}
 
 		this.glCtx.attachShader(this.programID, id);
-		this.glCtx.linkProgram(this.programID);
 
 		this.shaderSourceData = {
 			id,
