@@ -41,9 +41,9 @@ export class Mesh implements IRenderable {
 				this.vbo[ index + 2 ] = 0; // tx
 				this.vbo[ index + 3 ] = 0; // ty
 				this.vbo[ index + 4 ] = 0; // r
-				this.vbo[ index + 5 ] = 1; // g
+				this.vbo[ index + 5 ] = 0; // g
 				this.vbo[ index + 6 ] = 0; // b
-				this.vbo[ index + 7 ] = 1; // a
+				this.vbo[ index + 7 ] = 0; // a
 
 				// Vertext upper right
 				this.vbo[ index + 8 ] = x + tileOptions.singleTileWidth;
@@ -51,9 +51,9 @@ export class Mesh implements IRenderable {
 				this.vbo[ index + 10 ] = 0; // tx
 				this.vbo[ index + 11 ] = 0; // ty
 				this.vbo[ index + 12 ] = 0; // r
-				this.vbo[ index + 13 ] = 1; // g
+				this.vbo[ index + 13 ] = 0; // g
 				this.vbo[ index + 14 ] = 0; // b
-				this.vbo[ index + 15 ] = 1; // a
+				this.vbo[ index + 15 ] = 0; // a
 
 				// Vertext lower left
 				this.vbo[ index + 16 ] = x; // x
@@ -61,9 +61,9 @@ export class Mesh implements IRenderable {
 				this.vbo[ index + 18 ] = 0; // tx
 				this.vbo[ index + 19 ] = 0; // ty
 				this.vbo[ index + 20 ] = 0; // r
-				this.vbo[ index + 21 ] = 1; // g
+				this.vbo[ index + 21 ] = 0; // g
 				this.vbo[ index + 22 ] = 0; // b
-				this.vbo[ index + 23 ] = 1; // a
+				this.vbo[ index + 23 ] = 0; // a
 
 				// Vertext lower right
 				this.vbo[ index + 24 ] = x + tileOptions.singleTileWidth;
@@ -71,33 +71,18 @@ export class Mesh implements IRenderable {
 				this.vbo[ index + 26 ] = 0; // tx
 				this.vbo[ index + 27 ] = 0; // ty
 				this.vbo[ index + 28 ] = 0; // r
-				this.vbo[ index + 29 ] = 1; // g
+				this.vbo[ index + 29 ] = 0; // g
 				this.vbo[ index + 30 ] = 0; // b
-				this.vbo[ index + 31 ] = 1; // a
+				this.vbo[ index + 31 ] = 0; // a
 
 				index += 32;
 				x += tileOptions.singleTileWidth;
 
 				// degenerate triangle
 				if (j + 1 >= this.tileCountX) {
-					this.vbo[ index + 0 ] = this.vbo[ index - 16];
-					this.vbo[ index + 1 ] = this.vbo[ index - 15];
-					this.vbo[ index + 2 ] = this.vbo[ index - 14];
-					this.vbo[ index + 3 ] = this.vbo[ index - 13];
-					this.vbo[ index + 4 ] = this.vbo[ index - 12];
-					this.vbo[ index + 5 ] = this.vbo[ index - 11];
-					this.vbo[ index + 6 ] = this.vbo[ index - 10];
-					this.vbo[ index + 7 ] = this.vbo[ index - 9];
-
-					this.vbo[ index + 8 ] = this.vbo[ index - 8 ];
-					this.vbo[ index + 9 ] = this.vbo[ index - 7 ];
-					this.vbo[ index + 10 ] = this.vbo[ index - 6 ];
-					this.vbo[ index + 11 ] = this.vbo[ index - 5 ];
-					this.vbo[ index + 12 ] = this.vbo[ index - 4 ];
-					this.vbo[ index + 13 ] = this.vbo[ index - 3 ];
-					this.vbo[ index + 14 ] = this.vbo[ index - 2 ];
-					this.vbo[ index + 15 ] = this.vbo[ index - 1 ];
-
+					for (let k = 0, l = 16; k < 16; k++, l--) {
+						this.vbo[index + k] = this.vbo[index - l];
+					}
 					index += 16;
 				}
 			}
@@ -110,7 +95,12 @@ export class Mesh implements IRenderable {
 	}
 
 	public setColor(r: number, g: number, b: number, a: number): void {
-		throw new Error('Method not implemented.');
+		for (let i = 0; i < this.vbo.length; i += 8) {
+			this.vbo[i + 4] = r % 256;
+			this.vbo[i + 5] = g % 256;
+			this.vbo[i + 6] = b % 256;
+			this.vbo[i + 7] = a % 256;
+		}
 	}
 
 	public enableBufferData(gl: WebGLRenderingContext, vertexAttributes: Map<IShaderAttributeName, IAttributeValue>): void {

@@ -1,9 +1,6 @@
-import { IRenderable } from '../renderable';
+import { IRenderable, UUID_MAX } from '../renderable';
 import { Texture } from '../engine';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
-
-
-const UUID_MAX = 10000; // just an abritrary max for right now
 
 
 export class Square implements IRenderable {
@@ -73,7 +70,6 @@ export class Square implements IRenderable {
 	public setTexture(texture: Texture): void {
 		this.texture = texture;
 
-		// TODO
 		this.vbo[ 2 ] = 0;
 		this.vbo[ 3 ] = 0;
 		this.vbo[ 10 ] = 1.0;
@@ -82,11 +78,6 @@ export class Square implements IRenderable {
 		this.vbo[ 19 ] = 1.0;
 		this.vbo[ 26 ] = 1.0;
 		this.vbo[ 27 ] = 1.0;
-
-		// for (let i = 2; i < this.vbo.length; i += 6) {
-		// 	this.vbo[i++] = 1;
-		// 	this.vbo[i++] = 1;
-		// }
 	}
 
 	// squares have a default buffer layout, so we can hard code
