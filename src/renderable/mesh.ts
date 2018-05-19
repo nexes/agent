@@ -1,4 +1,4 @@
-import { Texture } from '../engine';
+import Texture from '../texture';
 import { IRenderable, ITileOptions, UUID_MAX } from '../renderable';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
@@ -91,7 +91,24 @@ export class Mesh implements IRenderable {
 
 	public setTexture(texture: Texture): void {
 		this.texture = texture;
-		throw new Error('Method not implemented.');
+
+		for (let i = 0; i < this.vbo.length; i += 32) {
+			const tx = i + 2;
+			const ty = i + 3;
+
+			this.vbo[tx + 0] = 0.0;
+			this.vbo[ty + 0] = 0.0;
+			this.vbo[tx + 8] = 1.0; // texture.width();
+			this.vbo[ty + 8] = 0.0;
+			this.vbo[tx + 16] = 0.0;
+			this.vbo[ty + 16] = 1.0; // texture.height();
+			this.vbo[tx + 24] = 1.0; // texture.width();
+			this.vbo[ty + 24] = 1.0; // texture.height();
+		}
+	}
+
+	public setTextureFromJSON(texture: Texture, tile: number, data: JSON): void {
+		// TODO
 	}
 
 	public setColor(r: number, g: number, b: number, a: number): void {
