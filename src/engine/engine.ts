@@ -1,5 +1,6 @@
 import Scene from '../scene';
-import { IEngineOptions, Texture } from '../engine';
+import Texture from '../texture';
+import { IEngineOptions } from '../engine';
 import { WebGLRenderer } from './webGLRenderer';
 
 

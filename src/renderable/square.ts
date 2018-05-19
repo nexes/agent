@@ -1,5 +1,5 @@
+import Texture from '../texture';
 import { IRenderable, UUID_MAX } from '../renderable';
-import { Texture } from '../engine';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
 

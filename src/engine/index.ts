@@ -1,4 +1,3 @@
-export { Texture } from './texture';
 export { Engine as default } from './engine';
 
 

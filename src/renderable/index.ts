@@ -1,4 +1,4 @@
-import { Texture } from '../engine';
+import Texture from '../texture';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
 export { Mesh } from './mesh';
