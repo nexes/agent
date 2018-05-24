@@ -1,4 +1,4 @@
-import Texture from '../texture';
+import Texture, { ITextureJSON } from '../texture';
 import { IRenderable, ITileOptions, UUID_MAX } from '../renderable';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
@@ -107,7 +107,7 @@ export class Mesh implements IRenderable {
 		}
 	}
 
-	public setTextureFromJSON(texture: Texture, tile: number, data: JSON): void {
+	public setTextureFromJSON(texture: Texture, data: ITextureJSON): void {
 		// TODO
 	}
 
