@@ -7,6 +7,7 @@ module.exports = {
     "agent": "./src/agent.ts",
     "agent.min": "./src/agent.ts",
   },
+  mode: 'development',
   output: {
     filename: "[name].js",
     library: "Agent",
