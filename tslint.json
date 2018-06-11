@@ -5,7 +5,12 @@
     ],
     "jsRules": {
         "quotemark": [true, "single"],
-        "indent": [true, "tabs", 2]
+        "indent": [true, "tabs", 2],
+        "no-console": [true, "debug", "info", "time", "timeEnd", "trace"],
+        "semicolon": [
+            true,
+            "always"
+        ],
     },
     "rules": {
         "max-line-length": false,
