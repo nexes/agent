@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+  <title>Geometric shapes example</title>
+</head>
+
+<body>
+  <script type="application/javascript" src="../lib/agent.js"></script>
+  <script>
+    const vshr = `
+      attribute vec2 aPos;
+      attribute vec2 aTexture;
+      uniform mat4 camera;
+
+			varying vec2 vTexture;
+
+      void main() {
+      	vTexture = aTexture;
+        gl_Position = camera * vec4(aPos, 0.0, 1.0);
+      }
+    `;
+    const fshr = `
+      precision mediump float;
+
+      uniform sampler2D uSampler;
+			varying vec2 vTexture;
+
+      void main() {
+        gl_FragColor = texture2D(uSampler, vTexture);
+      }
+		`;
+		let engine = new Agent.Engine({width: 1200, height: 800});
+		let mesh = new Agent.Mesh(10, 100, 800, 600, {singleTileWidth: 64, singleTileHeight: 64});
+		let camera = new Agent.OrthographicCamera({left:0, right:1200, top:0, bottom:800, far:0, near:100});
+		let scene = engine.newScene('worldscene');
+		let brickTex = engine.newTexture();
+
+		brickTex.loadResource("./images/bricktexture.png")
+			.then((success) => {
+				mesh.setTexture(brickTex);
+				engine.render();
+			})
+			.catch((success) => {
+				console.log('tilemap.html, error loading texture');
+			});
+
+    Agent.stringToTextureJSON('./levels/level1.json');
+		scene.addShader(Agent.ShaderType.Vertex, vshr);
+		scene.addShader(Agent.ShaderType.Fragment, fshr);
+
+		scene.shader(Agent.ShaderType.Vertex).setUniformDataFor('camera', { dataMatrix: camera.matrix() });
+		scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aPos', { vertexAttribute: mesh.vertexAttributes() });
+		scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aTexture', { vertexAttribute: mesh.textureAttributes() });
+
+		scene.addDrawable(mesh);
+		scene.addCamera(camera);
+		engine.render();
+  </script>
+</body>
+</html>
