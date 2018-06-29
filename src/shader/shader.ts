@@ -71,7 +71,7 @@ export class Shader {
 		return this.shaderSourceData.id;
 	}
 
-	public vertexAttributes(renderableID: number): Map<IShaderAttributeName, IAttributeValue> {
+	public vertexAttributes(renderableID: string): Map<IShaderAttributeName, IAttributeValue> {
 		const attr = new Map<IShaderAttributeName, IAttributeValue>();
 
 		for (const [ key, value ] of this.vertAttributes) {

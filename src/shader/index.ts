@@ -13,7 +13,7 @@ export interface IShaderAttributeName {
 }
 
 export interface IVertexAttribute {
-	readonly UUID: number;
+	readonly UUID: string;
 	readonly size: number;
 	readonly normalized: boolean;
 	readonly stride: number;

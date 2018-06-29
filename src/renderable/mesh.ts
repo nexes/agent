@@ -1,10 +1,11 @@
+import { UUID } from '../agent';
 import Texture, { ITextureJSON } from '../texture';
-import { IRenderable, ITileOptions, UUID_MAX } from '../renderable';
+import { IRenderable, ITileOptions } from '../renderable';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
 
 export class Mesh implements IRenderable {
-	public readonly UUID: number;
+	public readonly UUID: string;
 
 	private tileCountX: number;
 	private tileCountY: number;
@@ -16,8 +17,7 @@ export class Mesh implements IRenderable {
 	 * Create a 2D mesh (grid) object.
 	 */
 	constructor(x: number, y: number, width: number, height: number, tileOptions: ITileOptions) {
-		// TODO: do a proper uuid
-		this.UUID = Math.floor(Math.random() * UUID_MAX);
+		this.UUID = UUID();
 		this.tileCountX = Math.floor(width / tileOptions.singleTileWidth);
 		this.tileCountY = Math.floor(height / tileOptions.singleTileHeight);
 		this.bufferId = null;
@@ -108,7 +108,13 @@ export class Mesh implements IRenderable {
 	}
 
 	public setTextureFromJSON(texture: Texture, data: ITextureJSON): void {
-		// TODO
+		for (const layer of data.layers) {
+			for (let i = 0; i < data.tileCountX * data.tileCountY; i++) {
+				if (layer.data[i] !== 0) {
+					// TODO
+				}
+			}
+		}
 	}
 
 	public setColor(r: number, g: number, b: number, a: number): void {

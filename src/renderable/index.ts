@@ -3,7 +3,6 @@ import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shad
 
 export { Mesh } from './mesh';
 export { Square } from './square';
-export const UUID_MAX = 10000; // just an abritrary max for right now
 
 
 export interface ITileOptions {
@@ -12,7 +11,7 @@ export interface ITileOptions {
 }
 
 export interface IRenderable {
-	readonly UUID: number;
+	readonly UUID: string;
 
 	/**
 	 * set the color of the renderable object

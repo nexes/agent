@@ -1,10 +1,11 @@
+import { UUID } from '../agent';
 import Texture from '../texture';
-import { IRenderable, UUID_MAX } from '../renderable';
+import { IRenderable } from '../renderable';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
 
 export class Square implements IRenderable {
-	public readonly UUID: number;
+	public readonly UUID: string;
 
 	private vbo: Float32Array;
 	private bufferId: WebGLBuffer;
@@ -12,7 +13,7 @@ export class Square implements IRenderable {
 
 
 	constructor(x: number, y: number, width: number, height: number) {
-		this.UUID = Math.floor(Math.random() * UUID_MAX); // TODO design a better UUID system where we can check for collisions
+		this.UUID = UUID();
 		this.vbo = new Float32Array(8 * 4); // 8 vertex attributes for 4 vertices
 		this.bufferId = null;
 		this.texture = null;
