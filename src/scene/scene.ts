@@ -70,7 +70,7 @@ export class Scene {
 		}
 	}
 
-	private enableShaderAttributes(objectID: number): void {
+	private enableShaderAttributes(objectID: string): void {
 		const gl = this.glCtx;
 
 		for (const shader of this.shaders.values()) {
