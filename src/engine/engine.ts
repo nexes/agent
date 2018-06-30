@@ -1,5 +1,5 @@
 import Scene from '../scene';
-import Texture from '../texture';
+import Texture, { SpriteSheet } from '../texture';
 import { IEngineOptions } from '../engine';
 import { WebGLRenderer } from './webGLRenderer';
 
@@ -15,6 +15,10 @@ export class Engine {
 
 	public newTexture(): Texture {
 		return new Texture(this.renderer.context());
+	}
+
+	public newSpriteSheet(): SpriteSheet {
+		return new SpriteSheet(this.renderer.context());
 	}
 
 	public newScene(sceneName: string): Scene {

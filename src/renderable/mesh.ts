@@ -1,5 +1,5 @@
 import { UUID } from '../agent';
-import Texture, { ITextureJSON } from '../texture';
+import Texture, { SpriteSheet, ITextureJSON } from '../texture';
 import { IRenderable, ITileOptions } from '../renderable';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
@@ -107,14 +107,8 @@ export class Mesh implements IRenderable {
 		}
 	}
 
-	public setTextureFromJSON(texture: Texture, data: ITextureJSON): void {
-		for (const layer of data.layers) {
-			for (let i = 0; i < data.tileCountX * data.tileCountY; i++) {
-				if (layer.data[i] !== 0) {
-					// TODO
-				}
-			}
-		}
+	public setSpriteSheet(sheet: SpriteSheet): void {
+		// TODO: setspritesheet for mesh
 	}
 
 	public setColor(r: number, g: number, b: number, a: number): void {

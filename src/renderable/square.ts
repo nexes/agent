@@ -1,5 +1,5 @@
 import { UUID } from '../agent';
-import Texture from '../texture';
+import Texture, { SpriteSheet, ITextureJSON } from '../texture';
 import { IRenderable } from '../renderable';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
@@ -79,6 +79,10 @@ export class Square implements IRenderable {
 		this.vbo[ 19 ] = 1.0;
 		this.vbo[ 26 ] = 1.0;
 		this.vbo[ 27 ] = 1.0;
+	}
+
+	public setSpriteSheet(sheet: SpriteSheet): void {
+		// TODO: setspritesheet for square
 	}
 
 	// squares have a default buffer layout, so we can hard code
