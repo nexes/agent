@@ -1,4 +1,6 @@
 export { Texture as default } from './texture';
+export { Sprite } from './sprite';
+export { SpriteSheet } from './spritesheet';
 
 export interface ITextureLayer {
 	data: number[];
@@ -14,14 +16,15 @@ export interface ITextureJSON {
 	layers: ITextureLayer[];
 }
 
-export interface ITextureOptions {
-	subWidth: number;
-	subHeight: number;
-	subX: number;
-	subY: number;
-}
 
+/**
+ * @description	parse a json string into a Texture json object describing the level layout
+ * @param	{string}	jsonStr	the string representation of the json object
+ * @returns {ITextureJSON | undefined}	Texture json object or undefined
+ */
 export function stringToTextureJSON(jsonStr: string): ITextureJSON | undefined {
+	// TODO this doesn't having anything to do with textures (kinda). This needs to be moved out of here. this just describes
+	// the level layout.
 	try {
 		const j = JSON.parse(jsonStr);
 
@@ -29,17 +32,17 @@ export function stringToTextureJSON(jsonStr: string): ITextureJSON | undefined {
 		for (const layer of j.layers) {
 			const texLayer: ITextureLayer = {
 				data: layer.data,
-				x: layer.x,
-				y: layer.y,
+				x: layer.x || -1,
+				y: layer.y || -1,
 			};
 			_layers.push(texLayer);
 		}
 
 		return {
-			tileWidth: j.tilewidth,
-			tileHeight: j.tileheight,
-			tileCountX: j.width,
-			tileCountY: j.height,
+			tileWidth: j.tilewidth || -1,
+			tileHeight: j.tileheight || -1,
+			tileCountX: j.width || -1,
+			tileCountY: j.height || -1,
 			layers: _layers,
 		};
 
