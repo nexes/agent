@@ -26,22 +26,20 @@ void main() {
 
 function runExample() {
 	let engine = new Agent.Engine({width: 1200, height: 800});
-	let background = new Agent.Mesh(100, 100, 1000, 400, {singleTileWidth: 64, singleTileHeight: 64});
-	let camera = new Agent.OrthographicCamera({left:0, right:1200, top:0, bottom:800, far:0, near:100});
+	let background = new Agent.Mesh(0, 0, 1280, 2048, {singleTileWidth: 128, singleTileHeight: 128});
+	let camera = new Agent.OrthographicCamera({left:0, right:1280, top:0, bottom:1280, far:0, near:100});
 
 	let scene = engine.newScene('worldScene');
-	let fireTexture = engine.newTexture();
-	let leveldata = Agent.stringToTextureJSON(JSON.stringify(levelOne));
+	let worldSpriteSheet = engine.newSpriteSheet();
+	let leveldata = Agent.stringToTextureJSON(JSON.stringify(levelTwo));
 
-	console.log(leveldata);
-
-	fireTexture.loadResource("../images/groundtilesheet.png")
+	worldSpriteSheet.loadResourceWithData("../images/groundtilesheet.png", leveldata)
 		.then((success) => {
-			background.setTextureFromJSON(fireTexture, leveldata); // assign our texture to a renderable
+			background.setSpriteSheet(worldSpriteSheet); // assign our texture to a renderable
 			engine.render();					// re-render since we are not running in a loop
 		})
 		.catch((success) => {
-			console.log('fire texture failed to load');
+			console.log('world spritesheet failed to load');
 		});
 
 	scene.addShader(Agent.ShaderType.Vertex, vshr);
