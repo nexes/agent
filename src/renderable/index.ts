@@ -6,8 +6,10 @@ export { Square } from './square';
 
 
 export interface ITileOptions {
-	singleTileWidth: number;
-	singleTileHeight: number;
+	rowLength: number;
+	columnLength: number;
+	width: number;
+	height: number;
 }
 
 export interface IRenderable {

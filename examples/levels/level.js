@@ -26,12 +26,12 @@ void main() {
 
 function runExample() {
 	let engine = new Agent.Engine({width: 1200, height: 800});
-	let background = new Agent.Mesh(0, 0, 1280, 2048, {singleTileWidth: 128, singleTileHeight: 128});
+	let background = new Agent.Mesh(0, 0, {rowLength: 10, columnLength: 10, width: 64, height: 64});
 	let camera = new Agent.OrthographicCamera({left:0, right:1280, top:0, bottom:1280, far:0, near:100});
 
 	let scene = engine.newScene('worldScene');
 	let worldSpriteSheet = engine.newSpriteSheet();
-	let leveldata = Agent.stringToTextureJSON(JSON.stringify(levelTwo));
+	let leveldata = Agent.stringToTextureJSON(JSON.stringify(levelOne));
 
 	worldSpriteSheet.loadResourceWithData("../images/groundtilesheet.png", leveldata)
 		.then((success) => {

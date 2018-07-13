@@ -7,35 +7,33 @@ import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shad
 export class Mesh implements IRenderable {
 	public readonly UUID: string;
 
-	private tileCountX: number;
-	private tileCountY: number;
+	private tileOpts: ITileOptions;
 	private vbo: Float32Array;
 	private bufferId: WebGLBuffer;
 	private texture: Texture;
 
 	/**
-	 * Create a 2D mesh (grid) object.
+	 * Create a 2D mesh (grid).
 	 */
-	constructor(x: number, y: number, width: number, height: number, tileOptions: ITileOptions) {
+	constructor(x: number, y: number, tileOptions: ITileOptions) {
 		this.UUID = UUID();
-		this.tileCountX = Math.floor(width / tileOptions.singleTileWidth);
-		this.tileCountY = Math.floor(height / tileOptions.singleTileHeight);
+		this.tileOpts = tileOptions;
 		this.bufferId = null;
 		this.texture = null;
 
 		// 4 vertices * 8 verrtex attributes per vertex * the number of tiles + the number of degenerate triangles
-		this.vbo = new Float32Array(4 * 8 * this.tileCountX * this.tileCountY + (this.tileCountY * 2 * 8));
+		this.vbo = new Float32Array(4 * 8 * this.tileOpts.rowLength * this.tileOpts.columnLength + (this.tileOpts.columnLength * 2 * 8));
 
 		let index = 0;
 		const originalX = x;
 
-		for (let i = 0; i < this.tileCountY; i++) {
+		for (let i = 0; i < this.tileOpts.columnLength; i++) {
 			if (i !== 0) {
 				x = originalX;
-				y += tileOptions.singleTileHeight;
+				y += this.tileOpts.height;
 			}
 
-			for (let j = 0; j < this.tileCountX; j++) {
+			for (let j = 0; j < this.tileOpts.rowLength; j++) {
 				// Vertex upper left
 				this.vbo[ index + 0 ] = x; // x
 				this.vbo[ index + 1 ] = y; // y
@@ -47,7 +45,7 @@ export class Mesh implements IRenderable {
 				this.vbo[ index + 7 ] = 0; // a
 
 				// Vertex upper right
-				this.vbo[ index + 8 ] = x + tileOptions.singleTileWidth;
+				this.vbo[ index + 8 ] = x + this.tileOpts.width;
 				this.vbo[ index + 9 ] = y; // y
 				this.vbo[ index + 10 ] = 0; // tx
 				this.vbo[ index + 11 ] = 0; // ty
@@ -58,7 +56,7 @@ export class Mesh implements IRenderable {
 
 				// Vertex lower left
 				this.vbo[ index + 16 ] = x; // x
-				this.vbo[ index + 17 ] = y + tileOptions.singleTileHeight;
+				this.vbo[ index + 17 ] = y + this.tileOpts.height;
 				this.vbo[ index + 18 ] = 0; // tx
 				this.vbo[ index + 19 ] = 0; // ty
 				this.vbo[ index + 20 ] = 0; // r
@@ -67,8 +65,8 @@ export class Mesh implements IRenderable {
 				this.vbo[ index + 23 ] = 0; // a
 
 				// Vertex lower right
-				this.vbo[ index + 24 ] = x + tileOptions.singleTileWidth;
-				this.vbo[ index + 25 ] = y + tileOptions.singleTileHeight;
+				this.vbo[ index + 24 ] = x + this.tileOpts.width;
+				this.vbo[ index + 25 ] = y + this.tileOpts.height;
 				this.vbo[ index + 26 ] = 0; // tx
 				this.vbo[ index + 27 ] = 0; // ty
 				this.vbo[ index + 28 ] = 0; // r
@@ -77,10 +75,10 @@ export class Mesh implements IRenderable {
 				this.vbo[ index + 31 ] = 0; // a
 
 				index += 32;
-				x += tileOptions.singleTileWidth;
+				x += this.tileOpts.width;
 
 				// degenerate triangle
-				if (j + 1 >= this.tileCountX) {
+				if (j + 1 >= this.tileOpts.rowLength) {
 					for (let k = 0, l = 16; k < 16; k++, l--) {
 						this.vbo[index + k] = this.vbo[index - l];
 					}
@@ -113,11 +111,11 @@ export class Mesh implements IRenderable {
 		let degenerateTri = 0;
 
 		this.texture = sheet;
-		for (let i = 0; i < this.tileCountX * this.tileCountY; i++) {
+		for (let i = 0; i < this.tileOpts.rowLength * this.tileOpts.columnLength; i++) {
 			// for every tile (32 byte offset) we need to check our sprite sheet to see if there is a texture thats needs to be drawn there
 			tile = sheet.textureForIndex(i);
 
-			if (i > 0 && i % this.tileCountX === 0) {
+			if (i > 0 && i % this.tileOpts.rowLength === 0) {
 				degenerateTri += 16;
 			}
 
