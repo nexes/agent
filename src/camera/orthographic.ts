@@ -3,25 +3,25 @@ import { ICamera } from '.';
 
 
 export interface IOrthoDimension {
-	left: number;
-	right: number;
-	top: number;
-	bottom: number;
-	near: number;
-	far: number;
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+  near: number;
+  far: number;
 }
 
 export class OrthographicCamera implements ICamera {
-	private cameraMatrix: Matrix4;
-	private dimension: IOrthoDimension;
+  private cameraMatrix: Matrix4;
+  private dimension: IOrthoDimension;
 
-	constructor(dimension: IOrthoDimension) {
-		this.dimension = dimension;
-		this.cameraMatrix = new Matrix4();
-		this.cameraMatrix.setAsOrthographic(dimension);
-	}
+  constructor(dimension: IOrthoDimension) {
+    this.dimension = dimension;
+    this.cameraMatrix = new Matrix4();
+    this.cameraMatrix.setAsOrthographic(dimension);
+  }
 
-	public matrix(): Matrix4 {
-		return this.cameraMatrix;
-	}
+  public matrix(): Matrix4 {
+    return this.cameraMatrix;
+  }
 }

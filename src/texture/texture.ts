@@ -1,66 +1,79 @@
 export class Texture {
-	private glCtx: WebGLRenderingContext;
-	private textureID: WebGLTexture;
-	private _width: number;
-	private _height: number;
+  private glCtx: WebGLRenderingContext;
+  private textureID: WebGLTexture;
+  private _width: number;
+  private _height: number;
 
-	constructor(gl: WebGLRenderingContext) {
-		this.glCtx = gl;
-		this.textureID = null;
-		this._width = 0;
-		this._height = 0;
-	}
+  constructor(gl: WebGLRenderingContext) {
+    this.glCtx = gl;
+    this.textureID = null;
+    this._width = 0;
+    this._height = 0;
+  }
 
-	// async await maybe??
-	public loadResource(resource: string): Promise<boolean> {
-		const gl = this.glCtx;
+  /**
+   * @param {string} resource	path to the image file to load
+   * @returns {Promise} boolean promise the image loaded
+   */
+  public loadResource(resource: string): Promise<boolean> {
+    // TODO: async await maybe??
+    const gl = this.glCtx;
 
-		if (this.textureID === null) {
-			this.textureID = gl.createTexture();
-		}
+    if (this.textureID === null) {
+      this.textureID = gl.createTexture();
+    }
 
-		return new Promise<boolean>((resolve, reject) => {
-			const imgData = new Image();
+    return new Promise<boolean>((resolve, reject) => {
+      const imgData = new Image();
 
-			imgData.onload = () => {
-				this._width = imgData.width;
-				this._height = imgData.height;
+      imgData.onload = () => {
+        this._width = imgData.width;
+        this._height = imgData.height;
 
-				gl.bindTexture(gl.TEXTURE_2D, this.textureID);
-				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgData);
+        gl.bindTexture(gl.TEXTURE_2D, this.textureID);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgData);
 
-				// check for power of two
-				if ((this._width & (this._width - 1)) === 0 &&
-						(this._height & (this._height - 1)) === 0) {
-					gl.generateMipmap(gl.TEXTURE_2D);
+        // check for power of two
+        if ((this._width & (this._width - 1)) === 0 &&
+            (this._height & (this._height - 1)) === 0) {
+          gl.generateMipmap(gl.TEXTURE_2D);
 
-				} else {
-					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-				}
+        } else {
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        }
 
-				resolve(true);
-			};
+        resolve(true);
+      };
 
-			imgData.onerror = (e) => {
-				console.log('Error loading texture image', e);
-				reject(false);
-			};
+      imgData.onerror = (e) => {
+        console.log('Error loading texture image', e);
+        reject(false);
+      };
 
-			imgData.src = resource;
-		});
-	}
+      imgData.src = resource;
+    });
+  }
 
-	public width(): number {
-		return this._width;
-	}
+  /**
+   * the width of the image
+   */
+  public width(): number {
+    return this._width;
+  }
 
-	public height(): number {
-		return this._height;
-	}
+  /**
+   * the height of the image
+   */
+  public height(): number {
+    return this._height;
+  }
 
-	public ID(): WebGLTexture {
-		return this.textureID;
-	}
+  /**
+   * the webGL texture Id
+   */
+  public ID(): WebGLTexture {
+    return this.textureID;
+  }
 }

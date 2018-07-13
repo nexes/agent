@@ -5,55 +5,58 @@ import { WebGLRenderer } from './webGLRenderer';
 
 
 export class Engine {
-	private renderer: WebGLRenderer;
-	private scenes: Map<string, Scene>;
+  private renderer: WebGLRenderer;
+  private scenes: Map<string, Scene>;
 
-	constructor(options?: IEngineOptions) {
-		this.renderer = new WebGLRenderer(options);
-		this.scenes = new Map();
-	}
+  constructor(options?: IEngineOptions) {
+    this.renderer = new WebGLRenderer(options);
+    this.scenes = new Map();
+  }
 
-	public newTexture(): Texture {
-		return new Texture(this.renderer.context());
-	}
+  public newTexture(): Texture {
+    return new Texture(this.renderer.context());
+  }
 
-	/**
-	 * create a new spritesheet object. The default order is row major.
-	 * @param	{SpriteSheetOrder}	order	the direction the individual tiles are ordered.
-	 * @returns {SpriteSheet} a spritesheet object
-	 */
-	public newSpriteSheet(): SpriteSheet {
-		return new SpriteSheet(this.renderer.context());
-	}
+  /**
+  * create a new spritesheet object. The default order is row major.
+  * @param	{SpriteSheetOrder}	order	the direction the individual tiles are ordered.
+  * @returns {SpriteSheet} a spritesheet object
+  */
+  public newSpriteSheet(): SpriteSheet {
+    return new SpriteSheet(this.renderer.context());
+  }
 
-	public newScene(sceneName: string): Scene {
-		const newScene = new Scene(this.renderer.context());
-		this.scenes.set(sceneName, newScene);
+  public newScene(sceneName: string): Scene {
+    const newScene = new Scene(this.renderer.context());
+    this.scenes.set(sceneName, newScene);
 
-		return newScene;
-	}
+    return newScene;
+  }
 
-	public scene(sceneName: string): Scene | undefined {
-		return this.scenes.get(sceneName);
-	}
+  public scene(sceneName: string): Scene | undefined {
+    return this.scenes.get(sceneName);
+  }
 
-	/**
-	 * Render all scenes
-	 */
-	public render(): void {
-		this.renderer.clear();
+  /**
+  * Render all scenes
+  */
+  public render(): void {
+    this.renderer.clear();
 
-		for (const scene of this.scenes.values()) {
-			scene.render();
-		}
-	}
+    for (const scene of this.scenes.values()) {
+      scene.render();
+    }
+  }
 
-	/**
-	 * render only scenes given
-	 */
-	public renderScenes(...scenes: Scene[]): void {
-		for (const scene of scenes) {
-			scene.render();
-		}
-	}
+  /**
+  * render only scenes given
+  */
+  public renderScenes(...scenes: Scene[]): void {
+    for (const scene of scenes) {
+      scene.render();
+    }
+  }
+
+  public run(): void {
+  }
 }

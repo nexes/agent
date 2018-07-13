@@ -3,25 +3,25 @@ export { Sprite } from './sprite';
 export { SpriteSheet } from './spritesheet';
 
 export interface ITextureLayer {
-	data: number[];
-	x: number;
-	y: number;
+  data: number[];
+  x: number;
+  y: number;
 }
 
 export interface ITextureJSON {
-	tileWidth: number;
-	tileHeight: number;
-	tileCountX: number;
-	tileCountY: number;
-	layers: ITextureLayer[];
+  tileWidth: number;
+  tileHeight: number;
+  tileCountX: number;
+  tileCountY: number;
+  layers: ITextureLayer[];
 }
 
 export interface SpriteTile {
-	x: number;
-	y: number;
-	width: number;
-	height: number;
-	hasTexture: boolean;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  hasTexture: boolean;
 }
 
 /**
@@ -30,31 +30,31 @@ export interface SpriteTile {
  * @returns {ITextureJSON | undefined}	Texture json object or undefined
  */
 export function stringToTextureJSON(jsonStr: string): ITextureJSON | undefined {
-	// TODO this doesn't having anything to do with textures (kinda). This needs to be moved out of here. this just describes
-	// the level layout.
-	try {
-		const j = JSON.parse(jsonStr);
+  // TODO this doesn't having anything to do with textures (kinda). This needs to be moved out of here. this just describes
+  // the level layout.
+  try {
+    const j = JSON.parse(jsonStr);
 
-		const _layers: ITextureLayer[] = [];
-		for (const layer of j.layers) {
-			const texLayer: ITextureLayer = {
-				data: layer.data,
-				x: layer.x || -1,
-				y: layer.y || -1,
-			};
-			_layers.push(texLayer);
-		}
+    const _layers: ITextureLayer[] = [];
+    for (const layer of j.layers) {
+      const texLayer: ITextureLayer = {
+        data: layer.data,
+        x: layer.x || -1,
+        y: layer.y || -1,
+      };
+      _layers.push(texLayer);
+    }
 
-		return {
-			tileWidth: j.tilewidth || -1,
-			tileHeight: j.tileheight || -1,
-			tileCountX: j.width || -1,
-			tileCountY: j.height || -1,
-			layers: _layers,
-		};
+    return {
+      tileWidth: j.tilewidth || -1,
+      tileHeight: j.tileheight || -1,
+      tileCountX: j.width || -1,
+      tileCountY: j.height || -1,
+      layers: _layers,
+    };
 
-	} catch (e) {
-		console.log('Error parsing TextureJSON ', e);
-		return undefined;
-	}
+  } catch (e) {
+    console.log('Error parsing TextureJSON ', e);
+    return undefined;
+  }
 }

@@ -3,15 +3,12 @@
     "extends": [
         "tslint:recommended"
     ],
-    "jsRules": {
-        "quotemark": [true, "single"],
-        "indent": [true, "tabs", 2],
-        "no-console": [true, "debug", "info", "time", "timeEnd", "trace"],
-        "semicolon": [
-            true,
-            "always"
-        ],
-    },
+    // "jsRules": {
+    //     "quotemark": [true, "single"],
+    //     "indent": [true, "spaces", 2],
+    //     "no-console": [true, "debug", "info", "time", "timeEnd", "trace"],
+    //     "semicolon": [true, "always"],
+    // },
     "rules": {
         "max-line-length": false,
         "no-bitwise": false,
@@ -25,11 +22,7 @@
         "class-name": true,
         "no-unused-variable": true,
         "no-unused-expression": true,
-        "indent": [
-            true,
-            "tabs",
-            2
-        ],
+        "indent": [ true, "spaces", 2 ],
         "variable-name": [true, "check-format", "allow-leading-underscore"],
         "object-literal-sort-keys": false,
         "jsdoc-format": false,
