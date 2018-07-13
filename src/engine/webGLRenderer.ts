@@ -1,5 +1,4 @@
 import { IEngineOptions } from '../engine';
-import { Scene } from '../scene/scene';
 
 
 export class WebGLRenderer {
@@ -52,6 +51,12 @@ export class WebGLRenderer {
 
 		if (!options.domCanvas) {
 			this._canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas') as HTMLCanvasElement;
+			this._canvas.style.padding = '0px';
+			this._canvas.style.margin = '0px';
+
+			document.body.style.padding = '0px';
+			document.body.style.margin = '0px';
+			document.body.style.overflow = 'hidden';
 			document.body.appendChild(this._canvas);
 
 		} else {
@@ -59,8 +64,8 @@ export class WebGLRenderer {
 		}
 
 		if (options.fullscreen) {
-			this.width = document.body.clientWidth;
-			this.height = document.body.clientHeight;
+			this.width = window.innerWidth;
+			this.height = window.innerHeight;
 		}
 
 		// canvas size
@@ -72,7 +77,7 @@ export class WebGLRenderer {
 		this._canvas.height = this.height * this._devicePixelRatio;
 
 		if (!options.glContext) {
-			// TODO handle rendering2Context
+			// TODO: handle rendering2Context
 			this._glCtx = this._canvas.getContext('webgl2') as WebGLRenderingContext || this._canvas.getContext('webgl') as WebGLRenderingContext;
 
 			if (this._glCtx === null) {
