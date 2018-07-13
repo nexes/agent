@@ -17,6 +17,11 @@ export class Engine {
 		return new Texture(this.renderer.context());
 	}
 
+	/**
+	 * create a new spritesheet object. The default order is row major.
+	 * @param	{SpriteSheetOrder}	order	the direction the individual tiles are ordered.
+	 * @returns {SpriteSheet} a spritesheet object
+	 */
 	public newSpriteSheet(): SpriteSheet {
 		return new SpriteSheet(this.renderer.context());
 	}

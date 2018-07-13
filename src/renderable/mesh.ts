@@ -1,5 +1,5 @@
 import { UUID } from '../agent';
-import Texture, { SpriteSheet, ITextureJSON } from '../texture';
+import Texture, { SpriteSheet, SpriteTile } from '../texture';
 import { IRenderable, ITileOptions } from '../renderable';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
@@ -28,6 +28,7 @@ export class Mesh implements IRenderable {
 
 		let index = 0;
 		const originalX = x;
+
 		for (let i = 0; i < this.tileCountY; i++) {
 			if (i !== 0) {
 				x = originalX;
@@ -35,7 +36,7 @@ export class Mesh implements IRenderable {
 			}
 
 			for (let j = 0; j < this.tileCountX; j++) {
-				// Vertext upper left
+				// Vertex upper left
 				this.vbo[ index + 0 ] = x; // x
 				this.vbo[ index + 1 ] = y; // y
 				this.vbo[ index + 2 ] = 0; // tx
@@ -45,7 +46,7 @@ export class Mesh implements IRenderable {
 				this.vbo[ index + 6 ] = 0; // b
 				this.vbo[ index + 7 ] = 0; // a
 
-				// Vertext upper right
+				// Vertex upper right
 				this.vbo[ index + 8 ] = x + tileOptions.singleTileWidth;
 				this.vbo[ index + 9 ] = y; // y
 				this.vbo[ index + 10 ] = 0; // tx
@@ -55,7 +56,7 @@ export class Mesh implements IRenderable {
 				this.vbo[ index + 14 ] = 0; // b
 				this.vbo[ index + 15 ] = 0; // a
 
-				// Vertext lower left
+				// Vertex lower left
 				this.vbo[ index + 16 ] = x; // x
 				this.vbo[ index + 17 ] = y + tileOptions.singleTileHeight;
 				this.vbo[ index + 18 ] = 0; // tx
@@ -65,7 +66,7 @@ export class Mesh implements IRenderable {
 				this.vbo[ index + 22 ] = 0; // b
 				this.vbo[ index + 23 ] = 0; // a
 
-				// Vertext lower right
+				// Vertex lower right
 				this.vbo[ index + 24 ] = x + tileOptions.singleTileWidth;
 				this.vbo[ index + 25 ] = y + tileOptions.singleTileHeight;
 				this.vbo[ index + 26 ] = 0; // tx
@@ -108,7 +109,36 @@ export class Mesh implements IRenderable {
 	}
 
 	public setSpriteSheet(sheet: SpriteSheet): void {
-		// TODO: setspritesheet for mesh
+		let tile: SpriteTile;
+		let degenerateTri = 0;
+
+		this.texture = sheet;
+		for (let i = 0; i < this.tileCountX * this.tileCountY; i++) {
+			// for every tile (32 byte offset) we need to check our sprite sheet to see if there is a texture thats needs to be drawn there
+			tile = sheet.textureForIndex(i);
+
+			if (i > 0 && i % this.tileCountX === 0) {
+				degenerateTri += 16;
+			}
+
+			if (tile.hasTexture) {
+				// upper left vertex
+				this.vbo[ (i * 32) + degenerateTri + 2 ] = tile.x;
+				this.vbo[ (i * 32) + degenerateTri + 3 ] = tile.y;
+
+				// upper right vertex
+				this.vbo[ (i * 32) + degenerateTri + 10 ] = tile.x + tile.width;
+				this.vbo[ (i * 32) + degenerateTri + 11 ] = tile.y;
+
+				// lower left vertex
+				this.vbo[ (i * 32) + degenerateTri + 18 ] = tile.x;
+				this.vbo[ (i * 32) + degenerateTri + 19 ] = tile.y + tile.height;
+
+				// lower right vertex
+				this.vbo[ (i * 32) + degenerateTri + 26 ] = tile.x + tile.width;
+				this.vbo[ (i * 32) + degenerateTri + 27 ] = tile.y + tile.height;
+			}
+		}
 	}
 
 	public setColor(r: number, g: number, b: number, a: number): void {

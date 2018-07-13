@@ -16,6 +16,13 @@ export interface ITextureJSON {
 	layers: ITextureLayer[];
 }
 
+export interface SpriteTile {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+	hasTexture: boolean;
+}
 
 /**
  * @description	parse a json string into a Texture json object describing the level layout
