@@ -1,5 +1,5 @@
 import { UUID } from '../agent';
-import Texture, { SpriteSheet, ITextureJSON } from '../texture';
+import Texture, { Sprite } from '../texture';
 import { IRenderable } from '../renderable';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
@@ -10,6 +10,7 @@ export class Square implements IRenderable {
   private vbo: Float32Array;
   private bufferId: WebGLBuffer;
   private texture: Texture;
+  private sprite: Sprite;
 
 
   constructor(x: number, y: number, width: number, height: number) {
@@ -81,8 +82,23 @@ export class Square implements IRenderable {
     this.vbo[ 27 ] = 1.0;
   }
 
-  public setSpriteSheet(sheet: SpriteSheet): void {
-    // TODO: setspritesheet for square
+  /**
+   * set the sprite to the renderable
+   * @param {Sprite}  sheet the sprite to use for the renderable
+   */
+  public setSprite(sprite: Sprite): void {
+    this.sprite = sprite;
+
+    const framePos = this.sprite.getPositionForFrame(0);
+
+    this.vbo[ 2 ] = framePos.x;
+    this.vbo[ 3 ] = framePos.y;
+    this.vbo[ 10 ] = framePos.x + framePos.width;
+    this.vbo[ 11 ] = framePos.y;
+    this.vbo[ 18 ] = framePos.x;
+    this.vbo[ 19 ] = framePos.y + framePos.height;
+    this.vbo[ 26 ] = framePos.x + framePos.width;
+    this.vbo[ 27 ] = framePos.y + framePos.height;
   }
 
   // squares have a default buffer layout, so we can hard code

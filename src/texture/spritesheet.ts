@@ -1,8 +1,9 @@
+import { IRect } from '../math';
 import Texture, {
   ITextureJSON,
   stringToTextureJSON,
   Sprite,
-  SpriteTile,
+  ISpriteTile,
 } from '../texture';
 
 
@@ -19,15 +20,22 @@ export class SpriteSheet extends Texture {
 
   /**
    * Create an individual sprite from the sprite sheet
-   * @param {number} frames	the number of frames for this sprite, 1 if static
-   * @param {number} xoffset the X offset where the sprite begins
-   * @param {number} yoffset the Y offset where the sprite begins
-   * @param {number} width	the width of the sprite tile
-   * @param {number} height the height of the sprite tile
+   * @param {number} frames	the number of frames for this sprite
+   * @param {IRect} rect a rect object describing the sprites tiles.
+   * @param {number} rect.x how far to the right we need to go to find the first frame
+   * @param {number} rect.y how far down we need to go to find the first frame
+   * @param {number} rect.width the width of the sprite tile
+   * @param {number} rect.height the height of the sprite tile
    * @returns {Sprite}	a sprite object
    */
-  public generateSprite(startIndex: number, frames: number, width: number, height: number): Sprite {
-    const s = new Sprite(startIndex, frames, width, height);
+  public generateSprite(frames: number, rect: IRect): Sprite {
+    const s = new Sprite(
+      rect.x / this.width(),
+      rect.y / this.height(),
+      frames,
+      rect.width / this.width(),
+      rect.height / this.height(),
+    );
     this.spriteList.set(s.UUID, s);
 
     return s;
@@ -58,9 +66,9 @@ export class SpriteSheet extends Texture {
    * @param {number}	index	the index coorisponding to the data array from the json data
    * @returns {SpriteTile}	the tile object describing that part of the sprite sheet
    */
-  public textureForIndex(index: number): SpriteTile {
+  public textureForIndex(index: number): ISpriteTile {
     const rowLen = Math.floor(this.width() / this.levelJSON.tileWidth);
-    const tile: SpriteTile = {
+    const tile: ISpriteTile = {
       x: 0,
       y: 0,
       width: this.levelJSON.tileWidth / this.width(),

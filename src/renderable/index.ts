@@ -31,13 +31,6 @@ export interface IRenderable {
   setTexture(texture: Texture): void;
 
   /**
-   * set the renderable to use a sprite sheet
-   * @param {SpriteSheet}	sheet	the sprite sheet texture to use
-   * @param {ITextureJSON}	data 	the TextureJSON object describing how to use the sprite sheet
-   */
-  setSpriteSheet(sheet: SpriteSheet): void;
-
-  /**
    * must be called at lease once before rendering the renderable.
    * This will bind and describe the buffer and enable the renderables vertex attributes
    * @param {WebGLRenderingContext}	gl	webGLrendering context

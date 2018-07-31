@@ -17,6 +17,13 @@ export interface IPoint {
   readonly z: number;
 }
 
+export interface IRect {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
 export interface IVector extends IPoint {
   /**
    * Add a vector

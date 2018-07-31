@@ -16,7 +16,7 @@ export interface ITextureJSON {
   layers: ITextureLayer[];
 }
 
-export interface SpriteTile {
+export interface ISpriteTile {
   x: number;
   y: number;
   width: number;
