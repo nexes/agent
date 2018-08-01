@@ -26,6 +26,10 @@ export class WebGLRenderer {
     return this._glCtx;
   }
 
+  public canvas(): HTMLCanvasElement {
+    return this._canvas;
+  }
+
   public aspect(): number {
     return this.width / this.height;
   }
@@ -37,7 +41,7 @@ export class WebGLRenderer {
     this._canvas.style.width = this.width + 'px';
     this._canvas.style.height = this.height + 'px';
 
-    this._glCtx.viewport(0, 0, this.width, this.height);
+    this._glCtx.viewport(0, 0, this._canvas.width, this._canvas.height);
   }
 
   public clear(): void {
@@ -51,8 +55,10 @@ export class WebGLRenderer {
 
     if (!options.domCanvas) {
       this._canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas') as HTMLCanvasElement;
+      this._canvas.tabIndex = 1;
       this._canvas.style.padding = '0px';
       this._canvas.style.margin = '0px';
+      this._canvas.style.outline = 'none';
 
       document.body.style.padding = '0px';
       document.body.style.margin = '0px';
@@ -75,6 +81,7 @@ export class WebGLRenderer {
     // drawing size
     this._canvas.width = this.width * this._devicePixelRatio;
     this._canvas.height = this.height * this._devicePixelRatio;
+    this._canvas.focus();
 
     if (!options.glContext) {
       // TODO: handle rendering2Context
@@ -94,7 +101,7 @@ export class WebGLRenderer {
 
     this._glCtx.blendFunc(this._glCtx.SRC_ALPHA, this._glCtx.ONE_MINUS_SRC_ALPHA);
     this._glCtx.cullFace(this._glCtx.FRONT);
-    this._glCtx.viewport(0, 0, this.width, this.height);
+    this._glCtx.viewport(0, 0, this._canvas.width, this._canvas.height);
     this._glCtx.clearColor(1.0, 0.0, 1.0, 1.0);
   }
 }
