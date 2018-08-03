@@ -1,6 +1,6 @@
 import Scene from '../scene';
 import Texture, { SpriteSheet } from '../texture';
-import { IEngineOptions, Input, IEvent,  IKeyboardEvent, IMouseEvent } from '../engine';
+import { IEngineOptions, Input, IEvent } from '../engine';
 import { WebGLRenderer } from './webGLRenderer';
 
 
@@ -12,9 +12,9 @@ export class Engine {
   constructor(options?: IEngineOptions) {
     this.renderer = new WebGLRenderer(options);
     this.scenes = new Map();
-    this.userInput = new Input(options.inputHistory);
+    this.userInput = new Input();
 
-    this.userInput.attach(this.renderer.canvas());
+    this.userInput.attachEventListener(this.renderer.canvas());
   }
 
   /**
@@ -75,18 +75,35 @@ export class Engine {
     }
   }
 
-  public run(keyInput?: (events: IKeyboardEvent) => void, mouseInput?: (events: IMouseEvent) => void): void {
-    let currentEvent: IEvent = this.userInput.pollEvents();
+  /**
+   * get notified when a keyboard event happens
+   * @param keyInput  callback function taking an event type parameter, returning nothing
+   */
+  public keyboardEvents(keyInput: (event: IEvent) => void) {
+    this.userInput.attachKeyboardListener(keyInput);
+  }
 
-    while (currentEvent !== undefined) {
-      if (currentEvent.type.includes('mouse')) {
-        mouseInput(currentEvent as IMouseEvent);
+  /**
+   * get notified when a mouse event happens
+   * @param keyInput  callback function taking an event type parameter, returning nothing
+   */
+  public mouseEvents(mouseInput: (event: IEvent) => void) {
+    this.userInput.attachMouseListener(mouseInput);
+  }
 
-      } else if (currentEvent.type.includes('key')) {
-        keyInput(currentEvent as IKeyboardEvent);
-      }
+  /**
+   * get notified when a controller event happens
+   * @param keyInput  callback function taking an event type parameter, returning nothing
+   */
+  public controllerEvents(controllerInput: (events: IEvent) => void) {
+    this.userInput.attachControllerListener(controllerInput);
+  }
 
-      currentEvent = this.userInput.pollEvents();
-    }
+  public run(): void {
+    // TODO
+  }
+
+  private simulation(step: number): void {
+    // TODO
   }
 }

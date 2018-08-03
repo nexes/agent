@@ -27,12 +27,6 @@ export interface IEngineOptions {
    * @property optional WebGL context, if one is not passed one will be created
    */
   readonly glContext?: WebGLRenderingContext;
-
-  /**
-   * @property optional remember the previous user inputs.
-   * @default unlimited
-   */
-  readonly inputHistory?: number;
 }
 
 export interface IEvent {

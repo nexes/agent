@@ -1,16 +1,22 @@
 import { IEvent, IKeyboardEvent, IMouseEvent } from '../engine';
 
 
-export class Input {
-  private userEventList: IEvent[];
-  private historyCount: number;
+type InputFunc = (event: IEvent) => void;
+enum InputType {
+  keyboard = 0,
+  mouse,
+  controller,
+  deviceCount,
+}
 
-  constructor(history?: number) {
-    this.historyCount = history;
-    this.userEventList = history ? new Array(history) : new Array();
+export class Input {
+  private eventCallbacks: InputFunc[];
+
+  constructor() {
+    this.eventCallbacks = new Array(InputType.deviceCount);
   }
 
-  public attach(element: HTMLCanvasElement): void {
+  public attachEventListener(element: HTMLCanvasElement): void {
     // TODO: i would rather have this on the canvas element
     document.addEventListener('keydown', this.keyboardEventListener.bind(this), false);
     document.addEventListener('keyup', this.keyboardEventListener.bind(this), false);
@@ -21,8 +27,18 @@ export class Input {
     element.addEventListener('mousemove', this.mouseEventListener.bind(this), false);
   }
 
-  public pollEvents(): IEvent {
-    return this.userEventList.shift();
+
+  public attachKeyboardListener(cfunc: (event: IEvent) => void): void {
+    this.eventCallbacks[ InputType.keyboard ] = cfunc;
+  }
+
+  public attachMouseListener(cfunc: (event: IEvent) => void): void {
+    this.eventCallbacks[ InputType.mouse ] = cfunc;
+  }
+
+  // TODO: this is only supported on chrome at the moment. navigator.getGamePads()
+  public attachControllerListener(cfunc: (event: IEvent) => void): void {
+    this.eventCallbacks[ InputType.controller ] = cfunc;
   }
 
   private async keyboardEventListener(keyEvent: KeyboardEvent): Promise<void> {
@@ -35,14 +51,7 @@ export class Input {
       metaKey: keyEvent.metaKey,
     };
 
-    if (this.historyCount && this.userEventList.length >= this.historyCount) {
-      // remove the oldes, add the latest. Is the O(n) + O(m), or O(n^2), is there a better way?
-      this.userEventList.shift();
-      this.userEventList.push(e);
-
-    } else {
-      this.userEventList.push(e);
-    }
+    this.eventCallbacks[ InputType.keyboard ](e);
     keyEvent.preventDefault();
   }
 
@@ -57,14 +66,7 @@ export class Input {
       metaKey: mouseEvent.metaKey,
     };
 
-    if (this.historyCount && this.userEventList.length >= this.historyCount) {
-      // remove the old, add the latest. Is the O(n) + O(m), or O(n^2), is there a better way?
-      this.userEventList.shift();
-      this.userEventList.push(e);
-
-    } else {
-      this.userEventList.push(e);
-    }
+    this.eventCallbacks[ InputType.mouse ](e);
     mouseEvent.preventDefault();
   }
 }
