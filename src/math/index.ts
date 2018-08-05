@@ -1,4 +1,5 @@
 import { IOrthoDimension } from '../camera';
+import { Vector2 } from './vector2';
 
 export { Vector2 } from './vector2';
 export { Vector3 } from './vector3';
@@ -151,4 +152,29 @@ export function toRadian(deg: number): number {
  */
 export function toDegree(rad: number): number {
   return Math.round((rad / (2 * Math.PI)) * 360);
+}
+
+/**
+ * linear interpolation from one point to another of time
+ * @param {number} startPos the begining point
+ * @param {number} endPos the end point
+ * @param {number} time the time (0 - 1) that has passed
+ * @returns {number} the interpolated distance between both points
+ */
+export function lerp(startPos: number, endPos: number, time: number): number {
+  return ( (1 - time) * startPos ) + ( time * endPos );
+}
+
+/**
+ * linear interpolation from one vector2 to another of time
+ * @param {Vector2} startVec the begining vector
+ * @param {Vector2} endVec the end vector
+ * @param {number} time the time (0 - 1) that has passed
+ * @returns {Vector2} the interpolated distance between both vectors
+ */
+export function lerpVec2(startVec: Vector2, endVec: Vector2, time: number): Vector2 {
+  return new Vector2(
+    lerp(startVec.x, endVec.x, time),
+    lerp(startVec.y, endVec.y, time),
+  );
 }
