@@ -32,8 +32,8 @@
 		`;
 
 		let engine = new Agent.Engine({width: 1200, height: 800});
-		let square = new Agent.Square(10, 100, 128, 328);
-		let square2 = new Agent.Square(200, 100, 128, 128);
+		let tile = new Agent.Tile(10, 100, 128, 328);
+		let tile2 = new Agent.Tile(200, 100, 128, 128);
 		let camera = new Agent.OrthographicCamera({left:0, right:1200, top:0, bottom:800, far:0, near:100});
 
 		let scene = engine.newScene('worldScene');
@@ -42,7 +42,7 @@
 
 		fireTexture.loadResource("./images/firetexture.png")
 			.then((success) => {
-				square.setTexture(fireTexture); // assign our texture to a renderable
+				tile.setTexture(fireTexture); // assign our texture to a renderable
 				engine.render();					// re-render since we are not running in a loop
 			})
 			.catch((success) => {
@@ -51,7 +51,7 @@
 
 		brickTexture.loadResource("./images/bricktexture.png")
 			.then((success) => {
-				square2.setTexture(brickTexture);  // assign our texture to a renderable
+				tile2.setTexture(brickTexture);  // assign our texture to a renderable
 				engine.render();            // re-render since we are not running in a loop
 			})
 			.catch((success) => {
@@ -62,13 +62,13 @@
 			scene.addShader(Agent.ShaderType.Fragment, fshr);
 
 			scene.shader(Agent.ShaderType.Vertex).setUniformDataFor('camera', { dataMatrix: camera.matrix() });
-			scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aPos', { vertexAttribute: square.vertexAttributes() });
-			scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aText', { vertexAttribute: square.textureAttributes() });
+			scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aPos', { vertexAttribute: tile.vertexAttributes() });
+			scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aText', { vertexAttribute: tile.textureAttributes() });
 
-			scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aPos', { vertexAttribute: square2.vertexAttributes() });
-			scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aText', { vertexAttribute: square2.textureAttributes() });
+			scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aPos', { vertexAttribute: tile2.vertexAttributes() });
+			scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aText', { vertexAttribute: tile2.textureAttributes() });
 
-			scene.addDrawable(square, square2);
+			scene.addDrawable(tile, tile2);
 			scene.addCamera(camera);
 			engine.render();
   </script>

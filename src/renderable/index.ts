@@ -1,8 +1,8 @@
-import Texture, { ITextureJSON, SpriteSheet } from '../texture';
+import Texture from '../texture';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
 export { Mesh } from './mesh';
-export { Square } from './square';
+export { Tile } from './tile';
 
 
 export interface ITileOptions {

@@ -1,7 +1,7 @@
 export { OrthographicCamera, PerspectiveCamera } from './camera';
-export { Square, Mesh } from './renderable';
+export { Tile, Mesh } from './renderable';
 export { default as Scene } from './scene';
-export { default as Engine } from './engine';
+export { default as Engine, IKeyboardEvent, IMouseEvent, Clock } from './engine';
 export { default as Shader, ShaderType } from './shader';
 export {
   default as Texutre,

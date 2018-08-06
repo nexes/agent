@@ -25,9 +25,9 @@
       }
 		`;
 		let engine = new Agent.Engine({width: 1200, height: 800});
-		let square = new Agent.Square(10, 100, 128, 328);
-    let square2 = new Agent.Square(210, 10, 100, 175);
-    let square3 = new Agent.Square(300, 120, 50, 50);
+		let tile = new Agent.Tile(10, 100, 128, 328);
+    let tile2 = new Agent.Tile(210, 10, 100, 175);
+    let tile3 = new Agent.Tile(300, 120, 50, 50);
     let camera = new Agent.OrthographicCamera({left:0, right:1200, top:0, bottom:800, far:0, near:100});
 
 		let scene = engine.newScene('worldScene');
@@ -40,12 +40,12 @@
 
 		scene.shader(Agent.ShaderType.Vertex)
       .setAttributeDataFor('aPos', [
-        { vertexAttribute: square.vertexAttributes() },
-        { vertexAttribute: square2.vertexAttributes() },
-        { vertexAttribute: square3.vertexAttributes() },
+        { vertexAttribute: tile.vertexAttributes() },
+        { vertexAttribute: tile2.vertexAttributes() },
+        { vertexAttribute: tile3.vertexAttributes() },
       ]);
 
-    scene.addDrawable(square, square2, square3);
+    scene.addDrawable(tile, tile2, tile3);
     scene.addCamera(camera);
 
     engine.render();

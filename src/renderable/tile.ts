@@ -1,10 +1,10 @@
 import { UUID } from '../agent';
 import Texture, { Sprite } from '../texture';
-import { IRenderable } from '../renderable';
+import { IRenderable } from '.';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
 
-export class Square implements IRenderable {
+export class Tile implements IRenderable {
   public readonly UUID: string;
 
   private vbo: Float32Array;
@@ -101,7 +101,7 @@ export class Square implements IRenderable {
     this.vbo[ 27 ] = framePos.y + framePos.height;
   }
 
-  // squares have a default buffer layout, so we can hard code
+  // tiles have a default buffer layout, so we can hard code
   public vertexAttributes(): IVertexAttribute {
     return {
       UUID: this.UUID,
@@ -112,7 +112,7 @@ export class Square implements IRenderable {
     };
   }
 
-  // squares have a default buffer layout, so we can hard code
+  // tiles have a default buffer layout, so we can hard code
   public colorAttributes(): IVertexAttribute {
     return {
       UUID: this.UUID,
@@ -123,7 +123,7 @@ export class Square implements IRenderable {
     };
   }
 
-  // squares have a default buffer layout, so we can hard code
+  // tiles have a default buffer layout, so we can hard code
   public textureAttributes(): IVertexAttribute {
     return {
       UUID: this.UUID,
@@ -138,6 +138,8 @@ export class Square implements IRenderable {
     if (this.bufferId === null) {
       this.bufferId = gl.createBuffer();
     }
+
+    // upsate here with any vertex changes, ie. scale, transform etc
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferId);
     gl.bufferData(gl.ARRAY_BUFFER, this.vbo, gl.STATIC_DRAW);
