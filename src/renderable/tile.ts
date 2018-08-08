@@ -10,11 +10,14 @@ export class Tile implements IRenderable {
   private vbo: Float32Array;
   private bufferId: WebGLBuffer;
   private texture: Texture;
-  private sprite: Sprite;
+  private spriteMap: Map<string, Sprite>;
+  private activeSprite: string;
 
 
   constructor(x: number, y: number, width: number, height: number) {
     this.UUID = UUID();
+    this.spriteMap = new Map();
+    this.activeSprite = '';
     this.vbo = new Float32Array(8 * 4); // 8 vertex attributes for 4 vertices
     this.bufferId = null;
     this.texture = null;
@@ -86,10 +89,11 @@ export class Tile implements IRenderable {
    * set the sprite to the renderable
    * @param {Sprite}  sheet the sprite to use for the renderable
    */
-  public setSprite(sprite: Sprite): void {
-    this.sprite = sprite;
+  public setSprite(title: string, sprite: Sprite): void {
+    this.spriteMap.set(title, sprite);
+    this.activeSprite = title;
 
-    const framePos = this.sprite.getPositionForFrame(0);
+    const framePos = sprite.getFrameAtIndex(0);
 
     this.vbo[ 2 ] = framePos.x;
     this.vbo[ 3 ] = framePos.y;
@@ -99,6 +103,14 @@ export class Tile implements IRenderable {
     this.vbo[ 19 ] = framePos.y + framePos.height;
     this.vbo[ 26 ] = framePos.x + framePos.width;
     this.vbo[ 27 ] = framePos.y + framePos.height;
+  }
+
+  public setActiveSprite(name: string): boolean {
+    if (this.spriteMap.has(name)) {
+      this.activeSprite = name;
+      return true;
+    }
+    return false;
   }
 
   // tiles have a default buffer layout, so we can hard code
@@ -140,6 +152,15 @@ export class Tile implements IRenderable {
     }
 
     // upsate here with any vertex changes, ie. scale, transform etc
+    if (this.spriteMap.size > 0) {
+      this.updateSprite();
+    }
+
+    // TODO: probably wont work when using two different textures for two sprites, test this
+    if (this.texture) {
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this.texture.ID());
+    }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferId);
     gl.bufferData(gl.ARRAY_BUFFER, this.vbo, gl.STATIC_DRAW);
@@ -155,18 +176,27 @@ export class Tile implements IRenderable {
         attData.vertexAttribute.offset,
       );
     }
-
-    if (this.texture) {
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, this.texture.ID());
-    }
   }
 
   public disableBuffer(gl: WebGLRenderingContext, vertexAttributes: Map<IShaderAttributeName, IAttributeValue>): void {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-    for (const [ attName, attData ] of vertexAttributes) {
+    for (const [ attName, _ ] of vertexAttributes) {
       gl.disableVertexAttribArray(attName.id as number);
     }
+  }
+
+  private updateSprite(): void {
+    const sprite = this.spriteMap.get(this.activeSprite);
+    const rect = sprite.getNextFrame();
+
+    this.vbo[ 2 ] = rect.x;
+    this.vbo[ 3 ] = rect.y;
+    this.vbo[ 10 ] = rect.x + rect.width;
+    this.vbo[ 11 ] = rect.y;
+    this.vbo[ 18 ] = rect.x;
+    this.vbo[ 19 ] = rect.y + rect.height;
+    this.vbo[ 26 ] = rect.x + rect.width;
+    this.vbo[ 27 ] = rect.y + rect.height;
   }
 }

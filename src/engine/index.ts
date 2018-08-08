@@ -1,5 +1,6 @@
 export { Engine as default } from './engine';
 export { Input } from './input';
+export { Clock } from './clock';
 
 
 export interface IEngineOptions {
@@ -27,6 +28,11 @@ export interface IEngineOptions {
    * @property optional WebGL context, if one is not passed one will be created
    */
   readonly glContext?: WebGLRenderingContext;
+
+  /**
+   * @property  optional physics timestep, how often the simulation will be updated, deualt will be 60ms
+   */
+  readonly timeStep?: number;
 }
 
 export interface IEvent {

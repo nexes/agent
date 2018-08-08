@@ -1,18 +1,23 @@
+import { Clock, IEngineOptions, IEvent, Input } from '../engine';
 import Scene from '../scene';
 import Texture, { SpriteSheet } from '../texture';
-import { IEngineOptions, Input, IEvent } from '../engine';
 import { WebGLRenderer } from './webGLRenderer';
 
 
 export class Engine {
+  private frameTimeAccumulator: number;
+
   private userInput: Input;
+  private clock: Clock;
   private renderer: WebGLRenderer;
   private scenes: Map<string, Scene>;
 
   constructor(options?: IEngineOptions) {
     this.renderer = new WebGLRenderer(options);
+    this.clock = new Clock(options.timeStep);
     this.scenes = new Map();
     this.userInput = new Input();
+    this.frameTimeAccumulator = 0;
 
     this.userInput.attachEventListener(this.renderer.canvas());
   }
@@ -100,10 +105,25 @@ export class Engine {
   }
 
   public run(): void {
-    // TODO
+    this.clock.start();
+    window.requestAnimationFrame(this.simulation.bind(this));
+    // this.animationFrame(this.simulation);
   }
 
   private simulation(step: number): void {
-    // TODO
+    const frameTime = this.clock.deltaTime;
+    this.frameTimeAccumulator += frameTime;
+
+    while (this.frameTimeAccumulator >= this.clock.physicsTimeStep) {
+      for (const [_, scene] of this.scenes) {
+        scene.updateSimulationStep(this.clock.physicsTimeStep / this.frameTimeAccumulator);
+      }
+      // get interpolation physicsTimestep / frameTimeAccumulator
+
+      this.frameTimeAccumulator -= this.clock.physicsTimeStep;
+    }
+
+    this.render();
+    window.requestAnimationFrame(this.simulation.bind(this));
   }
 }

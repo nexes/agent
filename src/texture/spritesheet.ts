@@ -8,19 +8,18 @@ import Texture, {
 
 
 export class SpriteSheet extends Texture {
-  private spriteList: Map<string, Sprite>;
   private levelJSON: ITextureJSON;
 
 
   constructor(gl: WebGLRenderingContext) {
     super(gl);
-    this.spriteList = new Map();
     this.levelJSON = null;
   }
 
   /**
    * Create an individual sprite from the sprite sheet
    * @param {number} frames	the number of frames for this sprite
+   * @param {number} animationSpeed  the number of frames per second, e.g 4 will display frames 0 - 3 per second
    * @param {IRect} rect a rect object describing the sprites tiles.
    * @param {number} rect.x how far to the right we need to go to find the first frame
    * @param {number} rect.y how far down we need to go to find the first frame
@@ -28,17 +27,15 @@ export class SpriteSheet extends Texture {
    * @param {number} rect.height the height of the sprite tile
    * @returns {Sprite}	a sprite object
    */
-  public generateSprite(frames: number, rect: IRect): Sprite {
-    const s = new Sprite(
+  public generateSprite(frames: number, animationSpeed: number, rect: IRect): Sprite {
+    return new Sprite(
       rect.x / this.width(),
       rect.y / this.height(),
       frames,
+      animationSpeed,
       rect.width / this.width(),
       rect.height / this.height(),
     );
-    this.spriteList.set(s.UUID, s);
-
-    return s;
   }
 
   /**
@@ -67,6 +64,7 @@ export class SpriteSheet extends Texture {
    * @returns {SpriteTile}	the tile object describing that part of the sprite sheet
    */
   public textureForIndex(index: number): ISpriteTile {
+    // TODO: this needs to be better thought out, what if the textures don't go to the edge of the image
     const rowLen = Math.floor(this.width() / this.levelJSON.tileWidth);
     const tile: ISpriteTile = {
       x: 0,

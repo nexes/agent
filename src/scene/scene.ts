@@ -9,7 +9,6 @@ export class Scene {
   private renderables: IRenderable[];
   private shaders: Map<ShaderType, Shader>;
   private programId: WebGLProgram;
-  private programLinked: boolean;
 
   constructor(gl: WebGLRenderingContext) {
     this.glCtx = gl;
@@ -17,7 +16,6 @@ export class Scene {
     this.renderables = [];
     this.camera = null;
     this.programId = null;
-    this.programLinked = false;
   }
 
   public addDrawable(...item: IRenderable[]): void {
@@ -49,6 +47,16 @@ export class Scene {
       throw new Error(`Scene does not have shader type ${shader} assigned`);
     }
     return this.shaders.get(shader);
+  }
+
+  /**
+   * update the scenes renderable objects per the timestep passed
+   * @param {number} dt the amout of time that has passed
+   */
+  public updateSimulationStep(dt: number): void {
+    for (const obj of this.renderables) {
+      // obj.updateSimulation(dt);
+    }
   }
 
   public render() {

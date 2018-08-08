@@ -37,7 +37,6 @@ export class WebGLRenderer {
   public resize(width: number, height: number): void {
     this._canvas.width = this.width = width * this._devicePixelRatio;
     this._canvas.height = this.height = height * this._devicePixelRatio;
-
     this._canvas.style.width = this.width + 'px';
     this._canvas.style.height = this.height + 'px';
 
