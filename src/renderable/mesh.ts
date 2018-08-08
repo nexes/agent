@@ -153,6 +153,11 @@ export class Mesh implements IRenderable {
       this.bufferId = gl.createBuffer();
     }
 
+    if (this.texture) {
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this.texture.ID());
+    }
+
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferId);
     gl.bufferData(gl.ARRAY_BUFFER, this.vbo, gl.STATIC_DRAW);
 
@@ -166,11 +171,6 @@ export class Mesh implements IRenderable {
         attValue.vertexAttribute.stride,
         attValue.vertexAttribute.offset,
       );
-
-      if (this.texture) {
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.texture.ID());
-      }
     }
   }
 
