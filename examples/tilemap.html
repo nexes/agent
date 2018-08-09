@@ -31,7 +31,7 @@
       }
 		`;
 		let engine = new Agent.Engine({width: 1200, height: 800});
-		let mesh = new Agent.Mesh(10, 100, 800, 600, {singleTileWidth: 64, singleTileHeight: 64});
+		let mesh = new Agent.Mesh(0, 0, {rowLength: 20, columnLength: 15, width: 64, height: 64});
 		let camera = new Agent.OrthographicCamera({left:0, right:1200, top:0, bottom:800, far:0, near:100});
 		let scene = engine.newScene('worldscene');
 		let brickTex = engine.newTexture();
