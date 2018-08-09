@@ -65,12 +65,11 @@ export class Sprite {
    * @returns {IRect} the rect of the next frame.
    */
   public getNextFrame(): IRect {
-    // TODO: what if a lot of time passes
     this.accumaltedTime += this.clock.deltaTime;
 
-    if (this.accumaltedTime >= this.framesPerSec) {
+    while (this.accumaltedTime >= this.framesPerSec) {
       this.currentFrame = this.currentFrame + 1 < this.frameTotal ? this.currentFrame + 1 : 0;
-      this.accumaltedTime = 0;
+      this.accumaltedTime -= this.framesPerSec;
     }
 
     return this.getFrameAtIndex(this.currentFrame);

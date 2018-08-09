@@ -30,8 +30,6 @@ export interface ISpriteTile {
  * @returns {ITextureJSON | undefined}	Texture json object or undefined
  */
 export function stringToTextureJSON(jsonStr: string): ITextureJSON | undefined {
-  // TODO this doesn't having anything to do with textures (kinda). This needs to be moved out of here. this just describes
-  // the level layout.
   try {
     const j = JSON.parse(jsonStr);
 

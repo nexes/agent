@@ -90,6 +90,7 @@ export class Shader {
     return this.uniforms;
   }
 
+  // TODO: ...IAttributeValue
   public setAttributeDataFor(attName: string, attribute: IAttributeValue | IAttributeValue[]): void {
     const gl = this.glCtx;
     const attLocation = this.shaderSourceData.attributesVars.filter((value) => value === attName);
