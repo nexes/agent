@@ -15,7 +15,7 @@ export class Texture {
    * @param {string} resource	path to the image file to load
    * @returns {Promise} boolean promise the image loaded
    */
-  public loadResource(resource: string): Promise<boolean> {
+  public loadResource(resource: string): Promise<WebGLTexture> {
     // TODO: async await maybe??
     const gl = this.glCtx;
 
@@ -23,7 +23,7 @@ export class Texture {
       this.textureID = gl.createTexture();
     }
 
-    return new Promise<boolean>((resolve, reject) => {
+    return new Promise<WebGLTexture>((resolve, reject) => {
       const imgData = new Image();
 
       imgData.onload = () => {
@@ -44,12 +44,12 @@ export class Texture {
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         }
 
-        resolve(true);
+        resolve(this.textureID);
       };
 
       imgData.onerror = (e) => {
         console.log('Error loading texture image', e);
-        reject(false);
+        reject(-1);
       };
 
       imgData.src = resource;

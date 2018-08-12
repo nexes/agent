@@ -1,6 +1,6 @@
 import { UUID } from '../agent';
 import Texture, { Sprite } from '../texture';
-import { IRenderable } from '.';
+import { IRenderable } from '../renderable';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
 
@@ -10,7 +10,7 @@ export class Tile implements IRenderable {
   private vbo: Float32Array;
   private bufferId: WebGLBuffer;
   private texture: Texture;
-  private spriteMap: Map<string, Sprite>;
+  private spriteMap: Map<string, [ WebGLTexture, Sprite ]>;
   private activeSprite: string;
 
 
@@ -86,11 +86,13 @@ export class Tile implements IRenderable {
   }
 
   /**
-   * set the sprite to the renderable
+   * set the sprite to the renderable. The sprite object should come from the Spritesheet.generateSprite
+   * @param {string}  title the identifying string for the sprite
+   * @param {WebGLTexture}  texture the texture ID from the spritesheet
    * @param {Sprite}  sheet the sprite to use for the renderable
    */
-  public setSprite(title: string, sprite: Sprite): void {
-    this.spriteMap.set(title, sprite);
+  public setSprite(title: string, texture: WebGLTexture, sprite: Sprite): void {
+    this.spriteMap.set(title, [ texture, sprite ]);
     this.activeSprite = title;
 
     const framePos = sprite.getFrameAtIndex(0);
@@ -151,12 +153,15 @@ export class Tile implements IRenderable {
       this.bufferId = gl.createBuffer();
     }
 
-    // upsate here with any vertex changes, ie. scale, transform etc
+    // update here with any vertex changes, ie. scale, transform etc
     if (this.spriteMap.size > 0) {
+      const sprite = this.spriteMap.get(this.activeSprite);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, sprite[0]);
+
       this.updateSprite();
     }
 
-    // TODO: probably wont work when using two different textures for two sprites, test this
     if (this.texture) {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this.texture.ID());
@@ -188,7 +193,7 @@ export class Tile implements IRenderable {
 
   private updateSprite(): void {
     const sprite = this.spriteMap.get(this.activeSprite);
-    const rect = sprite.getNextFrame();
+    const rect = sprite[1].getNextFrame();
 
     this.vbo[ 2 ] = rect.x;
     this.vbo[ 3 ] = rect.y;

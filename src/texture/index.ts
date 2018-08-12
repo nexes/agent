@@ -16,12 +16,21 @@ export interface ITextureJSON {
   layers: ITextureLayer[];
 }
 
-export interface ISpriteTile {
+export interface ITextureTile {
   x: number;
   y: number;
   width: number;
   height: number;
   hasTexture: boolean;
+}
+
+export interface ISpriteTile {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  row?: number;
+  column?: number;
 }
 
 /**

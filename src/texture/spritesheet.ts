@@ -1,8 +1,8 @@
-import { IRect } from '../math';
 import Texture, {
   ITextureJSON,
   stringToTextureJSON,
   Sprite,
+  ITextureTile,
   ISpriteTile,
 } from '../texture';
 
@@ -20,21 +20,29 @@ export class SpriteSheet extends Texture {
    * Create an individual sprite from the sprite sheet
    * @param {number} frames	the number of frames for this sprite
    * @param {number} animationSpeed  the number of frames per second, e.g 4 will display frames 0 - 3 per second
-   * @param {IRect} rect a rect object describing the sprites tiles.
-   * @param {number} rect.x how far to the right we need to go to find the first frame
-   * @param {number} rect.y how far down we need to go to find the first frame
-   * @param {number} rect.width the width of the sprite tile
-   * @param {number} rect.height the height of the sprite tile
+   * @param {ISpriteTile} tile a SpriteTile object describing the sprites tiles.
+   * @param {number} tile.x how far to the right we need to go to find the first frame
+   * @param {number} tile.y how far down we need to go to find the first frame
+   * @param {number} tile.width the width of the sprite tile
+   * @param {number} tile.height the height of the sprite tile
+   * @param {number} tile.column optional, the number of tiles in each column
+   * @param {number} tile.row optional, the number of rows
    * @returns {Sprite}	a sprite object
    */
-  public generateSprite(frames: number, animationSpeed: number, rect: IRect): Sprite {
+  public generateSprite(frames: number, animationSpeed: number, tile: ISpriteTile): Sprite {
+    const startTile: ISpriteTile = {
+      x: tile.x / this.width(),
+      y: tile.y / this.height(),
+      width: tile.width / this.width(),
+      height: tile.height / this.height(),
+      row: tile.row,
+      column: tile.column,
+    };
+
     return new Sprite(
-      rect.x / this.width(),
-      rect.y / this.height(),
       frames,
       animationSpeed,
-      rect.width / this.width(),
-      rect.height / this.height(),
+      startTile,
     );
   }
 
@@ -44,7 +52,7 @@ export class SpriteSheet extends Texture {
    * @param {string | ITextureJSON}	data	a json string or ITextureJSON representing the level layout
    * @returns {Promise} promise when the image has or hasn't been loaded
    */
-  public loadResourceWithData(resource: string, data: string | ITextureJSON): Promise<boolean> {
+  public loadResourceWithData(resource: string, data: string | ITextureJSON): Promise<WebGLTexture> {
     // TODO: async await maybe??
     if (typeof data === 'string') {
       data = stringToTextureJSON(data);
@@ -63,10 +71,10 @@ export class SpriteSheet extends Texture {
    * @param {number}	index	the index coorisponding to the data array from the json data
    * @returns {SpriteTile}	the tile object describing that part of the sprite sheet
    */
-  public textureForIndex(index: number): ISpriteTile {
+  public textureForIndex(index: number): ITextureTile {
     // TODO: this needs to be better thought out, what if the textures don't go to the edge of the image
     const rowLen = Math.floor(this.width() / this.levelJSON.tileWidth);
-    const tile: ISpriteTile = {
+    const tile: ITextureTile = {
       x: 0,
       y: 0,
       width: this.levelJSON.tileWidth / this.width(),

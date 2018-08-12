@@ -1,62 +1,62 @@
 import { UUID } from '../agent';
 import { Clock } from '../engine';
 import { IRect } from '../math';
+import { ISpriteTile } from '../texture';
 
 
 export class Sprite {
   public readonly UUID: string;
 
+  private spriteTile: ISpriteTile;
   private clock: Clock;
   private accumaltedTime: number;
   private frameTotal: number;
   private framesPerSec: number;
   private currentFrame: number;
-  private width: number;
-  private height: number;
-  private xOffset: number;
-  private yOffset: number;
 
   /**
    * Create a new Sprite sheet. This should be called through the Spritesheet class generateSprite()
-   * @param {number} xOffset the X offset for the first sprite tile location
-   * @param {number} yOffset the Y offset for the first sprite tile location
-   * @param {number} frames the number of frames this sprite has
-   * @param {number} animation speed to show the next frame, frames per second REWORD THIS
-   * @param {number} width  the width of the frame divied by the width of the spritesheet img file e.g 64/1024
-   * @param {number} height  the height of the frame divied by the height of the spritesheet img file e.g 64/1024
+   * @param {number}  frames  the number of frames this sprite will have
+   * @param {number} animation the number of frames to show per animation step
+   * @param {ISpriteTile} tileRect the geometry of the tile in the sprite, (all tiles are the same size).
+   * The X and Y are the offsets where the first tile is located in the spritesheet. If row and/or column are ommited, it will
+   * be assumed that the sprite tiles are linear, 1 row frames long
    */
-  constructor(xOffset: number, yOffset: number, frames: number, animation: number, width: number, height: number) {
+  constructor(frames: number, animation: number, tileRect: ISpriteTile) {
     this.UUID = UUID();
-    this.clock = new Clock(1000 / frames);
-    this.accumaltedTime = 0;
-    this.xOffset = xOffset;
-    this.yOffset = yOffset;
+    // we don't need to set a custom clock speed, we just care about delta times
+    this.clock = new Clock();
+    this.spriteTile = tileRect;
     this.frameTotal = frames;
+    this.accumaltedTime = 0;
     this.framesPerSec = 1000 / animation;
     this.currentFrame = 0;
-    this.width = width;
-    this.height = height;
+
+    if (!this.spriteTile.row || !this.spriteTile.column) {
+      this.spriteTile.row = 1;
+      this.spriteTile.column = this.frameTotal;
+    }
 
     this.clock.start();
   }
 
   /**
-   * Get the position and width and height of a single sprite frame. Frames are index starting at 0, frame 0, fraem 1 etc
+   * Get the position and width and height of a single sprite frame. Frames are index starting at 0
    * @param {number}  frameIndex the frame index of the sprite
    * @returns {IRect} the rect of the requested frame. If index is out of bounds will return frame at index 0
    */
   public getFrameAtIndex(frameIndex: number): IRect {
-    if (frameIndex > this.frameTotal || frameIndex < 0) {
+    if (frameIndex >= this.frameTotal || frameIndex < 0) {
       // TODO: dispatch errors
       console.log(`getPositionForFrame: frameIndex out of bounds, resetting to frame 0. Frame given: ${frameIndex}`);
       frameIndex = 0;
     }
 
     return {
-      x: this.xOffset + (this.width * frameIndex),
-      y: this.yOffset, // what if y is on a different row
-      width: this.width,
-      height: this.height,
+      x: this.spriteTile.x + (this.spriteTile.width * (Math.floor(frameIndex % this.spriteTile.column))),
+      y: this.spriteTile.y + (this.spriteTile.height * (Math.floor(frameIndex / this.spriteTile.column))),
+      width: this.spriteTile.width,
+      height: this.spriteTile.height,
     };
   }
 

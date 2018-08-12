@@ -1,5 +1,5 @@
 import { UUID } from '../agent';
-import Texture, { SpriteSheet, ISpriteTile } from '../texture';
+import Texture, { SpriteSheet, ITextureTile } from '../texture';
 import { IRenderable, ITileOptions } from '../renderable';
 import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
 
@@ -107,7 +107,7 @@ export class Mesh implements IRenderable {
   }
 
   public setSpriteSheet(sheet: SpriteSheet): void {
-    let tile: ISpriteTile;
+    let tile: ITextureTile;
     let degenerateTri = 0;
 
     this.texture = sheet;

@@ -30,6 +30,10 @@ export class Clock {
   }
 
   public get deltaTime(): number {
+    if (!this.running) {
+      return 0;
+    }
+
     const rightNow = performance.now();
 
     this.delta = rightNow - this.previousTime;
