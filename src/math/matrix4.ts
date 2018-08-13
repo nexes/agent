@@ -120,7 +120,7 @@ export class Matrix4 implements IMatrix {
     return this;
   }
 
-  public mult(mat: IMatrix): IMatrix {
+  public mult(mat: Matrix4): Matrix4 {
     const multMat = new Float32Array(16);
     const row = mat.flatten();
     let index = 0;

@@ -1,5 +1,6 @@
 import { IOrthoDimension } from '../camera';
 import { Vector2 } from './vector2';
+import { Matrix4 } from './matrix4';
 
 export { Vector2 } from './vector2';
 export { Vector3 } from './vector3';
@@ -133,7 +134,7 @@ export interface IMatrix {
    * @param {IMatrix} mat the matrix to multiple by
    * @returns {IMatrix} the product matrix
    */
-  mult(mat: IMatrix): IMatrix;
+  mult(mat: Matrix4): IMatrix;
 
   /**
    * return the matrix data as a Float32Array
