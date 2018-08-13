@@ -3,7 +3,25 @@ var it = require("mocha").it;
 var expect = require("chai").expect;
 
 var math = require("../../compilejs/math");
+var types = require("../../compilejs/math");
 
+describe("Testing degree radian conversion", () => {
+  describe("Degree to Radian", () => {
+    it("45 degree to 0.78539 Radian", () => {
+      let x = types.toRadian(45);
+
+      expect(x).to.equal(0.7854);
+    });
+  });
+
+  describe("Radian to Degree", () => {
+    it("0.78539 radian to 45 degree", () => {
+      let x = types.toDegree(0.7854);
+
+      expect(x).to.equal(45);
+    });
+  });
+});
 
 describe("linear interpolation", () => {
   describe("lerp between two points", () => {

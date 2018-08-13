@@ -1,13 +1,12 @@
-import { Vector2 } from './vector2';
 import { IOrthoDimension } from '../camera';
-import { IMatrix, IPoint, IVector, Axis } from '../math';
+import { IMatrix, IPoint, IVector, Axis, Vector2, Vector3 } from '../math';
 
 
 export class Matrix4 implements IMatrix {
   private data: Float32Array;
 
   constructor(arr?: Float32Array) {
-    if (arr !== undefined && arr.length === 16) {
+    if (arr && arr.length === 16) {
       this.data = arr.map((value) => value);
 
     } else {
@@ -48,7 +47,6 @@ export class Matrix4 implements IMatrix {
     let x = 1;
     let y = 1;
     let z = 1;
-    const _mat = new Matrix4(this.data);
 
     if (typeof scaler === 'object') {
       x = scaler.x;
@@ -60,23 +58,27 @@ export class Matrix4 implements IMatrix {
       z = scaler;
     }
 
-    _mat.data[ 0 ] *= x;
-    _mat.data[ 5 ] *= y;
-    _mat.data[ 10 ] *= z;
+    this.data[ 0 ] *= x;
+    this.data[ 5 ] *= y;
+    this.data[ 10 ] *= z;
 
-    return _mat;
+    return this;
   }
 
   public translate(vec: IVector | IPoint): Matrix4 {
     let x = 0;
     let y = 0;
     let z = 0;
-    const _mat = new Matrix4(this.data);
 
     if (vec instanceof Vector2) {
       x = vec.x;
       y = vec.y;
       z = 0;
+
+    } else if (vec instanceof Vector3) {
+      x = vec.x;
+      y = vec.y;
+      z = vec.z;
 
     } else {
       x = vec.x;
@@ -84,40 +86,55 @@ export class Matrix4 implements IMatrix {
       z = vec.z || 0;
     }
 
-    _mat.data[ 12 ] += x;
-    _mat.data[ 13 ] += y;
-    _mat.data[ 14 ] += z;
+    this.data[ 12 ] += x;
+    this.data[ 13 ] += y;
+    this.data[ 14 ] += z;
 
-    return _mat;
+    return this;
   }
 
   public rotate(theta: number, axis: Axis): Matrix4 {
-    const _mat = new Matrix4(this.data);
-
     switch (axis) {
       case Axis.X:
-      _mat.data[ 5 ] *= Math.cos(theta);
-      _mat.data[ 6 ] *= Math.sin(theta);
-      _mat.data[ 9 ] *= -(Math.sin(theta));
-      _mat.data[ 10 ] *= Math.cos(theta);
-      break;
+        this.data[ 5 ] *= Math.cos(theta);
+        this.data[ 6 ] *= Math.sin(theta);
+        this.data[ 9 ] *= -(Math.sin(theta));
+        this.data[ 10 ] *= Math.cos(theta);
+        break;
 
       case Axis.Y:
-      _mat.data[ 0 ] *= Math.cos(theta);
-      _mat.data[ 2 ] *= -(Math.sin(theta));
-      _mat.data[ 8 ] *= Math.sin(theta);
-      _mat.data[ 10 ] *= Math.cos(theta);
-      break;
+        this.data[ 0 ] *= Math.cos(theta);
+        this.data[ 2 ] *= -(Math.sin(theta));
+        this.data[ 8 ] *= Math.sin(theta);
+        this.data[ 10 ] *= Math.cos(theta);
+        break;
 
       case Axis.Z:
-      _mat.data[ 0 ] *= Math.cos(theta);
-      _mat.data[ 1 ] *= Math.sin(theta);
-      _mat.data[ 4 ] *= -(Math.sin(theta));
-      _mat.data[ 5 ] *= Math.cos(theta);
-      break;
+        this.data[ 0 ] *= Math.cos(theta);
+        this.data[ 1 ] *= Math.sin(theta);
+        this.data[ 4 ] *= -(Math.sin(theta));
+        this.data[ 5 ] *= Math.cos(theta);
+        break;
     }
 
-    return _mat;
+    return this;
+  }
+
+  public mult(mat: IMatrix): IMatrix {
+    const multMat = new Float32Array(16);
+    const row = mat.flatten();
+    let index = 0;
+
+    for (let i = 0; i < 16; i += 4) {
+      const column = this.data.slice(i, i + 4);
+
+      for (let j = 0; j < 4; j ++) {
+        const a = row[ j ] * column[ 0 ] + row[ j + 4 ] * column[ 1 ] + row[ j + 8 ] * column[ 2 ] + row[ j + 12 ] * column[ 3 ];
+        multMat[ index++ ] = a;
+      }
+    }
+
+    return new Matrix4(multMat);
   }
 
   public flatten(): Float32Array {

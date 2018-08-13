@@ -9,7 +9,7 @@
     "compile-clean": "rm -rf compilejs && echo 'compilejs removed!'",
     "compile-and-test": "npm run compile && npm run test",
     "build": "rm -rf ./lib/types && ./node_modules/webpack/bin/webpack.js && mv ./lib/lib ./lib/types",
-    "test": "mocha ./test/**/*.js"
+    "test": "./node_modules/mocha/bin/mocha ./test/**/*.js"
   },
   "author": {
     "name": "Joe Berria",

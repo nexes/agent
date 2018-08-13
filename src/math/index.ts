@@ -129,6 +129,13 @@ export interface IMatrix {
   rotate(theta: number, axis: Axis): IMatrix;
 
   /**
+   * Multiple the matrix by the given matrix and return the new matrix
+   * @param {IMatrix} mat the matrix to multiple by
+   * @returns {IMatrix} the product matrix
+   */
+  mult(mat: IMatrix): IMatrix;
+
+  /**
    * return the matrix data as a Float32Array
    * @return {Flaot32Array}  the matrix data as an array
    */
