@@ -1,5 +1,5 @@
-import { ShaderType, IAttributeValue, IVertexAttribute, IShaderAttributeName, IUniformValue } from '.';
-import { Matrix4,	Vector2,	Vector3 } from '../math';
+import { ShaderType, IAttributeValue, IShaderAttributeName, IUniformAttribute } from '../shader';
+import { Matrix4 } from '../math';
 
 
 interface IShaderSourceData {
@@ -15,7 +15,7 @@ export class Shader {
   private glCtx: WebGLRenderingContext;
   private programID: WebGLProgram;
   private shaderSourceData: IShaderSourceData;
-  private uniforms: Map<IShaderAttributeName, IUniformValue>;
+  private uniforms: Map<IShaderAttributeName, IUniformAttribute>;
   private vertAttributes: Map<IShaderAttributeName, IAttributeValue>;
   private generalAttributes: Map<IShaderAttributeName, IAttributeValue>;
 
@@ -82,16 +82,27 @@ export class Shader {
     return attr;
   }
 
+  public uniformAttributes(uniformID: string): Map<IShaderAttributeName, IUniformAttribute> {
+    const unf = new Map<IShaderAttributeName, IUniformAttribute>();
+
+    for (const [key, value] of this.uniforms) {
+      if (value.UUID === uniformID) {
+        unf.set(key, value);
+      }
+    }
+
+    return unf;
+  }
+
   public shaderAttributes(): Map<IShaderAttributeName, IAttributeValue> {
     return this.generalAttributes;
   }
 
-  public shaderUniforms(): Map<IShaderAttributeName, IUniformValue> {
+  public shaderUniforms(): Map<IShaderAttributeName, IUniformAttribute> {
     return this.uniforms;
   }
 
-  // TODO: ...IAttributeValue
-  public setAttributeDataFor(attName: string, attribute: IAttributeValue | IAttributeValue[]): void {
+  public setAttributeDataFor(attName: string, ...attribute: IAttributeValue[]): void {
     const gl = this.glCtx;
     const attLocation = this.shaderSourceData.attributesVars.filter((value) => value === attName);
 
@@ -99,32 +110,20 @@ export class Shader {
       throw new ReferenceError(`setAttributeDataFor: ${attName} was not found`);
     }
 
-    if (Array.isArray(attribute)) {
-      for (const attr of attribute) {
-        // TODO check if we already have the location
-        const locID = gl.getAttribLocation(this.programID, attName);
-
-        if (attr.vertexAttribute) {
-          this.vertAttributes.set({ name: attName, id: locID }, attr);
-
-        } else if (attr.attributeValue) {
-          this.generalAttributes.set({ name: attName, id: locID }, attr);
-        }
-      }
-
-    } else {
+    for (const attr of attribute) {
       // TODO check if we already have the location
       const locID = gl.getAttribLocation(this.programID, attName);
-      if (attribute.vertexAttribute) {
-        this.vertAttributes.set({ name: attName, id: locID }, attribute);
 
-      } else if (attribute.attributeValue) {
-        this.generalAttributes.set({ name: attName, id: locID }, attribute);
+      if (attr.vertexAttribute) {
+        this.vertAttributes.set({ name: attName, id: locID }, attr);
+
+      } else if (attr.attributeValue) {
+        this.generalAttributes.set({ name: attName, id: locID }, attr);
       }
     }
   }
 
-  public setUniformDataFor(uniformName: string, uniformData: IUniformValue): void {
+  public setUniformDataFor(uniformName: string, uniformData: IUniformAttribute): void {
     const uniformLoc = this.shaderSourceData.uniformsVars.filter((uniform) => uniform === uniformName);
 
     if (uniformLoc.length === 0) {
@@ -143,29 +142,70 @@ export class Shader {
     // TODO check if we already have the location
     const locID = this.glCtx.getUniformLocation(this.programID, uniformName);
 
-    if (uniformData.dataMatrix) {
-      this.glCtx.uniformMatrix4fv(locID, false, uniformData.dataMatrix.flatten());
+    if (uniformData.uniformMatrix) {
+      this.glCtx.uniformMatrix4fv(locID, false, uniformData.uniformMatrix.flatten());
 
-    } else if (uniformData.dataValue) {
-      const len = uniformData.dataValue.length;
+    } else if (uniformData.uniformValue) {
+      const len = uniformData.uniformValue.length;
 
       switch (len) {
         case 1:
-          this.glCtx.uniform1fv(locID, uniformData.dataValue);
+          this.glCtx.uniform1fv(locID, uniformData.uniformValue);
           break;
         case 2:
-          this.glCtx.uniform2fv(locID, uniformData.dataValue);
+          this.glCtx.uniform2fv(locID, uniformData.uniformValue);
           break;
         case 3:
-          this.glCtx.uniform3fv(locID, uniformData.dataValue);
+          this.glCtx.uniform3fv(locID, uniformData.uniformValue);
           break;
         case 4:
-          this.glCtx.uniform4fv(locID, uniformData.dataValue);
+          this.glCtx.uniform4fv(locID, uniformData.uniformValue);
           break;
       }
     }
 
     this.uniforms.set({ name: uniformName, id: locID }, uniformData);
+  }
+
+  public updateUniformDataFor(uniformID: string, uniformData: Matrix4 | Float32Array): void {
+    for (const [ key, value ] of this.uniforms) {
+      if (value.UUID === uniformID) {
+        if (uniformData instanceof Matrix4) {
+
+          this.uniforms.set(key, {
+            UUID: value.UUID,
+            uniformMatrix: uniformData as Matrix4,
+          });
+
+          this.glCtx.useProgram(this.programID);
+          this.glCtx.uniformMatrix4fv(key.id, false, uniformData.flatten());
+
+        } else if (uniformData instanceof Float32Array) {
+          this.uniforms.set(key, {
+            UUID: value.UUID,
+            uniformValue: uniformData as Float32Array,
+          });
+
+          const len = uniformData.length;
+          this.glCtx.useProgram(this.programID);
+
+          switch (len) {
+            case 1:
+              this.glCtx.uniform1fv(key.id, uniformData);
+              break;
+            case 2:
+              this.glCtx.uniform2fv(key.id, uniformData);
+              break;
+            case 3:
+              this.glCtx.uniform3fv(key.id, uniformData);
+              break;
+            case 4:
+              this.glCtx.uniform4fv(key.id, uniformData);
+              break;
+          }
+        }
+      }
+    }
   }
 
   private compileShaderSource(type: ShaderType, source: string): WebGLShader {

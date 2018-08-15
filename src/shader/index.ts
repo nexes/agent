@@ -1,5 +1,4 @@
 import { Matrix4 } from '../math';
-
 export { Shader as default } from './shader';
 
 export enum ShaderType {
@@ -10,6 +9,12 @@ export enum ShaderType {
 export interface IShaderAttributeName {
   name: string;
   id: number | WebGLUniformLocation;
+}
+
+export interface IUniformAttribute {
+  readonly UUID: string;
+  readonly uniformMatrix?: Matrix4;
+  readonly uniformValue?: Float32Array;
 }
 
 export interface IVertexAttribute {
@@ -23,9 +28,4 @@ export interface IVertexAttribute {
 export interface IAttributeValue {
   readonly vertexAttribute?: IVertexAttribute;
   readonly attributeValue?: Float32Array;
-}
-
-export interface IUniformValue {
-  readonly dataMatrix?: Matrix4;
-  readonly dataValue?: Float32Array;
 }
