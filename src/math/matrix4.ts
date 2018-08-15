@@ -58,9 +58,9 @@ export class Matrix4 implements IMatrix {
       z = scaler;
     }
 
-    this.data[ 0 ] *= x;
-    this.data[ 5 ] *= y;
-    this.data[ 10 ] *= z;
+    this.data[ 0 ] = x;
+    this.data[ 5 ] = y;
+    this.data[ 10 ] = z;
 
     return this;
   }
@@ -86,9 +86,9 @@ export class Matrix4 implements IMatrix {
       z = vec.z || 0;
     }
 
-    this.data[ 12 ] += x;
-    this.data[ 13 ] += y;
-    this.data[ 14 ] += z;
+    this.data[ 12 ] = x;
+    this.data[ 13 ] = y;
+    this.data[ 14 ] = z;
 
     return this;
   }
@@ -96,24 +96,24 @@ export class Matrix4 implements IMatrix {
   public rotate(theta: number, axis: Axis): Matrix4 {
     switch (axis) {
       case Axis.X:
-        this.data[ 5 ] *= Math.cos(theta);
-        this.data[ 6 ] *= Math.sin(theta);
-        this.data[ 9 ] *= -(Math.sin(theta));
-        this.data[ 10 ] *= Math.cos(theta);
+        this.data[ 5 ] = Math.cos(theta);
+        this.data[ 6 ] = Math.sin(theta);
+        this.data[ 9 ] = -(Math.sin(theta));
+        this.data[ 10 ] = Math.cos(theta);
         break;
 
       case Axis.Y:
-        this.data[ 0 ] *= Math.cos(theta);
-        this.data[ 2 ] *= -(Math.sin(theta));
-        this.data[ 8 ] *= Math.sin(theta);
-        this.data[ 10 ] *= Math.cos(theta);
+        this.data[ 0 ] = Math.cos(theta);
+        this.data[ 2 ] = -(Math.sin(theta));
+        this.data[ 8 ] = Math.sin(theta);
+        this.data[ 10 ] = Math.cos(theta);
         break;
 
       case Axis.Z:
-        this.data[ 0 ] *= Math.cos(theta);
-        this.data[ 1 ] *= Math.sin(theta);
-        this.data[ 4 ] *= -(Math.sin(theta));
-        this.data[ 5 ] *= Math.cos(theta);
+        this.data[ 0 ] = Math.cos(theta);
+        this.data[ 1 ] = Math.sin(theta);
+        this.data[ 4 ] = -(Math.sin(theta));
+        this.data[ 5 ] = Math.cos(theta);
         break;
     }
 

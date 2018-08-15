@@ -12,26 +12,26 @@ export class Vector3 implements IVector {
     this.z = z;
   }
 
-  public add(vec: IPoint | IVector): Vector3 {
+  public add(vec: IPoint | Vector3): Vector3 {
     return new Vector3(this.x + vec.x, this.y + vec.y, this.z + vec.z);
   }
 
-  public sub(vec: IPoint | IVector): Vector3 {
+  public sub(vec: IPoint | Vector3): Vector3 {
     return new Vector3(this.x - vec.x, this.y - vec.y, this.z - vec.z);
   }
 
-  public div(vec: IPoint | IVector): Vector3 | TypeError {
+  public div(vec: IPoint | Vector3): Vector3 | TypeError {
     if (vec.x === 0 || vec.y === 0 || vec.z === 0) {
       throw new TypeError(`Can not divide by zero x:${vec.x} y:${vec.y} z: ${vec.z}`);
     }
     return new Vector3(this.x / vec.x, this.y / vec.y, this.z / vec.z);
   }
 
-  public mult(vec: IPoint | IVector): Vector3 {
+  public mult(vec: IPoint | Vector3): Vector3 {
     return new Vector3(this.x * vec.x, this.y * vec.y, this.z * vec.z);
   }
 
-  public dot(vec: IPoint | IVector): number {
+  public dot(vec: IPoint | Vector3): number {
     return (this.x * vec.x) + (this.y * vec.y) + (this.z * vec.z);
   }
 
@@ -39,7 +39,7 @@ export class Vector3 implements IVector {
     return new Vector3(this.x * scaler, this.y * scaler, this.z * scaler);
   }
 
-  public normalize(): IVector {
+  public normalize(): Vector3 {
     const l = this.length();
     return new Vector3(this.x / l, this.y / l, this.z / l);
   }
