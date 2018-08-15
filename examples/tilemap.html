@@ -39,7 +39,6 @@
 		brickTex.loadResource("./images/bricktexture.png")
 			.then((success) => {
 				mesh.setTexture(brickTex);
-				engine.render();
 			})
 			.catch((success) => {
 				console.log('tilemap.html, error loading texture');
@@ -48,13 +47,13 @@
 		scene.addShader(Agent.ShaderType.Vertex, vshr);
 		scene.addShader(Agent.ShaderType.Fragment, fshr);
 
-		scene.shader(Agent.ShaderType.Vertex).setUniformDataFor('camera', { dataMatrix: camera.matrix() });
+		scene.shader(Agent.ShaderType.Vertex).setUniformDataFor('camera', { UUID: 'some-id', uniformMatrix: camera.matrix() });
 		scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aPos', { vertexAttribute: mesh.vertexAttributes() });
 		scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor('aTexture', { vertexAttribute: mesh.textureAttributes() });
 
 		scene.addDrawable(mesh);
 		scene.addCamera(camera);
-		engine.render();
+		engine.run();
   </script>
 </body>
 </html>
