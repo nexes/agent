@@ -1,7 +1,7 @@
 # Agent
 ### A 2d game engine written using TypeScript and WebGL
 
-#### What
+### What
 This is designed to be a simple 2d game engine that is easy to use and light weight.
 
 ### Why

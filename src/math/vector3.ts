@@ -2,14 +2,14 @@ import { IVector, IPoint } from '../math';
 
 
 export class Vector3 implements IVector {
-  public readonly x: number;
-  public readonly y: number;
-  public readonly z: number;
+  private _x: number;
+  private _y: number;
+  private _z: number;
 
   constructor(x: number = 0, y: number = 0, z: number = 0) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
+    this._x = x;
+    this._y = y;
+    this._z = z;
   }
 
   public add(vec: IPoint | Vector3): Vector3 {
@@ -44,8 +44,37 @@ export class Vector3 implements IVector {
     return new Vector3(this.x / l, this.y / l, this.z / l);
   }
 
+  public distance(vec: IVector): number {
+    const distanceVec = new Vector3(vec.x - this.x, vec.y - this.y, vec.z - this.z);
+    return distanceVec.length();
+  }
+
   public length(): number {
     return Math.sqrt(( this.x * this.x ) + ( this.y * this.y ) + ( this.z * this.z ));
+  }
+
+  public get x(): number {
+    return this._x;
+  }
+
+  public set x(x: number) {
+    this._x = x;
+  }
+
+  public get y(): number {
+    return this._y;
+  }
+
+  public set y(y: number) {
+    this._y = y;
+  }
+
+  public get z(): number {
+    return this._z;
+  }
+
+  public set z(z: number) {
+    this._z = z;
   }
 
   public flatten(): Float32Array {

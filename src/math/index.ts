@@ -14,9 +14,9 @@ export enum Axis {
 }
 
 export interface IPoint {
-  readonly x: number;
-  readonly y: number;
-  readonly z?: number;
+  x: number;
+  y: number;
+  z?: number;
 }
 
 export interface IRect {
@@ -61,6 +61,13 @@ export interface IVector extends IPoint {
    * @returns {number}	the number representing the dot product
    */
   dot(vec: IVector): number;
+
+  /**
+   * Distance between vec and this vector
+   * @param {IVector}  vec  the vector to get the distance to
+   * @returns {number}	the distance between vec and this vector
+   */
+  distance(vec: IVector): number;
 
   /**
    * Scale a vector
@@ -109,10 +116,10 @@ export interface IMatrix {
 
   /**
    * return a new scaled matrix
-   * @param {number} scaler   the value to scale the matrix
+   * @param {IVector | number} scaler   the value to scale the matrix
    * @return {IMatrix}  the new scaled matrix
    */
-  scale(scaler: number): IMatrix;
+  scale(scaler: IVector | number): IMatrix;
 
   /**
    * return a new translated matrix
@@ -150,7 +157,7 @@ export interface IMatrix {
  */
 export function toRadian(deg: number): number {
   const rad = (deg / 360) * 2 * Math.PI;
-  return parseFloat(rad.toFixed(5));
+  return rad;
 }
 
 /**
@@ -185,4 +192,15 @@ export function lerpVec2(startVec: Vector2, endVec: Vector2, time: number): Vect
     lerp(startVec.x, endVec.x, time),
     lerp(startVec.y, endVec.y, time),
   );
+}
+
+/**
+ * clamp the value between the min and max values.
+ * @param {number} value the value to clamp
+ * @param {number} min the minimum value
+ * @param {number} value the maximum value
+ * @returns {number} the value if it's between the min and max value, otherwise the min if value < min or max if value > max
+ */
+export function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
 }

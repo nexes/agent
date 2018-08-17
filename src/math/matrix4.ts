@@ -43,16 +43,22 @@ export class Matrix4 implements IMatrix {
     // TODO
   }
 
-  public scale(scaler: IPoint | number): Matrix4 {
+  public scale(scaler: IVector | number): Matrix4 {
     let x = 1;
     let y = 1;
     let z = 1;
 
-    if (typeof scaler === 'object') {
+    if (scaler instanceof Vector2) {
       x = scaler.x;
       y = scaler.y;
-      z = scaler.z || 1;
-    } else {
+      z = 1;
+
+    } else if (scaler instanceof Vector3) {
+      x = scaler.x;
+      y = scaler.y;
+      z = scaler.z;
+
+    } else if (typeof scaler === 'number') {
       x = scaler;
       y = scaler;
       z = scaler;
