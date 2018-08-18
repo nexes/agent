@@ -4,7 +4,6 @@ var expect = require("chai").expect;
 var vect = require("../../compilejs/math/vector2");
 var vect3 = require("../../compilejs/math/vector3");
 
-
 describe("Testing Vector math", () => {
   let vec1 = new vect.Vector2(2, 3);
   let vec2 = new vect.Vector2(4, 5);
@@ -23,23 +22,23 @@ describe("Testing Vector math", () => {
       expect(vec3_1.add(vec3_2)).to.eql(new vect3.Vector3(6, 8, 10));
 
       // testing overload function
-      expect(vec3_1.add({x: 4, y: 5, z:6})).to.eql(new vect3.Vector3(6, 8, 10));
+      expect(vec3_1.add({x: 4, y: 5, z: 6})).to.eql(new vect3.Vector3(6, 8, 10));
     });
   });
 
   describe("Vector subtraction", () => {
-    it("vect(2, 3) - vect(4, 5) should equal vect(-2, -2)", () => {
-      expect(vec1.sub(vec2)).to.eql(new vect.Vector2(-2, -2));
+    it("vect(2, 3) - vect(4, 5) should equal vect(2, 2)", () => {
+      expect(vec1.sub(vec2)).to.eql(new vect.Vector2(2, 2));
 
       // testing overload function
-      expect(vec1.sub({x: 4, y: 5})).to.eql(new vect.Vector2(-2, -2));
+      expect(vec1.sub({x: 4, y: 5})).to.eql(new vect.Vector2(2, 2));
     });
 
-    it("vect(2, 3, 4) - vect(4, 5, 6) should equal vect(-2, -2, -2)", () => {
-      expect(vec3_1.sub(vec3_2)).to.eql(new vect3.Vector3(-2, -2, -2));
+    it("vect(2, 3, 4) - vect(4, 5, 6) should equal vect(2, 2, 2)", () => {
+      expect(vec3_1.sub(vec3_2)).to.eql(new vect3.Vector3(2, 2, 2));
 
       // testing overload function
-      expect(vec3_1.sub({x: 4, y: 5, z:6})).to.eql(new vect3.Vector3(-2, -2, -2));
+      expect(vec3_1.sub({x: 4, y: 5, z: -2})).to.eql(new vect3.Vector3(2, 2, -6));
     });
   });
 
@@ -64,22 +63,22 @@ describe("Testing Vector math", () => {
       expect(vec1.div(vec2)).to.eql(new vect.Vector2(2 / 4, 3 / 5));
 
       // testing overload function
-      expect(vec1.div({x: 4, y: 5})).to.eql(new vect.Vector2(2/4, 3/5));
+      expect(vec1.div({x: 4, y: 5})).to.eql(new vect.Vector2(2 / 4, 3 / 5));
     });
 
     it("vect(2, 3) / vect(2, 0) should throw a divide by zero error", () => {
-      expect(() => { vec1.div(new vect.Vector2(2, 0)) }).to.throw();
+      expect(() => { vec1.div(new vect.Vector2(2, 0)); }).to.throw();
     });
 
     it("vect(2, 3, 4) / vect(4, 5, 6) should equal vect(2/4, 3/5, 4/6)", () => {
       expect(vec3_1.div(vec3_2)).to.eql(new vect3.Vector3(2 / 4, 3 / 5, 4 / 6));
 
       // testing overload function
-      expect(vec3_1.div({x: 4, y: 5, z: 6})).to.eql(new vect3.Vector3(2/4, 3/5, 4 / 6));
+      expect(vec3_1.div({x: 4, y: 5, z: 6})).to.eql(new vect3.Vector3(2 / 4, 3 / 5, 4 / 6));
     });
 
     it("vect(2, 3, 4) / vect(2, 2, 0) should throw a divide by zero error", () => {
-      expect(() => { vec3_1.div(new vect3.Vector3(2, 2, 0)) }).to.throw();
+      expect(() => { vec3_1.div(new vect3.Vector3(2, 2, 0)); }).to.throw();
     });
   });
 
@@ -107,7 +106,7 @@ describe("Testing Vector math", () => {
     it("vect(3, 4) normalized should equal vect(3/5, 4/5)", () => {
       let v = new vect.Vector2(3, 4);
 
-      expect(v.normalize()).to.eql(new vect.Vector2(3/5, 4/5));
+      expect(v.normalize()).to.eql(new vect.Vector2(3 / 5, 4 / 5));
     });
   });
 
@@ -118,6 +117,24 @@ describe("Testing Vector math", () => {
 
     it("vec(2, 3) and vec(-4, -3) dot product should be < 0", () => {
       expect(vec1.dot({ x: -4, y: -3 })).to.be.lt(0);
+    });
+  });
+
+  describe("Vector distance", () => {
+    it("vec(2, 3) distance from vec(10, 1) should be sqrt(68)", () => {
+      const v1 = new vect.Vector2(2, 3);
+      const v2 = new vect.Vector2(10, 1);
+      const vv = v1.distance(v2);
+
+      expect(vv).to.equal(Math.sqrt(68));
+    });
+
+    it("vec(3.95, 4.95) distance from vec(4, 5) should be less than 0.09", () => {
+      const v1 = new vect.Vector2(3.95, 4.95);
+      const v2 = new vect.Vector2(4, 5);
+      const vv = v1.distance(v2);
+
+      expect(vv).to.be.lessThan(0.09);
     });
   });
 });

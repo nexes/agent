@@ -11,43 +11,43 @@ export class Vector2 implements IVector {
   }
 
   public add(vec: IPoint | Vector2): Vector2 {
-    return new Vector2(vec.x + this.x, vec.y + this.y);
+    return new Vector2(vec.x + this._x, vec.y + this._y);
   }
 
   public sub(vec: IPoint | Vector2): Vector2 {
-    return new Vector2(this.x - vec.x, this.y - vec.y);
+    return new Vector2(vec.x - this._x, vec.y - this._y);
   }
 
   public mult(vec: IPoint | Vector2): Vector2 {
-    return new Vector2(this.x * vec.x, this.y * vec.y);
+    return new Vector2(this._x * vec.x, this._y * vec.y);
   }
 
   public div(vec: IPoint | Vector2): Vector2 | TypeError {
     if (vec.x === 0 || vec.y === 0) {
       throw new TypeError(`Can not divide by zero x:${vec.x} y:${vec.y}`);
     }
-    return new Vector2(this.x / vec.x, this.y / vec.y);
+    return new Vector2(this._x / vec.x, this._y / vec.y);
   }
 
   public dot(vec: IPoint | Vector2): number {
-    return (this.x * vec.x) + (this.y * vec.y);
+    return (this._x * vec.x) + (this._y * vec.y);
   }
 
   public length(): number {
-    return Math.sqrt((this.x * this.x) + (this.y * this.y));
+    return Math.sqrt((this._x * this._x) + (this._y * this._y));
   }
 
   public scale(scaler: number): Vector2 {
-    return new Vector2(this.x * scaler, this.y * scaler);
+    return new Vector2(this._x * scaler, this._y * scaler);
   }
 
   public normalize(): Vector2 {
     const l = this.length();
-    return new Vector2(this.x / l, this.y / l);
+    return new Vector2(this._x / l, this._y / l);
   }
 
   public distance(vec: IVector): number {
-    const distanceVec = new Vector2(vec.x - this.x, vec.y - this.y);
+    const distanceVec = new Vector2(vec.x - this._x, vec.y - this._y);
     return distanceVec.length();
   }
 
@@ -68,6 +68,6 @@ export class Vector2 implements IVector {
   }
 
   public flatten(): Float32Array {
-    return new Float32Array([this.x, this.y]);
+    return new Float32Array([this._x, this._y]);
   }
 }

@@ -13,44 +13,44 @@ export class Vector3 implements IVector {
   }
 
   public add(vec: IPoint | Vector3): Vector3 {
-    return new Vector3(this.x + vec.x, this.y + vec.y, this.z + vec.z);
+    return new Vector3(this._x + vec.x, this._y + vec.y, this._z + vec.z);
   }
 
   public sub(vec: IPoint | Vector3): Vector3 {
-    return new Vector3(this.x - vec.x, this.y - vec.y, this.z - vec.z);
+    return new Vector3(vec.x - this._x, vec.y - this._y, vec.z - this._z);
   }
 
   public div(vec: IPoint | Vector3): Vector3 | TypeError {
     if (vec.x === 0 || vec.y === 0 || vec.z === 0) {
       throw new TypeError(`Can not divide by zero x:${vec.x} y:${vec.y} z: ${vec.z}`);
     }
-    return new Vector3(this.x / vec.x, this.y / vec.y, this.z / vec.z);
+    return new Vector3(this._x / vec.x, this._y / vec.y, this._z / vec.z);
   }
 
   public mult(vec: IPoint | Vector3): Vector3 {
-    return new Vector3(this.x * vec.x, this.y * vec.y, this.z * vec.z);
+    return new Vector3(this._x * vec.x, this._y * vec.y, this._z * vec.z);
   }
 
   public dot(vec: IPoint | Vector3): number {
-    return (this.x * vec.x) + (this.y * vec.y) + (this.z * vec.z);
+    return (this._x * vec.x) + (this._y * vec.y) + (this._z * vec.z);
   }
 
   public scale(scaler: number): Vector3 {
-    return new Vector3(this.x * scaler, this.y * scaler, this.z * scaler);
+    return new Vector3(this._x * scaler, this._y * scaler, this._z * scaler);
   }
 
   public normalize(): Vector3 {
     const l = this.length();
-    return new Vector3(this.x / l, this.y / l, this.z / l);
+    return new Vector3(this._x / l, this._y / l, this._z / l);
   }
 
   public distance(vec: IVector): number {
-    const distanceVec = new Vector3(vec.x - this.x, vec.y - this.y, vec.z - this.z);
+    const distanceVec = new Vector3(vec.x - this._x, vec.y - this._y, vec.z - this._z);
     return distanceVec.length();
   }
 
   public length(): number {
-    return Math.sqrt(( this.x * this.x ) + ( this.y * this.y ) + ( this.z * this.z ));
+    return Math.sqrt(( this._x * this._x ) + ( this._y * this._y ) + ( this._z * this._z ));
   }
 
   public get x(): number {
@@ -78,6 +78,6 @@ export class Vector3 implements IVector {
   }
 
   public flatten(): Float32Array {
-    return new Float32Array([this.x, this.y, this.z]);
+    return new Float32Array([this._x, this._y, this._z]);
   }
 }

@@ -10,7 +10,7 @@ describe("Testing degree radian conversion", () => {
     it("45 degree to 0.78539 Radian", () => {
       let x = types.toRadian(45);
 
-      expect(x).to.equal(0.7854);
+      expect(x.toFixed(4)).to.equal("0.7854");
     });
   });
 
