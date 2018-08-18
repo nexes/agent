@@ -12,6 +12,7 @@ export class Tile implements IRenderable {
   private texture: Texture;
   private spriteMap: Map<string, [ WebGLTexture, Sprite ]>;
   private activeSprite: string;
+  private shouldAnimate: boolean;
 
 
   constructor(x: number, y: number, width: number, height: number) {
@@ -21,6 +22,7 @@ export class Tile implements IRenderable {
     this.vbo = new Float32Array(8 * 4); // 8 vertex attributes for 4 vertices
     this.bufferId = null;
     this.texture = null;
+    this.shouldAnimate = true;
 
     this.vbo[ 0 ] = x;
     this.vbo[ 1 ] = y;
@@ -115,6 +117,10 @@ export class Tile implements IRenderable {
     return false;
   }
 
+  public animateSprite(animate: boolean): void {
+    this.shouldAnimate = animate;
+  }
+
   // tiles have a default buffer layout, so we can hard code
   public vertexAttributes(): IVertexAttribute {
     return {
@@ -159,7 +165,9 @@ export class Tile implements IRenderable {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, sprite[0]);
 
-      this.updateSprite();
+      if (this.shouldAnimate) {
+        this.updateSprite(sprite[1]);
+      }
     }
 
     if (this.texture) {
@@ -191,9 +199,8 @@ export class Tile implements IRenderable {
     }
   }
 
-  private updateSprite(): void {
-    const sprite = this.spriteMap.get(this.activeSprite);
-    const rect = sprite[1].getNextFrame();
+  private updateSprite(sprite: Sprite): void {
+    const rect = sprite.getNextFrame();
 
     this.vbo[ 2 ] = rect.x;
     this.vbo[ 3 ] = rect.y;
