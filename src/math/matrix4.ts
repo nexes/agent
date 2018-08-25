@@ -99,7 +99,7 @@ export class Matrix4 implements IMatrix {
     return this;
   }
 
-  public rotate(theta: number, axis: Axis): Matrix4 {
+  public rotate(theta: number, axis: Axis = Axis.Z): Matrix4 {
     switch (axis) {
       case Axis.X:
         this.data[ 5 ] = Math.cos(theta);

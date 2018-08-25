@@ -1,10 +1,10 @@
 import { IOrthoDimension } from '../camera';
-import { Vector2 } from './vector2';
 import { Matrix4 } from './matrix4';
 
 export { Vector2 } from './vector2';
 export { Vector3 } from './vector3';
 export { Matrix4 } from './matrix4';
+export { Math } from './math';
 
 
 export enum Axis {
@@ -131,7 +131,7 @@ export interface IMatrix {
   /**
    * return a new rotated matrix
    * @param {number} theta   the degree or radian to rotate by
-   * @param {Axis} axis   the axis to rotate by
+   * @param {Axis} axis   the axis to rotate by, default is Z axis
    * @return {IMatrix}  the new rotated matrix
    */
   rotate(theta: number, axis: Axis): IMatrix;
@@ -148,59 +148,4 @@ export interface IMatrix {
    * @return {Flaot32Array}  the matrix data as an array
    */
   flatten(): Float32Array;
-}
-
-/**
- * convert degree to radian
- * @param {number} deg  the degree to convert
- * @return {number}   the degree represented in radian
- */
-export function toRadian(deg: number): number {
-  const rad = (deg / 360) * 2 * Math.PI;
-  return rad;
-}
-
-/**
- * convert radian to degree
- * @param {number} rad  the radian to convert
- * @return {number}   the degree
- */
-export function toDegree(rad: number): number {
-  return Math.round((rad / (2 * Math.PI)) * 360);
-}
-
-/**
- * linear interpolation from one point to another of time
- * @param {number} startPos the begining point
- * @param {number} endPos the end point
- * @param {number} time the time (0 - 1) that has passed
- * @returns {number} the interpolated distance between both points
- */
-export function lerp(startPos: number, endPos: number, time: number): number {
-  return ( (1 - time) * startPos ) + ( time * endPos );
-}
-
-/**
- * linear interpolation from one vector2 to another of time
- * @param {Vector2} startVec the begining vector
- * @param {Vector2} endVec the end vector
- * @param {number} time the time (0 - 1) that has passed
- * @returns {Vector2} the interpolated distance between both vectors
- */
-export function lerpVec2(startVec: Vector2, endVec: Vector2, time: number): Vector2 {
-  return new Vector2(
-    lerp(startVec.x, endVec.x, time),
-    lerp(startVec.y, endVec.y, time),
-  );
-}
-
-/**
- * clamp the value between the min and max values.
- * @param {number} value the value to clamp
- * @param {number} min the minimum value
- * @param {number} value the maximum value
- * @returns {number} the value if it's between the min and max value, otherwise the min if value < min or max if value > max
- */
-export function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
 }
