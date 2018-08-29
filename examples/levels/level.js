@@ -44,7 +44,7 @@ function runExample() {
   scene.addShader(Agent.ShaderType.Vertex, vshr);
   scene.addShader(Agent.ShaderType.Fragment, fshr);
 
-  scene.shader(Agent.ShaderType.Vertex).setUniformDataFor("camera", { dataMatrix: camera.matrix() });
+  scene.shader(Agent.ShaderType.Vertex).setUniformDataFor("camera", { UUID: "", uniformMatrix: camera.matrix() });
   scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor("aPos", { vertexAttribute: background.vertexAttributes() });
   scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor("aText", { vertexAttribute: background.textureAttributes() });
 
