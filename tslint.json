@@ -20,7 +20,6 @@
         ],
         "no-console": [true, "debug", "info", "time", "timeEnd", "trace"],
         "class-name": true,
-        "no-unused-variable": true,
         "no-unused-expression": true,
         "indent": [ true, "spaces", 2 ],
         "variable-name": [true, "check-format", "allow-leading-underscore"],
