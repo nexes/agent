@@ -96,6 +96,7 @@ export interface IVector extends IPoint {
   flatten(): Float32Array;
 }
 
+
 export interface IMatrix {
   /**
    * Change the matrix to an identity matrix
@@ -149,4 +150,50 @@ export interface IMatrix {
    * @return {Flaot32Array}  the matrix data as an array
    */
   flatten(): Float32Array;
+}
+
+
+export interface ITransform {
+  /**
+   * @property check if the transform matrix has been changed
+   * @readonly
+   */
+  readonly dirty: boolean;
+
+  /**
+   * @property the currnt position from the translation matrix
+   * @readonly
+   */
+  readonly position: IVector;
+
+  /**
+   * moves the current translation matrix by the amount described in the vector
+   * @param {IVector} position move the current position by this vector
+   */
+  translate(position: IVector): void;
+
+  /**
+   * rotate the rotation matrix by angle. Default axis is Z
+   * @param {number} angle the angle to rotation.
+   * @param {Axis} asix the axis to rotate around, default is Z
+   */
+  rotate(angle: number, axis: Axis): void;
+
+  /**
+   * scale the matrix along the x, y and z axis in uniform. if a vector is passed, scale will
+   * be done by the vectors x, y, and z
+   * @param {IVector|number} scale scalar
+   */
+  scale(scale: IVector | number): void;
+
+  /**
+   * clears the transformations underlining matrices back to identity matrices.
+   */
+  clear(): void;
+
+  /**
+   * Returns the final transformation matrix, multiplying the scale, rotation and translation matrix
+   * @returns {IMatrix} the final transformtaion matrix
+   */
+  finalMatrix(): IMatrix;
 }
