@@ -149,18 +149,10 @@ export class Shader {
       const len = uniformData.uniformValue.length;
 
       switch (len) {
-        case 1:
-          this.glCtx.uniform1fv(locID, uniformData.uniformValue);
-          break;
-        case 2:
-          this.glCtx.uniform2fv(locID, uniformData.uniformValue);
-          break;
-        case 3:
-          this.glCtx.uniform3fv(locID, uniformData.uniformValue);
-          break;
-        case 4:
-          this.glCtx.uniform4fv(locID, uniformData.uniformValue);
-          break;
+        case 1: this.glCtx.uniform1fv(locID, uniformData.uniformValue); break;
+        case 2: this.glCtx.uniform2fv(locID, uniformData.uniformValue); break;
+        case 3: this.glCtx.uniform3fv(locID, uniformData.uniformValue); break;
+        case 4: this.glCtx.uniform4fv(locID, uniformData.uniformValue); break;
       }
     }
 
@@ -190,22 +182,18 @@ export class Shader {
           this.glCtx.useProgram(this.programID);
 
           switch (len) {
-            case 1:
-              this.glCtx.uniform1fv(key.id, uniformData);
-              break;
-            case 2:
-              this.glCtx.uniform2fv(key.id, uniformData);
-              break;
-            case 3:
-              this.glCtx.uniform3fv(key.id, uniformData);
-              break;
-            case 4:
-              this.glCtx.uniform4fv(key.id, uniformData);
-              break;
+            case 1: this.glCtx.uniform1fv(key.id, uniformData); break;
+            case 2: this.glCtx.uniform2fv(key.id, uniformData); break;
+            case 3: this.glCtx.uniform3fv(key.id, uniformData); break;
+            case 4: this.glCtx.uniform4fv(key.id, uniformData); break;
           }
         }
+
+        return;
       }
     }
+    // TODO dispatch error/warnings
+    console.log(`updateUniformDataFor: didn't find uniformID: ${uniformID}`);
   }
 
   private compileShaderSource(type: ShaderType, source: string): WebGLShader {
