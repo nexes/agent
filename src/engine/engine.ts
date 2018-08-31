@@ -106,8 +106,7 @@ export class Engine {
 
   public run(): void {
     this.clock.start();
-    window.requestAnimationFrame(this.simulation.bind(this));
-    // this.animationFrame(this.simulation);
+    requestAnimationFrame((t) => this.simulation(t));
   }
 
   private simulation(step: number): void {
@@ -116,14 +115,13 @@ export class Engine {
 
     while (this.frameTimeAccumulator >= this.clock.physicsTimeStep) {
       for (const [_, scene] of this.scenes) {
-        scene.updateSimulationStep(this.clock.physicsTimeStep / this.frameTimeAccumulator);
+        scene.updateSimulationStep(this.clock.physicsTimeStep);
       }
-      // get interpolation physicsTimestep / frameTimeAccumulator
 
       this.frameTimeAccumulator -= this.clock.physicsTimeStep;
     }
 
     this.render();
-    window.requestAnimationFrame(this.simulation.bind(this));
+    requestAnimationFrame((t) => this.simulation(t));
   }
 }
