@@ -1,51 +1,70 @@
 import { UUID } from '../agent';
 import { Matrix4, TransformationMatrix, Axis, Vector2 } from '../math';
-import { ICamera, IOrthoDimension } from '../camera';
+import { ICamera, IOrthoDimension, CameraEffects } from '../camera';
 
 
 export class OrthographicCamera implements ICamera {
-  public readonly UUID: string;
-
+  private uuid: string;
   private cameraMatrix: Matrix4;
-  private transformation: TransformationMatrix;
+  private cameraFx: CameraEffects;
+  private _transformation: TransformationMatrix;
 
   constructor(dimension: IOrthoDimension) {
-    this.UUID = UUID();
-    this.transformation = new TransformationMatrix();
+    this.uuid = UUID();
+    this._transformation = new TransformationMatrix();
     this.cameraMatrix = new Matrix4();
+    this.cameraFx = new CameraEffects(this._transformation);
+
     this.cameraMatrix.setAsOrthographic(dimension);
   }
 
   public translate(newPosition: Vector2): void {
-    this.transformation.translate(newPosition);
+    const pos = this.transformation.position;
+    this._transformation.translate(pos.add(newPosition));
  }
 
   public scale(scale: Vector2 | number): void {
-    this.transformation.scale(scale);
+    this._transformation.scale(scale);
   }
 
   public rotate(angle: number, axis: Axis = Axis.Z): void {
-    this.transformation.rotate(angle, axis);
+    this._transformation.rotate(angle, axis);
   }
 
-  public lookAt(position: Vector2, cameraSpeed: number = 1.0): void {
+  public centerOn(position: Vector2): void {
+    // TODO
+  }
+
+  public follow(): void {
     // TODO
   }
 
   public reset(): void {
-    this.transformation.clear();
+    this._transformation.clear();
   }
 
   public matrix(): Matrix4 {
-    return this.transformation.matrix.mult(this.cameraMatrix);
+    return this._transformation.finalMatrix().mult(this.cameraMatrix);
   }
 
   public update(dt: number): boolean {
-    if (this.transformation.isDirty) {
-      this.transformation.update(dt);
+    if (this._transformation.dirty || this.cameraFx.animating) {
+      this.cameraFx.update(dt);
       return true;
     }
 
     return false;
+  }
+
+  public get transformation(): TransformationMatrix {
+    return this._transformation;
+  }
+
+  public get effect(): CameraEffects {
+    return this.cameraFx;
+  }
+
+  public get UUID(): string {
+    return this.uuid;
   }
 }

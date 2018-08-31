@@ -1,6 +1,9 @@
-import { Matrix4, IVector, Axis } from '../math';
+import { Matrix4, IVector, Axis, TransformationMatrix } from '../math';
+import { CameraEffects } from './effects';
+
 export { PerspectiveCamera } from './perspective';
 export { OrthographicCamera } from './orthographic';
+export { CameraEffects } from './effects';
 
 
 export interface IOrthoDimension {
@@ -13,10 +16,28 @@ export interface IOrthoDimension {
 }
 
 export interface ICamera {
-  readonly UUID: string;
   /**
-   * Move the camera according to the vector
-   * @param {IVector} newPosition the point we want to move the camera to
+   * @property the unique id for this object
+   * @readonly
+   */
+  readonly UUID: string;
+
+
+  /**
+   * @property the transformation matrix for the camera. There should be few reasons to access this directly
+   * @readonly
+   */
+  readonly transformation: TransformationMatrix;
+
+  /**
+   * @property the transformation matrix for the camera. There should be few reasons to access this directly
+   * @readonly
+   */
+  readonly effect: CameraEffects;
+
+  /**
+   * Move the camera from it's current position by the the vector passed in
+   * @param {IVector} newPosition describes how far we want to move our camera from where it's at now.
    */
   translate(newPosition: IVector): void;
 
@@ -29,16 +50,20 @@ export interface ICamera {
   /**
    * Rotate the camera around the given axis
    * @param {number} angle the angle to rotate
-   * @param {Axis} which axis to rotate around. Default is Z axis
+   * @param {Axis} axis which axis to rotate around. Default is Z axis
    */
   rotate(angle: number, axis: Axis): void;
 
   /**
-   * Move the center of the camera to the given position
-   * @param {IVector} position the position to move towards
-   * @param {number} cameraSpeed  the speed of the camera movement [0.01 - 1.0]. Default 1.0
+   *  TODO
    */
-  lookAt(position: IVector, cameraSpeed: number): void;
+  follow(): void;
+
+  /**
+   * Center the camera to this position. This can be used as the camera's starting point
+   * @param {IVector} position the position to center around
+   */
+  centerOn(position: IVector): void;
 
   /**
    * Reset the camera to it's original position, what ever it was initalized as. This will effectivly make the transform matrix an identity

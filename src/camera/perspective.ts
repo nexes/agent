@@ -1,15 +1,17 @@
 import { UUID } from '../agent';
-import { Matrix4, IVector, Axis } from '../math';
-import { ICamera } from '.';
+import { Matrix4, IVector, Axis, TransformationMatrix } from '../math';
+import { ICamera, CameraEffects } from '../camera';
 
 
 // export class PerspectiveCamera implements ICamera {
 export class PerspectiveCamera implements ICamera {
-  public readonly UUID: string;
+  private uuid: string;
   private cameraMatrix: Matrix4;
+  private cameraFx: CameraEffects;
+  private _transformation: TransformationMatrix;
 
   constructor() {
-    this.UUID = UUID();
+    this.uuid = UUID();
     // TODO
   }
 
@@ -25,7 +27,11 @@ export class PerspectiveCamera implements ICamera {
     throw new Error('Method not implemented.');
   }
 
-  public lookAt(position: IVector): void {
+  public follow(): void {
+    throw new Error('Method not implemented.');
+  }
+
+  public centerOn(position: IVector): void {
     throw new Error('Method not implemented.');
   }
 
@@ -39,5 +45,17 @@ export class PerspectiveCamera implements ICamera {
 
   public matrix(): Matrix4 {
     return this.cameraMatrix;
+  }
+
+  public get transformation(): TransformationMatrix {
+    return this._transformation;
+  }
+
+  public get effect(): CameraEffects {
+    return this.cameraFx;
+  }
+
+  public get UUID(): string {
+    return this.uuid;
   }
 }
