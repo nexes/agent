@@ -1,4 +1,5 @@
 export { PanEffect } from './pan';
+export { ZoomEffect } from './zoom';
 
 export interface IEffect {
   /**

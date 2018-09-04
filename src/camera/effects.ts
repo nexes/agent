@@ -1,4 +1,4 @@
-import { PanEffect, IEffect } from './effect';
+import { PanEffect, ZoomEffect, IEffect } from './effect';
 import { Vector2, TransformationMatrix } from '../math';
 
 
@@ -36,19 +36,23 @@ export class CameraEffects {
     return pan.start();
   }
 
-  public zoom(): void {
-    // TODO
+  public zoom(scale: Vector2 | number, duration: number, force: boolean = false): Promise<void> {
+    if (this.runningEffects.length > 0 && !force) {
+      return Promise.reject(new Error('there is an animation currently in progress'));
+    }
+
+    const zoom = new ZoomEffect(scale, duration, this.cameraTransform);
+    this.runningEffects.push(zoom);
+
+    return zoom.start();
   }
 
-  /**
-   * @param {number} dt what do you wnat
-   */
   public update(dt: number): void {
     if (this.runningEffects.length > 0) {
       const originalLen = this.runningEffects.length;
 
       for (let i = 0; i < originalLen; i++) {
-        const effect = this.runningEffects.pop();
+        const effect = this.runningEffects.shift();
         effect.update(dt);
 
         // if the effect isn't done, lets put it back

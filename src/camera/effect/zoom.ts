@@ -2,23 +2,30 @@ import { IEffect } from '../effect';
 import { Math, Vector2, TransformationMatrix } from '../../math';
 
 
-export class PanEffect implements IEffect {
+export class ZoomEffect implements IEffect {
   private isAnimating: boolean;
-  private currentPos: Vector2;
-  private endPos: Vector2;
-  private timeAccumulated: number;
   private duration: number;
+  private timeAccumulated: number;
   private transform: TransformationMatrix;
+  private scale: Vector2;
+  private currentScale: Vector2;
   private completeCallback: () => void;
 
-  constructor(endPosition: Vector2, duration: number, transform: TransformationMatrix) {
+  constructor(scale: Vector2 | number, duration: number, transform: TransformationMatrix) {
     this.isAnimating = false;
-    this.transform = transform;
-    this.currentPos = transform.position;
-    this.endPos = this.currentPos.add(endPosition);
-    this.timeAccumulated = 0;
     this.duration = duration;
+    this.transform = transform;
+    this.timeAccumulated = 0;
     this.completeCallback = null;
+    this.currentScale = transform.scaled;
+    console.log('current scale ', this.currentScale);
+
+    if (scale instanceof Vector2) {
+      this.scale = scale;
+
+    } else {
+      this.scale = new Vector2(scale, scale);
+    }
   }
 
   public start(): Promise<void> {
@@ -30,13 +37,14 @@ export class PanEffect implements IEffect {
   }
 
   public update(dt: number): void {
-    if (this.isAnimating === true) {
+    if (this.isAnimating) {
       if (this.timeAccumulated >= this.duration) {
+        console.log('zoom is done updating');
         this.isAnimating = false;
-        this.endPos = null;
+        this.scale = null;
         this.transform = null;
-        this.timeAccumulated = 0;
         this.duration = 0;
+        this.timeAccumulated = 0;
 
         this.completeCallback();
         return;
@@ -45,13 +53,12 @@ export class PanEffect implements IEffect {
       this.timeAccumulated += dt;
       const lerpTime = Math.smoothStep(this.timeAccumulated / this.duration);
 
-      this.currentPos = Math.lerpVec2(this.currentPos, this.endPos, lerpTime);
-      this.transform.translate(this.currentPos);
+      this.currentScale = Math.lerpVec2(this.currentScale, this.scale, lerpTime);
+      this.transform.scale(this.currentScale);
     }
   }
 
-  public  get animating(): boolean {
+  public get animating(): boolean {
     return this.isAnimating;
   }
 }
-
