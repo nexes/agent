@@ -167,6 +167,12 @@ export interface ITransform {
   readonly position: IVector;
 
   /**
+   * @property the current scale from the translation matrix
+   * @readonly
+   */
+  readonly scaled: IVector;
+
+  /**
    * moves the current translation matrix by the amount described in the vector
    * @param {IVector} position move the current position by this vector
    */

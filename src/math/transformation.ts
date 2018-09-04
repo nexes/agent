@@ -49,4 +49,9 @@ export class TransformationMatrix implements ITransform {
     const pos = this.translateMatrix.flatten().slice(12, 14);
     return new Vector2(pos[ 0 ], pos[ 1 ]);
   }
+
+  public get scaled(): Vector2 {
+    const scale = this.scaleMatrix.flatten().slice(0, 6);
+    return new Vector2(scale[0], scale[5]);
+  }
 }
