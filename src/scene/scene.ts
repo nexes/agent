@@ -54,7 +54,12 @@ export class Scene {
    * @param {number} dt the amout of time that has passed
    */
   public updateSimulationStep(dt: number): void {
+    if (this.camera.update(dt)) {
+      this.shaders.get(ShaderType.Vertex).updateUniformDataFor(this.camera.UUID, this.camera.matrix());
+    }
+
     for (const obj of this.renderables) {
+      // TODO
       // obj.updateSimulation(dt);
     }
   }

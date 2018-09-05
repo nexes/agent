@@ -9,13 +9,20 @@ export class OrthographicCamera implements ICamera {
   private cameraFx: CameraEffects;
   private _transformation: TransformationMatrix;
 
-  constructor(dimension: IOrthoDimension) {
+  constructor(originX: number, originY: number, width: number, height: number) {
     this.uuid = UUID();
     this._transformation = new TransformationMatrix();
     this.cameraMatrix = new Matrix4();
     this.cameraFx = new CameraEffects(this._transformation);
 
-    this.cameraMatrix.setAsOrthographic(dimension);
+    this.cameraMatrix.setAsOrthographic({
+      left: originX,
+      right: width,
+      top: originY,
+      bottom: height,
+      near: 1000,
+      far: 0,
+    });
   }
 
   public translate(newPosition: Vector2): void {
