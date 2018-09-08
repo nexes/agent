@@ -1,5 +1,6 @@
 export { PanEffect } from './pan';
 export { ZoomEffect } from './zoom';
+export { ShakeEffect } from './shake';
 
 export interface IEffect {
   /**

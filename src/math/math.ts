@@ -82,23 +82,23 @@ class AgentMath {
     return Math.random();
   }
 
-  public static perlineNoise2d(x: number, y: number, octave: number, persistance: number): number {
+  public static perlineNoise2d(x: number, y: number, octave: number, damping: number): number {
     let noiseValue = 0;
     let frequency = 1;
     let amplitude = 1;
     let uppderBound = 0;
 
-    persistance = this.clamp(persistance, 0, 1);
+    damping = this.clamp(damping, 0, 1);
 
     for (let i = 0; i < octave; i++) {
       noiseValue += this.perline2d(x * frequency, y * frequency) * amplitude;
 
       uppderBound += amplitude;
       frequency *= 2;
-      amplitude *= persistance;
+      amplitude *= damping;
     }
 
-    return noiseValue; // / uppderBound;
+    return noiseValue / uppderBound;
   }
 
   private static perlinTable: Float32Array = (() => {
@@ -168,14 +168,15 @@ class AgentMath {
   }
 
   private static gradient2d(hash: number, x: number, y: number): number {
+    return ((hash & 0x01) ? x : -x) + ((hash & 0x02) ? y : -y);
     // this is explained in "Improving Noise" by Ken Perlin (https://mrl.nyu.edu/~perlin/paper445.pdf)
-    switch (hash & 0xF) {
-      case 0x00: return x + y;  // (1, 1)
-      case 0x01: return -x + y; // (-1, 1)
-      case 0x02: return x - y;  // (1, -1)
-      case 0x03: return -x - y; // (-1, -1)
-      default: return 0;
-    }
+    // switch (hash & 0xF) {
+    //   case 0x00: return x + y;  // (1, 1)
+    //   case 0x01: return -x + y; // (-1, 1)
+    //   case 0x02: return x - y;  // (1, -1)
+    //   case 0x03: return -x - y; // (-1, -1)
+    //   default: return 0;
+    // }
   }
 }
 

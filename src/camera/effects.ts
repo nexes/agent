@@ -1,4 +1,4 @@
-import { PanEffect, ZoomEffect, IEffect } from './effect';
+import { PanEffect, ZoomEffect, ShakeEffect, IEffect } from './effect';
 import { Vector2, TransformationMatrix } from '../math';
 
 
@@ -19,10 +19,15 @@ export class CameraEffects {
     // TODO
   }
 
-  public shake(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      // TODO
-    });
+  public shake(duration: number, octave: number = 4, damping: number = 0.5, force: boolean = false): Promise<void> {
+    if (this.runningEffects.length > 0 && !force) {
+      return Promise.reject(new Error('there is an animation currently in progress'));
+    }
+
+    const shake = new ShakeEffect(duration, octave, damping, this.cameraTransform);
+    this.runningEffects.push(shake);
+
+    return shake.start();
   }
 
   public pan(position: Vector2, duration: number, force: boolean = false): Promise<void> {

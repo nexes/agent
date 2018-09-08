@@ -59,6 +59,7 @@ export class Scene {
     }
 
     for (const obj of this.renderables) {
+      // TODO
       // obj.updateSimulation(dt);
     }
   }
