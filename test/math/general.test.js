@@ -60,8 +60,42 @@ describe("linear interpolation", () => {
 
     it("smoother step 0.25 between [0-1], should be 0.10351", () => {
       const x = math.Math.smootherStep(0.25);
+      const y = math.Math.smootherStep(0.5);
 
       expect(x).to.equal(0.103515625);
+      expect(y).to.equal(0.5);
+    });
+  });
+
+  describe("perlin noise", () => {
+    it("loop through perlin noise output range [-0.707, 0.707]", () => {
+      let x = 1.01;
+      let y = 1.01;
+
+      for (let i = 0; i < 10; i++) {
+        const noise = math.Math.perline2d(x, y);
+        expect(noise).to.be.gt(-0.707);
+        expect(noise).to.be.lt(0.707);
+
+        x += 0.25;
+        y += 0.25;
+      }
+    });
+  });
+
+  describe("perlin noise with octave", () => {
+    it("loop through perlin noise, octave = 4, damped = 0.5 output range [-0.707, 0.707]", () => {
+      let x = 1.01;
+      let y = 1.01;
+
+      for (let i = 0; i < 10; i++) {
+        const noise = math.Math.perlinNoise2d(x, y, 4, 0.5);
+        expect(noise).to.be.gt(-0.707);
+        expect(noise).to.be.lt(0.707);
+
+        x += 0.25;
+        y += 0.25;
+      }
     });
   });
 });

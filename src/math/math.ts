@@ -82,23 +82,29 @@ class AgentMath {
     return Math.random();
   }
 
-  public static perlineNoise2d(x: number, y: number, octave: number, damping: number): number {
+  /**
+   * Generate Perlin noise from 2d input. Perlin noise will expect to receive floating point numbers. if whole numbers, or integers
+   * are passed in for the x and y value, a zero will be returned. The output range for a 2d perlin noise generator should
+   * fall in [-0.707 -> +0.707]
+   * @param {number} x  the x value
+   * @param {number} y  the y value
+   * @param {number} octave  the number of interations, the higher the octave, the smoother the results
+   * @param {number} damping  how fast or slow the the amplitude will change. Lower values e.g 0.25 will have a samller shake effect
+   *                          larger values e.g 0.9 or higher than 1, will have a greater shake effect
+   * @returns {number} the perlin noise value
+   */
+  public static perlinNoise2d(x: number, y: number, octave: number, damping: number): number {
     let noiseValue = 0;
     let frequency = 1;
     let amplitude = 1;
-    let uppderBound = 0;
-
-    damping = this.clamp(damping, 0, 1);
 
     for (let i = 0; i < octave; i++) {
       noiseValue += this.perline2d(x * frequency, y * frequency) * amplitude;
-
-      uppderBound += amplitude;
       frequency *= 2;
       amplitude *= damping;
     }
 
-    return noiseValue / uppderBound;
+    return noiseValue;
   }
 
   private static perlinTable: Float32Array = (() => {
@@ -168,7 +174,9 @@ class AgentMath {
   }
 
   private static gradient2d(hash: number, x: number, y: number): number {
-    return ((hash & 0x01) ? x : -x) + ((hash & 0x02) ? y : -y);
+    const v = (hash & 0x01) ? x : y;
+    return (v & 0x02) ? v : -v;
+
     // this is explained in "Improving Noise" by Ken Perlin (https://mrl.nyu.edu/~perlin/paper445.pdf)
     // switch (hash & 0xF) {
     //   case 0x00: return x + y;  // (1, 1)

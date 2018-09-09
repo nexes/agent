@@ -9,10 +9,9 @@ export class ShakeEffect implements IEffect {
   private octave: number;
   private damping: number;
   private originalPos: Vector2;
+  private offset: Vector2;
   private transform: TransformationMatrix;
   private completeCallback: () => void;
-
-  private play: number;
 
   constructor(duration: number, octave: number, damping: number, transform: TransformationMatrix) {
     this.isAnimating = false;
@@ -23,13 +22,15 @@ export class ShakeEffect implements IEffect {
     this.transform = transform;
     this.originalPos = null;
     this.completeCallback = null;
+    this.offset = new Vector2(0, 0);
 
-    this.play = 1;
   }
 
   public start(): Promise<void> {
     this.isAnimating = true;
     this.originalPos = this.transform.position;
+    this.offset.x = (Math.random() * 2) + this.originalPos.x;
+    this.offset.y = (Math.random() * 2) + this.originalPos.y;
 
     return new Promise<void>((resolve) => {
       this.completeCallback = resolve;
@@ -54,15 +55,12 @@ export class ShakeEffect implements IEffect {
 
       this.timeAccumulated += dt;
 
-      const pos = this.transform.position;
-      const noise = Math.perlinNoise2d(pos.x + 0.01, pos.y + 0.01, this.octave, this.damping);
-      const noiseVec = Math.lerpVec2(pos, new Vector2(pos.x + noise, pos.y + noise), dt);
-      // because this accumulates with +, we can get our camera to move to much
+      const noise = Math.perlinNoise2d(this.offset.x, this.offset.y, this.octave, this.damping);
+      this.offset.y += noise * (this.octave * this.damping);
+      this.offset.x += noise;
 
-      this.play *= noise;
-      console.log('noise: ', noise);
-      this.transform.translate(noiseVec);
-      this.transform.rotate(Math.smoothStep(this.play));
+      this.transform.translate(this.offset);
+      this.transform.rotate(Math.toRadian(noise));
     }
   }
 
