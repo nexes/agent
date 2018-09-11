@@ -15,11 +15,17 @@ export class Engine {
   constructor(options?: IEngineOptions) {
     this.renderer = new WebGLRenderer(options);
     this.clock = new Clock(options.timeStep);
+    this.userInput = new Input(this.renderer.canvas());
     this.scenes = new Map();
-    this.userInput = new Input();
     this.frameTimeAccumulator = 0;
+  }
 
-    this.userInput.attachEventListener(this.renderer.canvas());
+  /**
+   * @property access the user input object
+   * @readonly
+   */
+  public get input(): Input {
+    return this.userInput;
   }
 
   /**
@@ -78,30 +84,6 @@ export class Engine {
     for (const scene of scenes) {
       scene.render();
     }
-  }
-
-  /**
-   * get notified when a keyboard event happens
-   * @param keyInput  callback function taking an event type parameter, returning nothing
-   */
-  public keyboardEvents(keyInput: (event: IEvent) => void) {
-    this.userInput.attachKeyboardListener(keyInput);
-  }
-
-  /**
-   * get notified when a mouse event happens
-   * @param keyInput  callback function taking an event type parameter, returning nothing
-   */
-  public mouseEvents(mouseInput: (event: IEvent) => void) {
-    this.userInput.attachMouseListener(mouseInput);
-  }
-
-  /**
-   * get notified when a controller event happens
-   * @param keyInput  callback function taking an event type parameter, returning nothing
-   */
-  public controllerEvents(controllerInput: (events: IEvent) => void) {
-    this.userInput.attachControllerListener(controllerInput);
   }
 
   public run(): void {

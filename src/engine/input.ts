@@ -3,42 +3,91 @@ import { IEvent, IKeyboardEvent, IMouseEvent } from '../engine';
 
 type InputFunc = (event: IEvent) => void;
 enum InputType {
-  keyboard = 0,
-  mouse,
+  keyPressDown = 0,
+  keyPressUp,
+  mouseDown,
+  mouseUp,
+  mouseMove,
+  mouseClick,
   controller,
   deviceCount,
 }
 
 export class Input {
-  private eventCallbacks: InputFunc[];
+  private eventCallbacks: Map<InputType, InputFunc[]>;
 
-  constructor() {
-    this.eventCallbacks = new Array(InputType.deviceCount);
-  }
+  constructor(mouseEvent: HTMLCanvasElement) {
+    this.eventCallbacks = new Map();
 
-  public attachEventListener(element: HTMLCanvasElement): void {
-    // TODO: i would rather have this on the canvas element
     document.addEventListener('keydown', this.keyboardEventListener.bind(this), false);
     document.addEventListener('keyup', this.keyboardEventListener.bind(this), false);
-    document.addEventListener('keypress', this.keyboardEventListener.bind(this), false);
+    // document.addEventListener('keypress', this.keyboardEventListener.bind(this), false);
 
-    element.addEventListener('mousedown', this.mouseEventListener.bind(this), false);
-    element.addEventListener('mouseup', this.mouseEventListener.bind(this), false);
-    element.addEventListener('mousemove', this.mouseEventListener.bind(this), false);
+    mouseEvent.addEventListener('click', this.mouseEventListener.bind(this), false);
+    mouseEvent.addEventListener('dblclick', this.mouseEventListener.bind(this), false);
+    mouseEvent.addEventListener('mousedown', this.mouseEventListener.bind(this), false);
+    mouseEvent.addEventListener('mouseup', this.mouseEventListener.bind(this), false);
+    mouseEvent.addEventListener('mousemove', this.mouseEventListener.bind(this), false);
   }
 
+  public keyDownEvent(cfunc: (event: IEvent) => void): void {
+    let events = this.eventCallbacks.get(InputType.keyPressDown);
+    if (!events) {
+      events = [];
+    }
 
-  public attachKeyboardListener(cfunc: (event: IEvent) => void): void {
-    this.eventCallbacks[ InputType.keyboard ] = cfunc;
+    events.push(cfunc);
+    this.eventCallbacks.set(InputType.keyPressDown, events);
   }
 
-  public attachMouseListener(cfunc: (event: IEvent) => void): void {
-    this.eventCallbacks[ InputType.mouse ] = cfunc;
+  public keyUpEvent(cfunc: (event: IEvent) => void): void {
+    let events = this.eventCallbacks.get(InputType.keyPressUp);
+    if (!events) {
+      events = [];
+    }
+
+    events.push(cfunc);
+    this.eventCallbacks.set(InputType.keyPressUp, events);
   }
 
-  // TODO: this is only supported on chrome at the moment. navigator.getGamePads()
-  public attachControllerListener(cfunc: (event: IEvent) => void): void {
-    this.eventCallbacks[ InputType.controller ] = cfunc;
+  public mouseDownEvent(cfunc: (event: IEvent) => void): void {
+    let events = this.eventCallbacks.get(InputType.mouseDown);
+    if (!events) {
+      events = [];
+    }
+
+    events.push(cfunc);
+    this.eventCallbacks.set(InputType.mouseDown, events);
+  }
+
+  public mouseUpEvent(cfunc: (event: IEvent) => void): void {
+    let events = this.eventCallbacks.get(InputType.mouseUp);
+    if (!events) {
+      events = [];
+    }
+
+    events.push(cfunc);
+    this.eventCallbacks.set(InputType.mouseUp, events);
+  }
+
+  public mouseMoveEvent(cfunc: (event: IEvent) => void): void {
+    let events = this.eventCallbacks.get(InputType.mouseMove);
+    if (!events) {
+      events = [];
+    }
+
+    events.push(cfunc);
+    this.eventCallbacks.set(InputType.mouseMove, events);
+  }
+
+  public mouseClickEvent(cfunc: (event: IEvent) => void): void {
+    let events = this.eventCallbacks.get(InputType.mouseClick);
+    if (!events) {
+      events = [];
+    }
+
+    events.push(cfunc);
+    this.eventCallbacks.set(InputType.mouseClick, events);
   }
 
   private async keyboardEventListener(keyEvent: KeyboardEvent): Promise<void> {
@@ -51,7 +100,22 @@ export class Input {
       metaKey: keyEvent.metaKey,
     };
 
-    this.eventCallbacks[ InputType.keyboard ](e);
+    if (keyEvent.type === 'keydown') {
+      const events = this.eventCallbacks.get(InputType.keyPressDown);
+      if (events) {
+        for (const event of events) {
+          event(e);
+        }
+      }
+    } else if (keyEvent.type === 'keyup') {
+      const events = this.eventCallbacks.get(InputType.keyPressUp);
+      if (events) {
+        for (const event of events) {
+          event(e);
+        }
+      }
+    }
+
     keyEvent.preventDefault();
   }
 
@@ -66,7 +130,36 @@ export class Input {
       metaKey: mouseEvent.metaKey,
     };
 
-    this.eventCallbacks[ InputType.mouse ](e);
+    if (mouseEvent.type === 'mouseup') {
+      const events = this.eventCallbacks.get(InputType.mouseUp);
+      if (events) {
+        for (const event of events) {
+          event(e);
+        }
+      }
+    } else if (mouseEvent.type === 'mousedown') {
+      const events = this.eventCallbacks.get(InputType.mouseDown);
+      if (events) {
+        for (const event of events) {
+          event(e);
+        }
+      }
+    } else if (mouseEvent.type === 'click' || mouseEvent.type === 'dblclick') {
+      const events = this.eventCallbacks.get(InputType.mouseClick);
+      if (events) {
+        for (const event of events) {
+          event(e);
+        }
+      }
+    } else if (mouseEvent.type === 'mousemove') {
+      const events = this.eventCallbacks.get(InputType.mouseMove);
+      if (events) {
+        for (const event of events) {
+          event(e);
+        }
+      }
+    }
+
     mouseEvent.preventDefault();
   }
 }
