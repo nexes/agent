@@ -26,7 +26,21 @@
         "object-literal-sort-keys": false,
         "jsdoc-format": false,
         "no-consecutive-blank-lines": false,
-        "ordered-imports": false
+        "ordered-imports": false,
+        "member-ordering": [
+            true,
+            {
+                "order": [
+                    "public-static-field",
+                    "public-instance-field",
+                    "private-static-field",
+                    "private-instance-field",
+                    "public-instance-method",
+                    "protected-instance-method",
+                    "private-instance-method"
+                ]
+            }
+        ]
     },
     "rulesDirectory": []
 }
