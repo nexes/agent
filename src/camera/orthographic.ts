@@ -1,6 +1,7 @@
 import { UUID } from '../agent';
 import { Matrix4, TransformationMatrix, Axis, Vector2 } from '../math';
-import { ICamera, IOrthoDimension, CameraEffects } from '../camera';
+import { ICamera, CameraEffects } from '../camera';
+import { IUniformType } from '../shader';
 
 
 export class OrthographicCamera implements ICamera {
@@ -73,5 +74,12 @@ export class OrthographicCamera implements ICamera {
 
   public get UUID(): string {
     return this.uuid;
+  }
+
+  public get uniform(): IUniformType {
+    return {
+      UUID: this.uuid,
+      uniformData: this.matrix().flatten(),
+    };
   }
 }
