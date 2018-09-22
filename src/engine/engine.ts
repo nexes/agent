@@ -45,7 +45,8 @@ export class Engine {
   }
 
   /**
-   * Create a new scene handled by the engine.
+   * Create a new scene handled by the engine. If the scene name already exists, it will be updated with this
+   * new scene
    * @param {string} sceneName  the identifing scene name
    * @returns {Scene} a new scene handled by the engine.
    */
@@ -72,6 +73,7 @@ export class Engine {
     this.renderer.clear();
 
     for (const scene of this.scenes.values()) {
+      scene.initialize();
       scene.render();
     }
   }
@@ -82,11 +84,16 @@ export class Engine {
   */
   public renderScenes(...scenes: Scene[]): void {
     for (const scene of scenes) {
+      scene.initialize();
       scene.render();
     }
   }
 
   public run(): void {
+    for (const [name, scene] of this.scenes) {
+      scene.initialize();
+    }
+
     this.clock.start();
     requestAnimationFrame((t) => this.simulation(t));
   }
@@ -97,6 +104,7 @@ export class Engine {
 
     while (this.frameTimeAccumulator >= this.clock.physicsTimeStep) {
       for (const [_, scene] of this.scenes) {
+        scene.initialize();
         scene.updateSimulationStep(this.clock.physicsTimeStep);
       }
 
@@ -104,6 +112,7 @@ export class Engine {
     }
 
     this.render();
+    // todo cancel animation frame
     requestAnimationFrame((t) => this.simulation(t));
   }
 }
