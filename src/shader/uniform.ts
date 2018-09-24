@@ -54,7 +54,7 @@ export class Uniform {
       if (value.location === -1) {
         value.location = gl.getUniformLocation(programID, name);
 
-        if (!value.location) {
+        if (value.location === -1) {
           throw new Error(`Uniform could not get location for uniform ${name}`);
         }
       }
