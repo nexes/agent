@@ -89,6 +89,21 @@ export class Attribute {
   }
 
   /**
+   * Get any attributes that have been assigned to the given UUID
+   * @param {string} uuid the objects UUID
+   * @returns an array of attribute data
+   */
+  public getAttributesFromUUID(uuid: string): IVertexAttribute[] {
+    const _att: IVertexAttribute[] = [];
+    for (const attribute of this.attributeLookup.values()) {
+      if (attribute.data.UUID === uuid) {
+        _att.push(attribute.data);
+      }
+    }
+    return _att;
+  }
+
+  /**
    * Setup the shaders attributes
    * @param {WebGLProgram} programID the shaders program ID
    * @param {WebGLRenderingContext} gl the webgl rendering context

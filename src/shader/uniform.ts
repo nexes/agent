@@ -88,6 +88,21 @@ export class Uniform {
   }
 
   /**
+   * Get any uniforms that have been assigned to the given UUID
+   * @param {string} uuid the objects UUID
+   * @returns an array of objects with the uniforms type and data
+   */
+  public getUniformsFromUUID(uuid: string): Array<{type: string, data: Float32Array}> {
+    const _uniforms = [];
+    for (const uniform of this.uniformLookup.values()) {
+      if (uniform.uuid === uuid) {
+        _uniforms.push({type: uniform.type, data: uniform.data});
+      }
+    }
+    return _uniforms;
+  }
+
+  /**
    * Check if the shader has a uniform with a given name
    * @param {string} name the name to check
    * @returns {boolean} if the name was found

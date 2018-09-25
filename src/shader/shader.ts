@@ -1,199 +1,169 @@
-import { ShaderType, IAttributeValue, IShaderAttributeName, IUniformAttribute } from '../shader';
-import { Matrix4 } from '../math';
+import { IVertexAttribute } from '../shader';
+import { defaultVertexSource, defaultFragmentSource } from '../shader/source';
 
 
-interface IShaderSourceData {
-  id: WebGLShader;
-  type: ShaderType;
-  code: string;
-  attributesVars: string[];
-  uniformsVars: string[];
-  varyingsVars: string[];
-}
+import {
+  ShaderType,
+  Attribute,
+  Uniform,
+  IUniformType,
+} from '../shader';
 
 export class Shader {
   private glCtx: WebGLRenderingContext;
   private programID: WebGLProgram;
-  private shaderSourceData: IShaderSourceData;
-  private uniforms: Map<IShaderAttributeName, IUniformAttribute>;
-  private vertAttributes: Map<IShaderAttributeName, IAttributeValue>;
-  private generalAttributes: Map<IShaderAttributeName, IAttributeValue>;
+  private shaderID: Map<ShaderType, WebGLShader>;
+  private attributes: Attribute;
+  private uniforms: Uniform;
+  private vertexSource: string;
+  private fragmentSource: string;
 
-  constructor(gl: WebGLRenderingContext) {
-    this.glCtx = gl;
+  constructor() {
+    this.glCtx = null;
     this.programID = null;
-    this.shaderSourceData = null;
-    this.uniforms = new Map();
-    this.vertAttributes = new Map();
-    this.generalAttributes = new Map();
+    this.shaderID = new Map();
+    this.attributes = new Attribute();
+    this.uniforms = new Uniform();
+    this.vertexSource = null;
+    this.fragmentSource = null;
   }
 
-  public setShaderSource(programID: WebGLProgram, type: ShaderType, code: string): void {
-    const tempAttr: string[] = [];
-    const tempUniform: string[] = [];
-    const tempVarying: string[] = [];
+  public static NewWithDefaults(gl: WebGLRenderingContext): Shader {
+    const s = new Shader();
+    s.glCtx = gl;
+    s.setSource(defaultVertexSource, defaultFragmentSource);
 
-    const lines = code.split('\n');
-    const id = this.compileShaderSource(type, code);
+    // set default attributes and uniforms
+    // TODO
 
-    if (!this.programID || this.programID !== programID) {
-      this.programID = programID;
+    s.initialize(gl);
+    return s;
+  }
+
+  public setSource(vertexSrc: string, fragmentSrc: string) {
+    this.vertexSource = vertexSrc;
+    this.fragmentSource = fragmentSrc;
+
+    this.parseShaderVariables(vertexSrc);
+    this.parseShaderVariables(fragmentSrc);
+  }
+
+  public getNameFromUUID(uuid: string): {name: string, type: string} {
+    const uniformName = this.uniforms.getNameFromUUID(uuid);
+    const attributeName = this.attributes.getNameFromUUID(uuid);
+
+    if (uniformName) { return { name: uniformName, type: 'uniform' }; }
+    if (attributeName) { return { name: attributeName, type: 'attribute' }; }
+    return undefined;
+  }
+
+  public setAttributeData(name: string, data: IVertexAttribute) {
+    if (!this.attributes.has(name)) {
+      throw new Error(`Error: no attribute variable \"${name}\" found in the shader`);
     }
 
-    for (const line of lines) {
-      const endIndex = line.charAt(line.length - 1) === ';' ? line.length - 1 : line.length;
-      const varName = line.substring(line.lastIndexOf(' ') + 1, endIndex);
+    this.attributes.setDataFor(name, data, this.programID, this.glCtx);
+  }
 
-      if (line.search(/^\s*(attribute)/gi) !== -1) {
-        tempAttr.push(varName);
-
-      } else if (line.search(/^\s*(uniform)/gi) !== -1) {
-        tempUniform.push(varName);
-
-      } else if (line.search(/^\s*(varying)/gi) !== -1) {
-        tempVarying.push(varName);
-      }
+  public setUniformData(name: string, data: IUniformType) {
+    if (!this.uniforms.has(name)) {
+      throw new Error(`Error: no uniform variable \"${name}\" found in the shader`);
     }
 
-    this.glCtx.attachShader(this.programID, id);
-
-    this.shaderSourceData = {
-      id,
-      type,
-      code,
-      attributesVars: tempAttr,
-      uniformsVars: tempUniform,
-      varyingsVars: tempVarying,
-    };
+    this.uniforms.setDataFor(name, data, this.programID, this.glCtx);
   }
 
-  public get ID(): WebGLShader {
-    return this.shaderSourceData.id;
-  }
+  public initialize(gl: WebGLRenderingContext) {
+    this.glCtx = gl;
 
-  public vertexAttributes(renderableID: string): Map<IShaderAttributeName, IAttributeValue> {
-    const attr = new Map<IShaderAttributeName, IAttributeValue>();
-
-    for (const [ key, value ] of this.vertAttributes) {
-      if (value.vertexAttribute.UUID === renderableID) {
-        attr.set(key, value);
-      }
-    }
-    return attr;
-  }
-
-  public uniformAttributes(uniformID: string): Map<IShaderAttributeName, IUniformAttribute> {
-    const unf = new Map<IShaderAttributeName, IUniformAttribute>();
-
-    for (const [key, value] of this.uniforms) {
-      if (value.UUID === uniformID) {
-        unf.set(key, value);
-      }
+    if (!this.programID) {
+      this.programID = gl.createProgram();
     }
 
-    return unf;
+    const vertId = this.compileShaderSource(ShaderType.Vertex, this.vertexSource);
+    const fragId = this.compileShaderSource(ShaderType.Fragment, this.fragmentSource);
+
+    this.shaderID.set(ShaderType.Vertex, vertId);
+    this.shaderID.set(ShaderType.Fragment, fragId);
+
+    gl.attachShader(this.programID, vertId);
+    gl.attachShader(this.programID, fragId);
+    gl.linkProgram(this.programID);
+    gl.validateProgram(this.programID);
+
+    if (!gl.getProgramParameter(this.programID, gl.LINK_STATUS)) {
+      const err = gl.getProgramInfoLog(this.programID);
+      throw new Error(`Error: shader link status ${err}`);
+    }
+
+    this.uniforms.initialize(this.programID, this.glCtx);
+    this.attributes.initialize(this.programID, this.glCtx);
   }
 
-  public shaderAttributes(): Map<IShaderAttributeName, IAttributeValue> {
-    return this.generalAttributes;
+  /**
+   * This will detach the shaders and delete the shader program, then clear any held uniform
+   * and attributes. This is generally used when a new shader is to be used.
+   * @param {WebGLRenderingContext} gl the webgl rendering context
+   */
+  public clear(gl: WebGLRenderingContext) {
+    this.uniforms.clear();
+    this.attributes.clear();
+
+    gl.detachShader(this.programID, this.shaderID.get(ShaderType.Vertex));
+    gl.detachShader(this.programID, this.shaderID.get(ShaderType.Fragment));
+    gl.deleteProgram(this.programID);
+
+    this.shaderID.clear();
   }
 
-  public shaderUniforms(): Map<IShaderAttributeName, IUniformAttribute> {
+  public get Attributes(): Attribute {
+    return this.attributes;
+  }
+
+  public get Uniforms(): Uniform {
     return this.uniforms;
   }
 
-  public setAttributeDataFor(attName: string, ...attribute: IAttributeValue[]): void {
-    const gl = this.glCtx;
-    const attLocation = this.shaderSourceData.attributesVars.filter((value) => value === attName);
+  private parseShaderVariables(source: string) {
+    const sourceLines = source.toLowerCase().split('\n');
+    let inCommentBlock = false;
 
-    if (attLocation.length === 0) {
-      throw new ReferenceError(`setAttributeDataFor: ${attName} was not found`);
-    }
+    // clear anything that might be there for new variables
+    this.attributes.clear();
+    this.uniforms.clear();
 
-    for (const attr of attribute) {
-      // TODO check if we already have the location
-      const locID = gl.getAttribLocation(this.programID, attName);
+    for (let line of sourceLines) {
+      line = line.trim();
+      const comment = line.slice(0, 2);
 
-      if (attr.vertexAttribute) {
-        this.vertAttributes.set({ name: attName, id: locID }, attr);
+      switch (comment) {
+        case '//':
+          // nothing to do, we just skip
+          break;
 
-      } else if (attr.attributeValue) {
-        this.generalAttributes.set({ name: attName, id: locID }, attr);
-      }
-    }
-  }
-
-  public setUniformDataFor(uniformName: string, uniformData: IUniformAttribute): void {
-    const uniformLoc = this.shaderSourceData.uniformsVars.filter((uniform) => uniform === uniformName);
-
-    if (uniformLoc.length === 0) {
-      throw new ReferenceError(`setUniformDataFor: ${uniformName} was not found`);
-    }
-
-    this.glCtx.useProgram(this.programID);
-
-    if (!this.glCtx.getProgramParameter(this.programID, this.glCtx.LINK_STATUS)) {
-      const errMsg = this.glCtx.getProgramInfoLog(this.programID);
-
-      console.log(`Error LINK_STATUS program Id ${errMsg}`);
-      throw new ReferenceError(`LINK_STATUS error {errMsg}`);
-    }
-
-    // TODO check if we already have the location
-    const locID = this.glCtx.getUniformLocation(this.programID, uniformName);
-
-    if (uniformData.uniformMatrix) {
-      this.glCtx.uniformMatrix4fv(locID, false, uniformData.uniformMatrix.flatten());
-
-    } else if (uniformData.uniformValue) {
-      const len = uniformData.uniformValue.length;
-
-      switch (len) {
-        case 1: this.glCtx.uniform1fv(locID, uniformData.uniformValue); break;
-        case 2: this.glCtx.uniform2fv(locID, uniformData.uniformValue); break;
-        case 3: this.glCtx.uniform3fv(locID, uniformData.uniformValue); break;
-        case 4: this.glCtx.uniform4fv(locID, uniformData.uniformValue); break;
-      }
-    }
-
-    this.uniforms.set({ name: uniformName, id: locID }, uniformData);
-  }
-
-  public updateUniformDataFor(uniformID: string, uniformData: Matrix4 | Float32Array): void {
-    for (const [ key, value ] of this.uniforms) {
-      if (value.UUID === uniformID) {
-        if (uniformData instanceof Matrix4) {
-
-          this.uniforms.set(key, {
-            UUID: value.UUID,
-            uniformMatrix: uniformData as Matrix4,
-          });
-
-          this.glCtx.useProgram(this.programID);
-          this.glCtx.uniformMatrix4fv(key.id, false, uniformData.flatten());
-
-        } else if (uniformData instanceof Float32Array) {
-          this.uniforms.set(key, {
-            UUID: value.UUID,
-            uniformValue: uniformData as Float32Array,
-          });
-
-          const len = uniformData.length;
-          this.glCtx.useProgram(this.programID);
-
-          switch (len) {
-            case 1: this.glCtx.uniform1fv(key.id, uniformData); break;
-            case 2: this.glCtx.uniform2fv(key.id, uniformData); break;
-            case 3: this.glCtx.uniform3fv(key.id, uniformData); break;
-            case 4: this.glCtx.uniform4fv(key.id, uniformData); break;
+        case '/*':
+          const len = line.length;
+          const last = line.slice(len - 2);
+          if (last !== '*/') {
+            inCommentBlock = true;
           }
-        }
+          break;
 
-        return;
+        case '*/':
+          inCommentBlock = false;
+          break;
+
+        default:
+          const lineArr = line.split(/\s+/gi);
+          if (lineArr[ 0 ] === 'attribute' && !inCommentBlock) {
+            this.attributes.addAttribute(lineArr[ 1 ], lineArr[ 2 ]);
+
+          } else if (lineArr[ 0 ] === 'uniform' && !inCommentBlock) {
+            this.uniforms.addUniform(lineArr[ 1 ], lineArr[ 2 ]);
+          }
+          break;
       }
     }
-    // TODO dispatch error/warnings
-    console.log(`updateUniformDataFor: didn't find uniformID: ${uniformID}`);
   }
 
   private compileShaderSource(type: ShaderType, source: string): WebGLShader {
@@ -204,7 +174,7 @@ export class Shader {
     gl.compileShader(shaderID);
     if (!gl.getShaderParameter(shaderID, gl.COMPILE_STATUS)) {
       // should we throw, or setup a dispatch system?
-      console.log(`Shader COMPILE_STATUS error: ${gl.getShaderInfoLog(shaderID)}`);
+      throw new Error(`Shader COMPILE_STATUS error: ${gl.getShaderInfoLog(shaderID)}`);
     }
 
     return shaderID;
