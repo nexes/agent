@@ -57,6 +57,14 @@ export class Shader {
     return undefined;
   }
 
+  public getAttributesFromUUID(uuid: string): IVertexAttribute[] {
+    return this.attributes.getAttributesFromUUID(uuid);
+  }
+
+  public getUniformsFromUUID(uuid: string): Array<{type: string, data: Float32Array}> {
+    return this.uniforms.getUniformsFromUUID(uuid);
+  }
+
   public setAttributeData(name: string, data: IVertexAttribute) {
     if (!this.attributes.has(name)) {
       throw new Error(`Error: no attribute variable \"${name}\" found in the shader`);
@@ -114,14 +122,6 @@ export class Shader {
     gl.deleteProgram(this.programID);
 
     this.shaderID.clear();
-  }
-
-  public get Attributes(): Attribute {
-    return this.attributes;
-  }
-
-  public get Uniforms(): Uniform {
-    return this.uniforms;
   }
 
   private parseShaderVariables(source: string) {
