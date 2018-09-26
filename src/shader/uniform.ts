@@ -1,15 +1,19 @@
 import { IUniformType } from '../shader';
 
 
-interface IUniformData {
+interface IUniformKey {
+  name: string;
   type: string;
+}
+
+interface IUniformValue {
   uuid: string;
   location: WebGLUniformLocation;
   data: Float32Array;
 }
 
 export class Uniform {
-  private uniformLookup: Map<string, IUniformData>;
+  private uniformLookup: Map<IUniformKey, IUniformValue>;
 
   constructor() {
     this.uniformLookup = new Map();
@@ -22,8 +26,7 @@ export class Uniform {
    * @param {string} name the unfiform name
    */
   public addUniform(type: string, name: string): void {
-    this.uniformLookup.set(name, {
-      type,
+    this.uniformLookup.set({name, type}, {
       uuid: '',
       location: -1,
       data: null,
@@ -40,37 +43,46 @@ export class Uniform {
    * @throws If the variable name or location is not found or incompatible data is passed
    */
   public setDataFor(name: string, data: IUniformType, programID?: WebGLProgram, gl?: WebGLRenderingContext): void {
-    const value = this.uniformLookup.get(name);
-    if (!value) {
+    let _key;
+    let _value;
+
+    for (const [ key, value ] of this.uniformLookup) {
+      if (key.name === name) {
+        _key = key;
+        _value = value;
+      }
+    }
+
+    if (!_value) {
       throw new Error(`Uniform variable ${name} wasn't found`);
     }
 
-    value.uuid = data.UUID;
-    value.data = data.uniformData;
+    _value.uuid = data.UUID;
+    _value.data = data.uniformData;
 
     if (gl && programID) {
       gl.useProgram(programID);
 
-      if (value.location === -1) {
-        value.location = gl.getUniformLocation(programID, name);
+      if (_value.location === -1) {
+        _value.location = gl.getUniformLocation(programID, name);
 
-        if (value.location === -1) {
+        if (_value.location === -1) {
           throw new Error(`Uniform could not get location for uniform ${name}`);
         }
       }
 
-      switch (value.data.length) {
-        case 1: gl.uniform1fv(value.location, value.data); break;
-        case 2: gl.uniform2fv(value.location, value.data); break;
-        case 3: gl.uniform3fv(value.location, value.data); break;
-        case 4: gl.uniform4fv(value.location, value.data); break;
-        case 9: gl.uniformMatrix3fv(value.location, false, value.data); break;
-        case 16: gl.uniformMatrix4fv(value.location, false, value.data); break;
+      switch (_value.data.length) {
+        case 1: gl.uniform1fv(_value.location, _value.data); break;
+        case 2: gl.uniform2fv(_value.location, _value.data); break;
+        case 3: gl.uniform3fv(_value.location, _value.data); break;
+        case 4: gl.uniform4fv(_value.location, _value.data); break;
+        case 9: gl.uniformMatrix3fv(_value.location, false, _value.data); break;
+        case 16: gl.uniformMatrix4fv(_value.location, false, _value.data); break;
         default: throw new Error('uniform float32array length has an incompatible length');
       }
     }
 
-    this.uniformLookup.set(name, value);
+    this.uniformLookup.set(_key, _value);
   }
 
   /**
@@ -79,9 +91,9 @@ export class Uniform {
    * @returns {string} the uniform variable name
    */
   public getNameFromUUID(uuid: string): string {
-    for (const [ name, value ] of this.uniformLookup) {
+    for (const [ key, value ] of this.uniformLookup) {
       if (value.uuid === uuid) {
-        return name;
+        return key.name;
       }
     }
     return undefined;
@@ -94,9 +106,9 @@ export class Uniform {
    */
   public getUniformsFromUUID(uuid: string): Array<{type: string, data: Float32Array}> {
     const _uniforms = [];
-    for (const uniform of this.uniformLookup.values()) {
-      if (uniform.uuid === uuid) {
-        _uniforms.push({type: uniform.type, data: uniform.data});
+    for (const [key, value] of this.uniformLookup) {
+      if (value.uuid === uuid) {
+        _uniforms.push({type: key.type, data: value.data});
       }
     }
     return _uniforms;
@@ -108,7 +120,12 @@ export class Uniform {
    * @returns {boolean} if the name was found
    */
   public has(name: string): boolean {
-    return this.uniformLookup.has(name);
+    for (const key of this.uniformLookup.keys()) {
+      if (key.name === name) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -126,8 +143,8 @@ export class Uniform {
   public initialize(programID: WebGLProgram, gl: WebGLRenderingContext): void {
     const unf = this.uniformLookup;
 
-    for (const [ name, value ] of unf) {
-      this.setDataFor(name, { UUID: value.uuid, uniformData: value.data }, programID, gl);
+    for (const [ key, value ] of unf) {
+      this.setDataFor(key.name, { UUID: value.uuid, uniformData: value.data }, programID, gl);
     }
   }
 }
