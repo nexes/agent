@@ -1,14 +1,18 @@
 import { IVertexAttribute } from '../shader';
 
 
-interface IAttributeData {
+interface IAttributeKey {
+  name: string;
   type: string;
+}
+
+interface IAttributeValue {
   location: number;
   data: IVertexAttribute;
 }
 
 export class Attribute {
-  private attributeLookup: Map<string, IAttributeData>;
+  private attributeLookup: Map<IAttributeKey, IAttributeValue>;
 
   constructor() {
     this.attributeLookup = new Map();
@@ -21,8 +25,7 @@ export class Attribute {
    * @param {string} name the attribute name
    */
   public addAttribute(type: string, name: string) {
-    this.attributeLookup.set(name, {
-      type,
+    this.attributeLookup.set({name, type}, {
       location: -1,
       data: null,
     });
@@ -38,24 +41,32 @@ export class Attribute {
    * @throws If the variable name or location is not found or incompatible data is passed
    */
   public setDataFor(name: string, data: IVertexAttribute, programID?: WebGLProgram, gl?: WebGLRenderingContext): void {
-    const att = this.attributeLookup.get(name);
-    if (!att) {
+    let _att;
+    let _key;
+    for (const [ key, value ] of this.attributeLookup) {
+      if (key.name === name) {
+        _key = key;
+        _att = value;
+      }
+    }
+
+    if (!_att) {
       throw new Error(`Attribute variable ${name} wasn't found`);
     }
 
-    att.data = data;
+    _att.data = data;
 
     if (gl && programID) {
-      if (att.location === -1) {
-        att.location = gl.getAttribLocation(programID, name);
+      if (_att.location === -1) {
+        _att.location = gl.getAttribLocation(programID, name);
 
-        if (att.location === -1) {
+        if (_att.location === -1) {
           throw new Error(`Attribute: could not get location for attribute ${name}`);
         }
       }
     }
 
-    this.attributeLookup.set(name, att);
+    this.attributeLookup.set(_key, _att);
   }
 
   /**
@@ -64,7 +75,12 @@ export class Attribute {
    * @returns {boolean} if the name was found
    */
   public has(name: string): boolean {
-    return this.attributeLookup.has(name);
+    for (const key of this.attributeLookup.keys()) {
+      if (key.name === name) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -80,9 +96,9 @@ export class Attribute {
    * @returns {string} the attribute variable name
    */
   public getNameFromUUID(uuid: string): string {
-    for (const [ name, value ] of this.attributeLookup) {
+    for (const [ key, value ] of this.attributeLookup) {
       if (value.data.UUID === uuid) {
-        return name;
+        return key.name;
       }
     }
     return undefined;
@@ -111,8 +127,8 @@ export class Attribute {
   public initialize(programID: WebGLProgram, gl: WebGLRenderingContext): void {
     const attr = this.attributeLookup;
 
-    for (const [ name, value ] of attr) {
-      this.setDataFor(name, value.data, programID, gl);
+    for (const [ key, value ] of attr) {
+      this.setDataFor(key.name, value.data, programID, gl);
     }
   }
 }
