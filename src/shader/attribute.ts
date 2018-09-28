@@ -6,7 +6,7 @@ interface IAttributeKey {
   type: string;
 }
 
-interface IAttributeValue {
+export interface IAttributeValue {
   location: number;
   data: IVertexAttribute;
 }
@@ -109,11 +109,11 @@ export class Attribute {
    * @param {string} uuid the objects UUID
    * @returns an array of attribute data
    */
-  public getAttributesFromUUID(uuid: string): IVertexAttribute[] {
-    const _att: IVertexAttribute[] = [];
+  public getAttributesFromUUID(uuid: string): IAttributeValue[] {
+    const _att: IAttributeValue[] = [];
     for (const attribute of this.attributeLookup.values()) {
       if (attribute.data.UUID === uuid) {
-        _att.push(attribute.data);
+        _att.push(attribute);
       }
     }
     return _att;
@@ -128,7 +128,12 @@ export class Attribute {
     const attr = this.attributeLookup;
 
     for (const [ key, value ] of attr) {
-      this.setDataFor(key.name, value.data, programID, gl);
+      if (!value.data) {
+        console.log(`Warning: No data was set for attribute ${key.name}`);
+
+      } else {
+        this.setDataFor(key.name, value.data, programID, gl);
+      }
     }
   }
 }

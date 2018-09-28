@@ -53,7 +53,7 @@ export class Uniform {
       }
     }
 
-    if (!_value) {
+    if (!_key) {
       throw new Error(`Uniform variable ${name} wasn't found`);
     }
 
@@ -144,7 +144,12 @@ export class Uniform {
     const unf = this.uniformLookup;
 
     for (const [ key, value ] of unf) {
-      this.setDataFor(key.name, { UUID: value.uuid, uniformData: value.data }, programID, gl);
+      if (!value.data) {
+        console.log(`Warning: No data was set for uniform ${key.name}`);
+
+      } else {
+        this.setDataFor(key.name, { UUID: value.uuid, uniformData: value.data }, programID, gl);
+      }
     }
   }
 }
