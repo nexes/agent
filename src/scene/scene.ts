@@ -7,15 +7,15 @@ export class Scene {
   private glCtx: WebGLRenderingContext;
   private camera: ICamera;
   private renderables: IRenderable[];
-  private shaders: Map<ShaderType, Shader>;
-  private programId: WebGLProgram;
+  private sceneShader: Shader;
+  private shaderDirty: boolean;
 
   constructor(gl: WebGLRenderingContext) {
     this.glCtx = gl;
-    this.shaders = new Map<ShaderType, Shader>();
+    this.sceneShader = Shader.NewWithDefaults(gl);
     this.renderables = [];
     this.camera = null;
-    this.programId = null;
+    this.shaderDirty = false;
   }
 
   public addDrawable(...item: IRenderable[]): void {
@@ -26,27 +26,24 @@ export class Scene {
     this.camera = camera;
   }
 
-  public addShader(type: ShaderType, data: string): void {
-    if (this.programId === null) {
-      this.programId = this.glCtx.createProgram();
+  /**
+   * Set the shader for this scene. Scenes can only have one shader object at a time
+   */
+  public setShader(shader: Shader) {
+    this.sceneShader.clear(this.glCtx);
+    this.sceneShader = shader;
+    this.shaderDirty = true;
     }
 
-    const newShader = new Shader(this.glCtx);
-    newShader.setShaderSource(this.programId, type, data);
-    this.shaders.set(type, newShader);
-
-    // only link the webgl program when we have a vertex and fragment shader. We need both before we link
-    // I think this should be thought out more.
-    if (this.shaders.size === 2 && this.shaders.has(ShaderType.Vertex) && this.shaders.has(ShaderType.Fragment)) {
-      this.glCtx.linkProgram(this.programId);
+  /**
+   * Setup the shaders sources and the shaders uniforms and variables. If the shader hasn't changed
+   * this does nothing.
+   */
+  public initialize(): void {
+    if (this.shaderDirty) {
+      this.shaderDirty = false;
+      this.sceneShader.initialize(this.glCtx);
     }
-  }
-
-  public shader(shader: ShaderType): Shader {
-    if (!this.shaders.has(shader)) {
-      throw new Error(`Scene does not have shader type ${shader} assigned`);
-    }
-    return this.shaders.get(shader);
   }
 
   /**
@@ -55,7 +52,8 @@ export class Scene {
    */
   public updateSimulationStep(dt: number): void {
     if (this.camera.update(dt)) {
-      this.shaders.get(ShaderType.Vertex).updateUniformDataFor(this.camera.UUID, this.camera.matrix());
+      const varName = this.sceneShader.getNameFromUUID(this.camera.UUID);
+      this.sceneShader.setUniformData(varName.name, this.camera.uniform);
     }
 
     for (const obj of this.renderables) {
@@ -66,20 +64,15 @@ export class Scene {
 
   public render() {
     for (const gObject of this.renderables) {
-      // NOTE if the two maps have the same key, only the value of the last map is kept. This shouldn't be a problem here
-      // since all keys are objects IShaderAttributeName, two objects with the same values are !=
-      const objectVertexAttr = new Map([
-        ...this.shaders.get(ShaderType.Vertex).vertexAttributes(gObject.UUID),
-        ...this.shaders.get(ShaderType.Fragment).vertexAttributes(gObject.UUID),
-      ]);
+      const objectVertAttr = this.sceneShader.getAttributesFromUUID(gObject.UUID);
 
-      gObject.enableBufferData(this.glCtx, objectVertexAttr);
+      gObject.enableBufferData(this.glCtx, objectVertAttr);
 
-      this.enableShaderAttributes(gObject.UUID);
-      this.glCtx.useProgram(this.programId);
+      // this.enableShaderAttributes(gObject.UUID);
+      // this.glCtx.useProgram(this.programId);
       this.glCtx.drawArrays(this.glCtx.TRIANGLE_STRIP, 0, gObject.verticeCount());
 
-      gObject.disableBuffer(this.glCtx, objectVertexAttr);
+      gObject.disableBuffer(this.glCtx, objectVertAttr);
     }
   }
 
