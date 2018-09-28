@@ -1,7 +1,7 @@
 import { UUID } from '../agent';
 import Texture, { Sprite } from '../texture';
 import { IRenderable } from '../renderable';
-import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
+import { IVertexAttribute, IAttributeValue } from '../shader';
 
 
 export class Tile implements IRenderable {
@@ -154,7 +154,7 @@ export class Tile implements IRenderable {
     };
   }
 
-  public enableBufferData(gl: WebGLRenderingContext, vertexAttributes: Map<IShaderAttributeName, IAttributeValue>): void {
+  public enableBufferData(gl: WebGLRenderingContext, vertexAttributes: IAttributeValue[]): void {
     if (this.bufferId === null) {
       this.bufferId = gl.createBuffer();
     }
@@ -178,24 +178,24 @@ export class Tile implements IRenderable {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferId);
     gl.bufferData(gl.ARRAY_BUFFER, this.vbo, gl.STATIC_DRAW);
 
-    for (const [ attName, attData ] of vertexAttributes) {
-      gl.enableVertexAttribArray(attName.id as number);
+    for (const attribute of vertexAttributes) {
+      gl.enableVertexAttribArray(attribute.location);
       gl.vertexAttribPointer(
-        attName.id as number,
-        attData.vertexAttribute.size,
+        attribute.location,
+        attribute.data.size,
         gl.FLOAT,
-        attData.vertexAttribute.normalized,
-        attData.vertexAttribute.stride,
-        attData.vertexAttribute.offset,
+        attribute.data.normalized,
+        attribute.data.stride,
+        attribute.data.offset,
       );
     }
   }
 
-  public disableBuffer(gl: WebGLRenderingContext, vertexAttributes: Map<IShaderAttributeName, IAttributeValue>): void {
+  public disableBuffer(gl: WebGLRenderingContext, vertexAttributes: IAttributeValue[]): void {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-    for (const [ attName, _ ] of vertexAttributes) {
-      gl.disableVertexAttribArray(attName.id as number);
+    for (const attribute of vertexAttributes) {
+      gl.disableVertexAttribArray(attribute.location);
     }
   }
 

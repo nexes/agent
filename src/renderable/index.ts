@@ -1,5 +1,5 @@
 import Texture from '../texture';
-import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
+import { IVertexAttribute, IAttributeValue } from '../shader';
 
 export { Mesh } from './mesh';
 export { Tile } from './tile';
@@ -36,14 +36,14 @@ export interface IRenderable {
    * @param {WebGLRenderingContext}	gl	webGLrendering context
    * @param {Map<IShaderAttributeName, IAttributeValue>} vertexAttributes	A map of the vertex attributes that describe this renderable
    */
-  enableBufferData(gl: WebGLRenderingContext, vertexAttributes: Map<IShaderAttributeName, IAttributeValue>): void;
+  enableBufferData(gl: WebGLRenderingContext, vertexAttributes: IAttributeValue[]): void;
 
   /**
    * this will unbind the renderables buffer array and texture if one is set
    * @param {WebGLRenderingContext}	gl	webGLrendering context
    * @param {Map<IShaderAttributeName, IAttributeValue>} vertexAttributes	A map of the vertex attributes that describe this renderable
    */
-  disableBuffer(gl: WebGLRenderingContext, vertexAttributes: Map<IShaderAttributeName, IAttributeValue>): void;
+  disableBuffer(gl: WebGLRenderingContext, vertexAttributes: IAttributeValue[]): void;
 
   /**
    * return the number of vertices this renderable will have

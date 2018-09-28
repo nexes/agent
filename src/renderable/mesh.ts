@@ -1,7 +1,7 @@
 import { UUID } from '../agent';
 import Texture, { SpriteSheet, ITextureTile } from '../texture';
 import { IRenderable, ITileOptions } from '../renderable';
-import { IVertexAttribute, IShaderAttributeName, IAttributeValue } from '../shader';
+import { IVertexAttribute, IAttributeValue } from '../shader';
 
 
 export class Mesh implements IRenderable {
@@ -148,7 +148,7 @@ export class Mesh implements IRenderable {
     }
   }
 
-  public enableBufferData(gl: WebGLRenderingContext, vertexAttributes: Map<IShaderAttributeName, IAttributeValue>): void {
+  public enableBufferData(gl: WebGLRenderingContext, vertexAttributes: IAttributeValue[]): void {
     if (this.bufferId === null) {
       this.bufferId = gl.createBuffer();
     }
@@ -161,24 +161,24 @@ export class Mesh implements IRenderable {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferId);
     gl.bufferData(gl.ARRAY_BUFFER, this.vbo, gl.STATIC_DRAW);
 
-    for (const [ attName, attValue ] of vertexAttributes) {
-      gl.enableVertexAttribArray(attName.id as number);
+    for (const attribute of vertexAttributes) {
+      gl.enableVertexAttribArray(attribute.location);
       gl.vertexAttribPointer(
-        attName.id as number,
-        attValue.vertexAttribute.size,
+        attribute.location,
+        attribute.data.size,
         gl.FLOAT,
-        attValue.vertexAttribute.normalized,
-        attValue.vertexAttribute.stride,
-        attValue.vertexAttribute.offset,
+        attribute.data.normalized,
+        attribute.data.stride,
+        attribute.data.offset,
       );
     }
   }
 
-  public disableBuffer(gl: WebGLRenderingContext, vertexAttributes: Map<IShaderAttributeName, IAttributeValue>): void {
+  public disableBuffer(gl: WebGLRenderingContext, vertexAttributes: IAttributeValue[]): void {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-    for (const [ attName, attValue ] of vertexAttributes) {
-      gl.disableVertexAttribArray(attName.id as number);
+    for (const attribute of vertexAttributes) {
+      gl.disableVertexAttribArray(attribute.location);
     }
   }
 
