@@ -1,5 +1,5 @@
 export { Shader as default } from './shader';
-export { Attribute } from './attribute';
+export { Attribute, IAttributeValue } from './attribute';
 export { Uniform } from './uniform';
 
 export enum ShaderType {

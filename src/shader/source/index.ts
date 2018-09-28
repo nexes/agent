@@ -9,10 +9,10 @@ varying vec2 vTexture;
 varying vec3 vColor;
 
 void main() {
-  vTexture = aText;
+  vTexture = aTexture;
   vColor = aColor;
 
-  gl_Position = camera * modelview * vec4(aPos, 0.0, 1.0);
+  gl_Position = camera * modelview * vec4(aPosition, 0.0, 1.0);
 }
 `;
 

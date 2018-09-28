@@ -1,13 +1,13 @@
-import { IVertexAttribute } from '../shader';
 import { defaultVertexSource, defaultFragmentSource } from '../shader/source';
-
-
 import {
-  ShaderType,
   Attribute,
   Uniform,
+  ShaderType,
   IUniformType,
+  IVertexAttribute,
+  IAttributeValue,
 } from '../shader';
+
 
 export class Shader {
   private glCtx: WebGLRenderingContext;
@@ -44,6 +44,10 @@ export class Shader {
     this.vertexSource = vertexSrc;
     this.fragmentSource = fragmentSrc;
 
+    // clear whatever variables we are holding since we are parsing new shader sources
+    this.attributes.clear();
+    this.uniforms.clear();
+
     this.parseShaderVariables(vertexSrc);
     this.parseShaderVariables(fragmentSrc);
   }
@@ -57,7 +61,7 @@ export class Shader {
     return undefined;
   }
 
-  public getAttributesFromUUID(uuid: string): IVertexAttribute[] {
+  public getAttributesFromUUID(uuid: string): IAttributeValue[] {
     return this.attributes.getAttributesFromUUID(uuid);
   }
 
@@ -125,12 +129,8 @@ export class Shader {
   }
 
   private parseShaderVariables(source: string) {
-    const sourceLines = source.toLowerCase().split('\n');
+    const sourceLines = source.split('\n');
     let inCommentBlock = false;
-
-    // clear anything that might be there for new variables
-    this.attributes.clear();
-    this.uniforms.clear();
 
     for (let line of sourceLines) {
       line = line.trim();
@@ -154,11 +154,11 @@ export class Shader {
           break;
 
         default:
-          const lineArr = line.split(/\s+/gi);
-          if (lineArr[ 0 ] === 'attribute' && !inCommentBlock) {
+          const lineArr = line.replace(';', '').split(/\s+/gi);
+          if (lineArr[ 0 ].toLowerCase() === 'attribute' && !inCommentBlock) {
             this.attributes.addAttribute(lineArr[ 1 ], lineArr[ 2 ]);
 
-          } else if (lineArr[ 0 ] === 'uniform' && !inCommentBlock) {
+          } else if (lineArr[ 0 ].toLowerCase() === 'uniform' && !inCommentBlock) {
             this.uniforms.addUniform(lineArr[ 1 ], lineArr[ 2 ]);
           }
           break;
