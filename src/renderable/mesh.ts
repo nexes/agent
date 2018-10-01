@@ -162,15 +162,17 @@ export class Mesh implements IRenderable {
     gl.bufferData(gl.ARRAY_BUFFER, this.vbo, gl.STATIC_DRAW);
 
     for (const attribute of vertexAttributes) {
-      gl.enableVertexAttribArray(attribute.location);
-      gl.vertexAttribPointer(
-        attribute.location,
-        attribute.data.size,
-        gl.FLOAT,
-        attribute.data.normalized,
-        attribute.data.stride,
-        attribute.data.offset,
-      );
+      for (const data of attribute.data) {
+        gl.enableVertexAttribArray(attribute.location);
+        gl.vertexAttribPointer(
+          attribute.location,
+          data.size,
+          gl.FLOAT,
+          data.normalized,
+          data.stride,
+          data.offset,
+        );
+      }
     }
   }
 

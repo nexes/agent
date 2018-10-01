@@ -8,7 +8,7 @@ interface IAttributeKey {
 
 export interface IAttributeValue {
   location: number;
-  data: IVertexAttribute;
+  data: IVertexAttribute[];
 }
 
 export class Attribute {
@@ -27,7 +27,7 @@ export class Attribute {
   public addAttribute(type: string, name: string) {
     this.attributeLookup.set({name, type}, {
       location: -1,
-      data: null,
+      data: [],
     });
   }
 
@@ -40,7 +40,7 @@ export class Attribute {
    * @param {WebGLRenderingContext} gl Optional, if given the data will be sent to webgl
    * @throws If the variable name or location is not found or incompatible data is passed
    */
-  public setDataFor(name: string, data: IVertexAttribute, programID?: WebGLProgram, gl?: WebGLRenderingContext): void {
+  public setDataFor(name: string, data: IVertexAttribute | IVertexAttribute[], programID?: WebGLProgram, gl?: WebGLRenderingContext): void {
     let _att;
     let _key;
     for (const [ key, value ] of this.attributeLookup) {
@@ -50,11 +50,11 @@ export class Attribute {
       }
     }
 
-    if (!_att) {
+    if (!_key) {
       throw new Error(`Attribute variable ${name} wasn't found`);
     }
 
-    _att.data = data;
+    Array.isArray(data) ? _att.data.push(...data) : _att.data.push(data);
 
     if (gl && programID) {
       if (_att.location === -1) {
@@ -97,8 +97,10 @@ export class Attribute {
    */
   public getNameFromUUID(uuid: string): string {
     for (const [ key, value ] of this.attributeLookup) {
-      if (value.data.UUID === uuid) {
-        return key.name;
+      for (const attribute of value.data) {
+        if (attribute.UUID === uuid) {
+          return key.name;
+        }
       }
     }
     return undefined;
@@ -111,9 +113,12 @@ export class Attribute {
    */
   public getAttributesFromUUID(uuid: string): IAttributeValue[] {
     const _att: IAttributeValue[] = [];
-    for (const attribute of this.attributeLookup.values()) {
-      if (attribute.data.UUID === uuid) {
-        _att.push(attribute);
+
+    for (const [key, value] of this.attributeLookup) {
+      for (const attribute of value.data) {
+        if (attribute.UUID === uuid) {
+          _att.push(value);
+        }
       }
     }
     return _att;
