@@ -3,7 +3,8 @@ import {
   Attribute,
   Uniform,
   ShaderType,
-  IUniformType,
+  IUniformValue,
+  IUniformAttribute,
   IVertexAttribute,
   IAttributeValue,
 } from '../shader';
@@ -65,11 +66,11 @@ export class Shader {
     return this.attributes.getAttributesFromUUID(uuid);
   }
 
-  public getUniformsFromUUID(uuid: string): Array<{type: string, data: Float32Array}> {
+  public getUniformsFromUUID(uuid: string): IUniformValue[] {
     return this.uniforms.getUniformsFromUUID(uuid);
   }
 
-  public setAttributeData(name: string, data: IVertexAttribute) {
+  public setAttributeData(name: string, data: IVertexAttribute | IVertexAttribute[]): void {
     if (!this.attributes.has(name)) {
       throw new Error(`Error: no attribute variable \"${name}\" found in the shader`);
     }
@@ -77,7 +78,7 @@ export class Shader {
     this.attributes.setDataFor(name, data, this.programID, this.glCtx);
   }
 
-  public setUniformData(name: string, data: IUniformType) {
+  public setUniformData(name: string, data: IUniformAttribute | IUniformAttribute[]): void {
     if (!this.uniforms.has(name)) {
       throw new Error(`Error: no uniform variable \"${name}\" found in the shader`);
     }
@@ -85,7 +86,7 @@ export class Shader {
     this.uniforms.setDataFor(name, data, this.programID, this.glCtx);
   }
 
-  public initialize(gl: WebGLRenderingContext) {
+  public initialize(gl: WebGLRenderingContext): void {
     this.glCtx = gl;
 
     if (!this.programID) {

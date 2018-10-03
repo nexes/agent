@@ -1,7 +1,7 @@
 import { UUID } from '../agent';
 import { Matrix4, IVector, Axis, TransformationMatrix } from '../math';
 import { ICamera, CameraEffects } from '../camera';
-import { IUniformType } from '../shader';
+import { IUniformAttribute } from '../shader';
 
 
 // export class PerspectiveCamera implements ICamera {
@@ -60,9 +60,9 @@ export class PerspectiveCamera implements ICamera {
     return this.uuid;
   }
 
-  public get uniform(): IUniformType {
+  public get uniform(): IUniformAttribute {
     return {
-      UUID: this.uuid,
+      uuid: this.uuid,
       uniformData: this.matrix().flatten(),
     };
   }

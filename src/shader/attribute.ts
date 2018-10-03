@@ -35,7 +35,7 @@ export class Attribute {
    * Set or update data to the attribute variable. If the data has once been set for this variable before,
    * then the variable will be updated with the new given data.
    * @param {string} name the name of the attribute variable
-   * @param {IVertexAttribute} data the attribute data
+   * @param {IVertexAttribute | IVertexAttribute[]} data the attribute data
    * @param {WebGLProgram} programID Optional, the webgl program ID
    * @param {WebGLRenderingContext} gl Optional, if given the data will be sent to webgl
    * @throws If the variable name or location is not found or incompatible data is passed

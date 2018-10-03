@@ -1,4 +1,4 @@
-import { IUniformType } from '../shader';
+import { IUniformAttribute } from '../shader';
 
 
 interface IUniformKey {
@@ -6,10 +6,9 @@ interface IUniformKey {
   type: string;
 }
 
-interface IUniformValue {
-  uuid: string;
+export interface IUniformValue {
   location: WebGLUniformLocation;
-  data: Float32Array;
+  data: IUniformAttribute[];
 }
 
 export class Uniform {
@@ -27,9 +26,8 @@ export class Uniform {
    */
   public addUniform(type: string, name: string): void {
     this.uniformLookup.set({name, type}, {
-      uuid: '',
       location: -1,
-      data: null,
+      data: [],
     });
   }
 
@@ -37,12 +35,12 @@ export class Uniform {
    * Set or update data to the uniform variable. If the data has once been set for this variable before,
    * then the variable will be updated with the new given data.
    * @param {string} name the name of the uniform variable
-   * @param {IUniformType} data the uniform data and uuid
+   * @param {IUniformAttribute | IUniformAttribute[]} data the uniform data and uuid
    * @param {WebGLProgram} programID Optional, the webgl program ID
    * @param {WebGLRenderingContext} gl Optional, if given the data will be sent to webgl
    * @throws If the variable name or location is not found or incompatible data is passed
    */
-  public setDataFor(name: string, data: IUniformType, programID?: WebGLProgram, gl?: WebGLRenderingContext): void {
+  public setDataFor(name: string, data: IUniformAttribute | IUniformAttribute[], programID?: WebGLProgram, gl?: WebGLRenderingContext): void {
     let _key;
     let _value;
 
@@ -57,8 +55,7 @@ export class Uniform {
       throw new Error(`Uniform variable ${name} wasn't found`);
     }
 
-    _value.uuid = data.UUID;
-    _value.data = data.uniformData;
+    Array.isArray(data) ? _value.data.push(...data) : _value.data.push(data);
 
     if (gl && programID) {
       gl.useProgram(programID);
@@ -71,14 +68,29 @@ export class Uniform {
         }
       }
 
-      switch (_value.data.length) {
-        case 1: gl.uniform1fv(_value.location, _value.data); break;
-        case 2: gl.uniform2fv(_value.location, _value.data); break;
-        case 3: gl.uniform3fv(_value.location, _value.data); break;
-        case 4: gl.uniform4fv(_value.location, _value.data); break;
-        case 9: gl.uniformMatrix3fv(_value.location, false, _value.data); break;
-        case 16: gl.uniformMatrix4fv(_value.location, false, _value.data); break;
-        default: throw new Error('uniform float32array length has an incompatible length');
+      if (Array.isArray(data)) {
+        for (const _uniform of data) {
+          switch (_uniform.uniformData.length) {
+            case 1: gl.uniform1fv(_value.location, _uniform.uniformData); break;
+            case 2: gl.uniform2fv(_value.location, _uniform.uniformData); break;
+            case 3: gl.uniform3fv(_value.location, _uniform.uniformData); break;
+            case 4: gl.uniform4fv(_value.location, _uniform.uniformData); break;
+            case 9: gl.uniformMatrix3fv(_value.location, false, _uniform.uniformData); break;
+            case 16: gl.uniformMatrix4fv(_value.location, false, _uniform.uniformData); break;
+            default: throw new Error('uniform float32array length has an incompatible length');
+          }
+        }
+
+      } else {
+        switch (data.uniformData.length) {
+          case 1: gl.uniform1fv(_value.location, data.uniformData); break;
+          case 2: gl.uniform2fv(_value.location, data.uniformData); break;
+          case 3: gl.uniform3fv(_value.location, data.uniformData); break;
+          case 4: gl.uniform4fv(_value.location, data.uniformData); break;
+          case 9: gl.uniformMatrix3fv(_value.location, false, data.uniformData); break;
+          case 16: gl.uniformMatrix4fv(_value.location, false, data.uniformData); break;
+          default: throw new Error('uniform float32array length has an incompatible length');
+        }
       }
     }
 
@@ -92,8 +104,10 @@ export class Uniform {
    */
   public getNameFromUUID(uuid: string): string {
     for (const [ key, value ] of this.uniformLookup) {
-      if (value.uuid === uuid) {
-        return key.name;
+      for (const uniform of value.data) {
+        if (uniform.uuid === uuid) {
+          return key.name;
+        }
       }
     }
     return undefined;
@@ -104,11 +118,15 @@ export class Uniform {
    * @param {string} uuid the objects UUID
    * @returns an array of objects with the uniforms type and data
    */
-  public getUniformsFromUUID(uuid: string): Array<{type: string, data: Float32Array}> {
-    const _uniforms = [];
+  // public getUniformsFromUUID(uuid: string): Array<{type: string, data: Float32Array}> {
+  public getUniformsFromUUID(uuid: string): IUniformValue[] {
+    const _uniforms: IUniformValue[] = [];
+
     for (const [key, value] of this.uniformLookup) {
-      if (value.uuid === uuid) {
-        _uniforms.push({type: key.type, data: value.data});
+      for (const uniform of value.data) {
+        if (uniform.uuid === uuid) {
+          _uniforms.push(value);
+        }
       }
     }
     return _uniforms;
@@ -148,7 +166,7 @@ export class Uniform {
         console.log(`Warning: No data was set for uniform ${key.name}`);
 
       } else {
-        this.setDataFor(key.name, { UUID: value.uuid, uniformData: value.data }, programID, gl);
+        this.setDataFor(key.name, value.data, programID, gl);
       }
     }
   }

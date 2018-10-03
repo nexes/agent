@@ -1,6 +1,6 @@
 import { Matrix4, IVector, Axis, TransformationMatrix } from '../math';
 import { CameraEffects } from './effects';
-import { IUniformType } from '../shader';
+import { IUniformAttribute } from '../shader';
 
 export { PerspectiveCamera } from './perspective';
 export { OrthographicCamera } from './orthographic';
@@ -40,7 +40,7 @@ export interface ICamera {
    * @property the uniform data that is passed to the shader if you are using a custom shader
    * @readonly
    */
-  readonly uniform: IUniformType;
+  readonly uniform: IUniformAttribute;
 
   /**
    * Move the camera from it's current position by the the vector passed in

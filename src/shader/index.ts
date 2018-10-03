@@ -1,15 +1,10 @@
 export { Shader as default } from './shader';
 export { Attribute, IAttributeValue } from './attribute';
-export { Uniform } from './uniform';
+export { Uniform, IUniformValue } from './uniform';
 
 export enum ShaderType {
   Vertex = WebGLRenderingContext.VERTEX_SHADER,
   Fragment = WebGLRenderingContext.FRAGMENT_SHADER,
-}
-
-export interface IUniformType {
-  UUID: string;
-  uniformData: Float32Array;
 }
 
 export interface IVertexAttribute {
@@ -18,4 +13,9 @@ export interface IVertexAttribute {
   readonly normalized: boolean;
   readonly stride: number;
   readonly offset: number;
+}
+
+export interface IUniformAttribute {
+  uuid: string;
+  uniformData: Float32Array;
 }
