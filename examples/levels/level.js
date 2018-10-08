@@ -24,9 +24,12 @@ void main() {
 `;
 
 function runExample() {
-  let engine = new Agent.Engine({width: 1200, height: 800});
+  let engine = new Agent.Engine({width: 1200, height: 880});
   let background = new Agent.Mesh(0, 0, {rowLength: 10, columnLength: 10, width: 128, height: 128});
-  let camera = new Agent.OrthographicCamera({left: 0, right: 1280, top: 0, bottom: 1280, far: 0, near: 100});
+  let camera = new Agent.OrthographicCamera(0, 0, 800, 600);
+  let myShader = new Agent.Shader();
+
+  let tile = new Agent.Tile(10, 10, 64, 64);
 
   let scene = engine.newScene("worldScene");
   let worldSpriteSheet = engine.newSpriteSheet();
@@ -35,20 +38,31 @@ function runExample() {
   worldSpriteSheet.loadResourceWithData("../images/groundtilesheet.png", leveldata)
     .then((success) => {
       background.setSpriteSheet(worldSpriteSheet); // assign our texture to a renderable
-      engine.render();					// re-render since we are not running in a loop
     })
     .catch((success) => {
       console.log("world spritesheet failed to load");
     });
 
-  scene.addShader(Agent.ShaderType.Vertex, vshr);
-  scene.addShader(Agent.ShaderType.Fragment, fshr);
 
-  scene.shader(Agent.ShaderType.Vertex).setUniformDataFor("camera", { UUID: "", uniformMatrix: camera.matrix() });
-  scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor("aPos", { vertexAttribute: background.vertexAttributes() });
-  scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor("aText", { vertexAttribute: background.textureAttributes() });
+  myShader.setSource(vshr, fshr);
+  myShader.setUniformData("camera", camera.uniform);
+  myShader.setAttributeData("aPos", [ background.vertexAttributes(), tile.vertexAttributes() ]);
+  myShader.setAttributeData("aText", background.textureAttributes());
 
-  scene.addDrawable(background);
+  engine.input.keyDownEvent((e) => {
+    if (e.key === "s") {
+      camera.effect.shake(500, 8)
+        .then(async () => {
+          console.log("shake animation is done");
+
+        }).catch((error) => {
+          console.log("animationm error ", error);
+        });
+    }
+  });
+
+  scene.setShader(myShader);
+  scene.addDrawable(background, tile);
   scene.addCamera(camera);
-  engine.render();
+  engine.run();
 }
