@@ -1,5 +1,4 @@
 // @ts-nocheck
-// tslint:disable:no-console
 const vshr = `
   attribute vec2 aPos;
   attribute vec2 aText;
@@ -26,92 +25,114 @@ const fshr = `
 
 function runExample() {
   const engine = new Agent.Engine({width: 1200, height: 800});
-  const camera = new Agent.OrthographicCamera({left: 0, right: 1200, top: 0, bottom: 800, far: 0, near: 100});
-  const hero = new Agent.Tile(100, 00, 42, 42);
-  const hero2 = new Agent.Tile(400, 200, 42, 42);
+  const camera = new Agent.OrthographicCamera(0, 0, 1200, 800);
+  const hero = new Agent.Tile(10, 0, 24, 24);
+  const fire = new Agent.Tile(30, 0, 24, 24);
+  let myShader = new Agent.Shader();
 
   const scene = engine.newScene("worldScene");
   const heroSpriteSheet = engine.newSpriteSheet();
+  const fireSpriteSheet = engine.newSpriteSheet();
 
-  // hero.addComponent(new Agent.MovementComponent());
-  // hero.addComponent(new Agent.CollisionComponent());
+
+  fireSpriteSheet.loadResource("../images/firesprite.png")
+    .then((textureID) => {
+      fire.setSprite("burning", textureID, fireSpriteSheet.generateSprite(16, 16, {
+        x: 0,
+        y: 0,
+        width: 64,
+        height: 64,
+        column: 4,
+        row: 4,
+      }));
+    })
+    .catch((e) => {
+      console.log("error loading firesprite");
+    });
 
   heroSpriteSheet.loadResource("../images/herosprite.png")
-    .then((success) => {
-      hero.setSprite("walking_right", heroSpriteSheet.generateSprite(6, 6, {
+    .then((textureID) => {
+      hero.setSprite("walking_right", textureID, heroSpriteSheet.generateSprite(6, 6, {
         x: 32 * 4,
         y: 0,
         width: 32,
         height: 32,
       }));
 
-      hero.setSprite("walking_left", heroSpriteSheet.generateSprite(6, 6, {
+      hero.setSprite("walking_left", textureID, heroSpriteSheet.generateSprite(6, 6, {
         x: 0,
         y: 32,
         width: 32,
         height: 32,
       }));
 
-      hero.setSprite("walking_up", heroSpriteSheet.generateSprite(4, 4, {
+      hero.setSprite("walking_up", textureID, heroSpriteSheet.generateSprite(4, 4, {
         x: 0,
         y: 0,
         width: 32,
         height: 32,
       }));
 
-      hero.setSprite("walking_down", heroSpriteSheet.generateSprite(6, 6, {
+      hero.setSprite("walking_down", textureID, heroSpriteSheet.generateSprite(6, 6, {
         x: 32 * 10,
         y: 0,
         width: 32,
         height: 32,
       }));
-
-      hero2.setSprite("walking_left", heroSpriteSheet.generateSprite(6, 12, {
-        x: 0,
-        y: 32,
-        width: 32,
-        height: 32,
-      }));
     })
-    .catch((success) => {
+    .catch((e) => {
       console.log("error loading sprite resource");
     });
 
-  scene.addShader(Agent.ShaderType.Vertex, vshr);
-  scene.addShader(Agent.ShaderType.Fragment, fshr);
 
-  scene.shader(Agent.ShaderType.Vertex).setUniformDataFor("camera", { dataMatrix: camera.matrix() });
-  scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor("aPos", [
-    { vertexAttribute: hero.vertexAttributes() },
-    { vertexAttribute: hero2.vertexAttributes() },
-  ]);
+  myShader.setSource(vshr, fshr);
+  myShader.setUniformData("camera", camera.uniform);
+  myShader.setAttributeData("aPos", [ hero.vertexAttributes(), fire.vertexAttributes() ]);
+  myShader.setAttributeData("aText", [ hero.textureAttributes(), fire.textureAttributes()]);
 
-  scene.shader(Agent.ShaderType.Vertex).setAttributeDataFor("aText", [
-    { vertexAttribute: hero.textureAttributes() },
-    { vertexAttribute: hero2.textureAttributes() },
-  ]);
 
-  scene.addDrawable(hero, hero2);
+  camera.translate(new Agent.Vector2(10, 10));
+  camera.scale(4);
+
+  scene.setShader(myShader);
+  scene.addDrawable(hero, fire);
   scene.addCamera(camera);
 
-  // this will hold a transform matrix, and will be multiplied with dt during our simulation, only update dirty objects
-  // hero.component(Agent.Component.Movement).transfrom(new Agent.Vec2(5, 0));
-  engine.keyboardEvents((e) => {
-    if (e.type === "keydown" && e.key === "d") {
-      hero.setActiveSprite("walking_right");
+  const panVec = new Agent.Vector2(160, 160);
+  const panVec2 = new Agent.Vector2(-160, -160);
+  const panVec3 = new Agent.Vector2(160, 0);
+  const panVec4 = new Agent.Vector2(-80, 80);
 
-    } else if (e.type === "keydown" && e.key === "a") {
-      hero.setActiveSprite("walking_left");
+  engine.input.keyDownEvent((e) => {
+    if (e.key === "d") {
 
-    } else if (e.type === "keydown" && e.key === "w") {
-      hero.setActiveSprite("walking_up");
+      camera.effect.pan(panVec, 1000)
+        .then(async () => {
+          // now we're done, we can do another one to pan back
+          console.log("pan1 animation is done");
 
-    } else if (e.type === "keydown" && e.key === "s") {
-      hero.setActiveSprite("walking_down");
+          await camera.effect.pan(panVec2, 1000);
+          console.log("pan2 is done");
+
+          await camera.effect.pan(panVec3, 1000);
+          console.log("pan3 is done");
+
+          camera.effect.pan(panVec4, 1000);
+          console.log("pan4 is done");
+
+          await camera.effect.zoom(8, 2000, true);
+          console.log("zoom1 is done");
+
+          await camera.effect.zoom(2, 3000);
+          console.log("zoom1 is done");
+
+        }).catch((error) => {
+          console.log("animationm error ", error);
+        });
     }
   });
 
-  engine.mouseEvents((e) => {
+  engine.input.mouseDownEvent((e) => {
     if (e.type === "mousedown") {
       console.log("mouse downn event: ", e);
     }
