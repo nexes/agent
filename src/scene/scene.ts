@@ -1,4 +1,4 @@
-import Shader, { ShaderType } from '../shader';
+import Shader from '../shader';
 import { IRenderable } from '../renderable';
 import { ICamera } from '../camera';
 
@@ -9,6 +9,7 @@ export class Scene {
   private renderables: IRenderable[];
   private sceneShader: Shader;
   private shaderDirty: boolean;
+  private usingDefaultShader: boolean;
 
   constructor(gl: WebGLRenderingContext) {
     this.glCtx = gl;
@@ -16,14 +17,28 @@ export class Scene {
     this.renderables = [];
     this.camera = null;
     this.shaderDirty = false;
+    this.usingDefaultShader = true;
   }
 
-  public addDrawable(...item: IRenderable[]): void {
-    this.renderables.push(...item);
+  public addDrawable(...items: IRenderable[]): void {
+    this.renderables.push(...items);
+
+    if (this.usingDefaultShader) {
+      for (const renderable of items) {
+        this.sceneShader.setAttributeData('aPosition', renderable.vertexAttributes());
+        this.sceneShader.setAttributeData('aTexture', renderable.textureAttributes());
+        // TODO: add color
+        // TODO: handle modelview
+      }
+    }
   }
 
   public addCamera(camera: ICamera): void {
     this.camera = camera;
+
+    if (this.usingDefaultShader) {
+      this.sceneShader.setUniformData('camera', camera.uniform);
+    }
   }
 
   /**
@@ -33,7 +48,8 @@ export class Scene {
     this.sceneShader.clear(this.glCtx);
     this.sceneShader = shader;
     this.shaderDirty = true;
-    }
+    this.usingDefaultShader = false;
+  }
 
   /**
    * Setup the shaders sources and the shaders uniforms and variables. If the shader hasn't changed
