@@ -84,39 +84,9 @@ export class Scene {
 
       gObject.enableBufferData(this.glCtx, objectVertAttr);
 
-      // this.enableShaderAttributes(gObject.UUID);
-      // this.glCtx.useProgram(this.programId);
       this.glCtx.drawArrays(this.glCtx.TRIANGLE_STRIP, 0, gObject.verticeCount());
 
       gObject.disableBuffer(this.glCtx, objectVertAttr);
-    }
-  }
-
-  private enableShaderAttributes(objectID: string): void {
-    const gl = this.glCtx;
-
-    for (const shader of this.shaders.values()) {
-      const attributes = shader.shaderAttributes();
-
-      for (const [ attName, attData ] of attributes) {
-        gl.enableVertexAttribArray(attName.id as number);
-        const len = attData.attributeValue.length;
-
-        switch (len) {
-          case 1:
-            gl.vertexAttrib1fv(attName.id as number, attData.attributeValue);
-            break;
-          case 2:
-            gl.vertexAttrib2fv(attName.id as number, attData.attributeValue);
-            break;
-          case 3:
-            gl.vertexAttrib3fv(attName.id as number, attData.attributeValue);
-            break;
-          case 4:
-            gl.vertexAttrib4fv(attName.id as number, attData.attributeValue);
-            break;
-        }
-      }
     }
   }
 }

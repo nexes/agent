@@ -1,4 +1,4 @@
-import { IVertexAttribute } from '../shader';
+import { IVertexAttribute, IConstVertexAttribute } from '../shader';
 
 
 interface IAttributeKey {
@@ -8,7 +8,8 @@ interface IAttributeKey {
 
 export interface IAttributeValue {
   location: number;
-  data: IVertexAttribute[];
+  data?: IVertexAttribute[];
+  constData?: IConstVertexAttribute[];
 }
 
 export class Attribute {
@@ -28,6 +29,7 @@ export class Attribute {
     this.attributeLookup.set({name, type}, {
       location: -1,
       data: [],
+      constData: [],
     });
   }
 
@@ -62,6 +64,54 @@ export class Attribute {
 
         if (_att.location === -1) {
           throw new Error(`Attribute: could not get location for attribute ${name}`);
+        }
+      }
+    }
+
+    this.attributeLookup.set(_key, _att);
+  }
+
+  public setConstDataFor(name: string, data: IConstVertexAttribute | IConstVertexAttribute[], programID?: WebGLProgram, gl?: WebGLRenderingContext): void{
+    let _att;
+    let _key;
+    for (const [key, value] of this.attributeLookup) {
+      if (key.name === name) {
+        _key = key;
+        _att = value;
+      }
+    }
+
+    if (!_key) {
+      throw new Error(`Attribute variable ${name} wasn't found`);
+    }
+
+    Array.isArray(data) ? _att.constData.push(...data) : _att.constData.push(data);
+
+    if (gl && programID) {
+      if (_att.location === -1) {
+        _att.location = gl.getAttribLocation(programID, name);
+
+        if (_att.location === -1) {
+          throw new Error(`Attribute: could not get location for attribute ${name}`);
+        }
+      }
+
+      if (Array.isArray(data)) {
+        for (const _constAttr of data) {
+          switch (_constAttr.attributeData.length) {
+            case 1: gl.vertexAttrib1fv(_att.location, _constAttr.attributeData); break;
+            case 2: gl.vertexAttrib2fv(_att.location, _constAttr.attributeData); break;
+            case 3: gl.vertexAttrib3fv(_att.location, _constAttr.attributeData); break;
+            case 4: gl.vertexAttrib4fv(_att.location, _constAttr.attributeData); break;
+          }
+        }
+
+      } else {
+        switch (data.attributeData.length) {
+          case 1: gl.vertexAttrib1fv(_att.location, data.attributeData); break;
+          case 2: gl.vertexAttrib2fv(_att.location, data.attributeData); break;
+          case 3: gl.vertexAttrib3fv(_att.location, data.attributeData); break;
+          case 4: gl.vertexAttrib4fv(_att.location, data.attributeData); break;
         }
       }
     }
@@ -133,11 +183,16 @@ export class Attribute {
     const attr = this.attributeLookup;
 
     for (const [ key, value ] of attr) {
-      if (!value.data) {
+      if (!value.data && !value.constData) {
         console.log(`Warning: No data was set for attribute ${key.name}`);
 
       } else {
-        this.setDataFor(key.name, value.data, programID, gl);
+        if (value.data.length > 0) {
+          this.setDataFor(key.name, value.data, programID, gl);
+
+        } else if (value.constData.length > 0) {
+          this.setConstDataFor(key.name, value.constData, programID, gl);
+        }
       }
     }
   }

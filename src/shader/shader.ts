@@ -1,3 +1,4 @@
+import { UUID } from '../agent';
 import { defaultVertexSource, defaultFragmentSource } from '../shader/source';
 import {
   Attribute,
@@ -7,6 +8,7 @@ import {
   IUniformAttribute,
   IVertexAttribute,
   IAttributeValue,
+  IConstVertexAttribute,
 } from '../shader';
 
 
@@ -34,8 +36,21 @@ export class Shader {
     s.glCtx = gl;
     s.setSource(defaultVertexSource, defaultFragmentSource);
 
-    // set default attributes and uniforms
-    // TODO
+    // set default attributes and uniforms for our default shader
+    s.setUniformData('modelview', {
+      uuid: 'default-' + UUID(),
+      uniformData: new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
+    });
+
+    s.setUniformData('alpha', {
+      uuid: 'default-' + UUID(),
+      uniformData: new Float32Array([1]),
+    });
+
+    s.setConstantAttribute('aColor', {
+      uuid: 'default-' + UUID(),
+      attributeData: new Float32Array([1.0, 1.0, 1.0]),
+    });
 
     s.initialize(gl);
     return s;
@@ -76,6 +91,14 @@ export class Shader {
     }
 
     this.attributes.setDataFor(name, data, this.programID, this.glCtx);
+  }
+
+  public setConstantAttribute(name: string, data: IConstVertexAttribute): void {
+    if (!this.attributes.has(name)) {
+      throw new Error(`Error: no attribute variable \"${name}\" found in the shader`);
+    }
+
+    this.attributes.setConstDataFor(name, data, this.programID, this.glCtx);
   }
 
   public setUniformData(name: string, data: IUniformAttribute | IUniformAttribute[]): void {

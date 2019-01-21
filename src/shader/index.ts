@@ -15,6 +15,11 @@ export interface IVertexAttribute {
   readonly offset: number;
 }
 
+export interface IConstVertexAttribute {
+  uuid: string;
+  attributeData: Float32Array;
+}
+
 export interface IUniformAttribute {
   uuid: string;
   uniformData: Float32Array;
