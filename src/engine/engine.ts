@@ -1,5 +1,5 @@
-import { Clock, IEngineOptions, IEvent, Input } from '../engine';
 import Scene from '../scene';
+import { Clock, IEngineOptions, Input } from '../engine';
 import Texture, { SpriteSheet } from '../texture';
 import { WebGLRenderer } from './webGLRenderer';
 
@@ -90,6 +90,11 @@ export class Engine {
   }
 
   public run(): void {
+    // TODO
+    // do a initialize check, this is called once
+    // check if our renderer is okay
+    // check if our shaders are okay
+    // check other systems
     for (const [name, scene] of this.scenes) {
       scene.initialize();
     }
